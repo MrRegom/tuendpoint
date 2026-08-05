@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { Linkedin } from 'lucide-react';
+
 import { Link } from '@/i18n/routing';
 import { Logo } from '@/components/layout/Logo';
 import { brand } from '@/lib/config/brand';
@@ -18,17 +18,7 @@ export function Footer() {
             <p className="mt-5 max-w-sm text-body-m text-paper/70 text-pretty">
               {t('tagline')}
             </p>
-            <div className="mt-6 flex items-center gap-3">
-              <a
-                href={brand.social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-9 w-9 items-center justify-center border border-paper/15 text-paper/70 transition-colors hover:border-paper hover:text-paper"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="h-3.5 w-3.5" strokeWidth={1.5} />
-              </a>
-            </div>
+
           </div>
 
           <div className="lg:col-span-2">

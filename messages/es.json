@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "siteName": "tuEndpoint",
+    "title": "tuEndpoint — Catálogo inteligente de soluciones digitales",
+    "description": "Software especializado en salud, educación, retail y operaciones críticas. Adaptable. En producción."
+  },
+  "nav": {
+    "solutions": "Soluciones",
+    "sectors": "Sectores",
+    "process": "Proceso",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "skipToContent": "Saltar al contenido principal",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "switchLanguage": "Cambiar idioma"
+  },
+  "footer": {
+    "tagline": "Ingeniería de software a medida para industrias críticas.",
+    "company": "Empresa",
+    "about": "Nosotros",
+    "team": "Equipo",
+    "process": "Proceso",
+    "technologies": "Tecnologías",
+    "solutions": "Aceleradores",
+    "catalog": "Catálogo",
+    "sectors": "Sectores",
+    "sectorHealth": "Salud",
+    "sectorEducation": "Educación",
+    "sectorRetail": "Retail",
+    "sectorEnterprise": "Empresas",
+    "sectorGovernment": "Gobierno",
+    "sectorLogistics": "Logística",
+    "contact": "Contacto",
+    "email": "Email",
+    "phone": "Teléfono",
+    "address": "Ubicación",
+    "social": "Redes",
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "ctaTitle": "Construyamos algo que se use.",
+    "ctaContact": "Conversemos"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Consultoría y Desarrollo · Chile",
+      "title": "Transformación Digital y Software a Medida.",
+      "subtitle": "Desarrollamos ecosistemas tecnológicos que aceleran su operación y reducen costos. Expertos en salud, retail e integraciones críticas.",
+      "ctaPrimary": "Solicitar una reunión",
+      "ctaSecondary": "Ver catálogo",
+      "scroll": "Descubrir"
+    },
+    "marquee": {
+      "sectors": "Salud · Educación · Retail · Gobierno · Logística · Empresas",
+      "tech": "HL7 · FHIR · IA · Automatización · Cloud · Docker · Integración"
+    },
+    "sectors": {
+      "eyebrow": "Industrias",
+      "title": "Donde operamos.",
+      "subtitle": "Experiencia en sectores donde el downtime no es opción y la confiabilidad es crítica.",
+      "viewSector": "Ver sector",
+      "viewAll": "Ver todos los sectores"
+    },
+    "capabilities": {
+      "eyebrow": "Lo que hacemos",
+      "title": "Capacidades técnicas.",
+      "subtitle": "Lo que sabemos hacer. Sin prometer lo que no podemos ejecutar."
+    },
+    "stats": {
+      "eyebrow": "Hechos",
+      "title": "Hechos, no slogans.",
+      "subtitle": "Indicadores concretos sobre nuestro trabajo y capacidad."
+    },
+    "differentiators": {
+      "eyebrow": "Diferenciadores",
+      "title": "Por qué tuEndpoint.",
+      "items": [
+        {
+          "title": "Experiencia en el mundo real",
+          "description": "Nuestros procesos nacen de la experiencia técnica en entornos altamente exigentes, como el Hospital Dr. Gustavo Fricke, donde los sistemas no pueden fallar."
+        },
+        {
+          "title": "Especialización en sectores críticos",
+          "description": "Salud y operaciones donde el downtime no es opción. Conocemos la normativa."
+        },
+        {
+          "title": "Integraciones complejas resueltas",
+          "description": "HL7, FHIR, APIs públicas, sistemas legacy. Conectores que funcionan en producción."
+        },
+        {
+          "title": "Arquitectura escalable",
+          "description": "Diseñada para crecer sin reescritura. Documentada y mantenible por su equipo."
+        },
+        {
+          "title": "Código mantenible",
+          "description": "Sucesibilidad garantizada. No cajas negras. Repositorio del cliente."
+        },
+        {
+          "title": "Soporte post-implementación",
+          "description": "Acompañamiento real, no abandono. SLA medibles y respuesta comprometida."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Metodología",
+      "title": "Cómo trabajamos.",
+      "subtitle": "Metodología consultiva ágil. Desde el Discovery hasta el Soporte continuo 24/7."
+    },
+    "technologies": {
+      "eyebrow": "Stack",
+      "title": "Tecnologías que dominamos.",
+      "subtitle": "Stack probado en producción. Sin modas, sin dependencias innecesarias."
+    },
+    "catalog": {
+      "eyebrow": "Soluciones",
+      "title": "Programas que ya funcionan.",
+      "subtitle": "No empezamos de cero. Tenemos soluciones probadas que adaptamos a tu empresa. Más rápido, más económico y con menos riesgo.",
+      "viewAll": "Ver todas las soluciones",
+      "viewSolution": "Ver detalle",
+      "badge": {
+        "proven": "En uso real",
+        "template": "Adaptable"
+      }
+    },
+    "cta": {
+      "eyebrow": "Próximo paso",
+      "title": "Conversemos sobre su próximo proyecto.",
+      "subtitle": "Evaluamos su contexto y proponemos una arquitectura concreta en 30 minutos.",
+      "button": "Agendar reunión"
+    },
+    "statement": {
+      "eyebrow": "Manifiesto",
+      "title": "Construimos software que se usa, no software que se ve bien en slides.",
+      "body": "Sistemas que corren en hospitales y operaciones críticas hoy. Arquitectura que escala. Código que otro equipo puede mantener. Soporte que responde."
+    }
+  },
+  "soluciones": {
+    "eyebrow": "Aceleradores",
+    "title": "Soluciones que se adaptan a tu negocio.",
+    "subtitle": "Programas listos para usar y personalizar. Desde inventarios hasta plataformas completas para hospitales y colegios.",
+    "filter": {
+      "all": "Todas",
+      "label": "Filtrar por sector"
+    },
+    "empty": "No hay soluciones en este sector.",
+    "viewSolution": "Ver detalle",
+    "backToCatalog": "Volver al catálogo",
+    "badge": {
+      "proven": "Producción",
+      "template": "Adaptable"
+    },
+    "features": "Capacidades",
+    "relatedSector": "Sector",
+    "cta": {
+      "title": "¿No encuentras lo que buscas?",
+      "subtitle": "Lo creamos desde cero según tu operación específica. Cuéntanos y te ayudamos a definirlo.",
+      "button": "Consultar gratis"
+    }
+  },
+  "sectores": {
+    "title": "Sector",
+    "subtitle": "Operación detallada por industria.",
+    "highlights": "Lo que ofrecemos",
+    "solutions": "Soluciones en este sector",
+    "cta": {
+      "title": "¿Su sector necesita una solución específica?",
+      "subtitle": "Adaptamos nuestras plantillas a la operación de su industria.",
+      "button": "Conversemos"
+    }
+  },
+  "proceso": {
+    "eyebrow": "Metodología",
+    "title": "Cómo trabajamos.",
+    "subtitle": "Metodología consultiva ágil. Desde el Discovery hasta el Soporte continuo 24/7.",
+    "details": "Detalles",
+    "cta": {
+      "title": "¿Listo para empezar?",
+      "subtitle": "La primera etapa es una conversación. Sin compromiso.",
+      "button": "Agendar reunión"
+    }
+  },
+  "nosotros": {
+    "eyebrow": "Sobre nosotros",
+    "title": "Consultoría Tecnológica. Construimos soluciones.",
+    "subtitle": "Somos una consultora especializada en estructurar, automatizar e integrar procesos empresariales. Adaptamos la mejor tecnología a su operación real, sin prometer lo que no podemos ejecutar.",
+    "values": {
+      "eyebrow": "Valores",
+      "title": "Cómo pensamos el trabajo.",
+      "items": [
+        {
+          "title": "Evidencia sobre promesas",
+          "description": "Mostramos sistemas que corren en producción, no slides. La demostración es la implementación."
+        },
+        {
+          "title": "Código como entregable",
+          "description": "El cliente recibe el código en su repositorio desde el día uno. Sucesibilidad garantizada."
+        },
+        {
+          "title": "Conversación honesta",
+          "description": "Decimos lo que sí podemos hacer. Lo que no, lo decimos antes de que sea un problema."
+        },
+        {
+          "title": "Aprendizaje continuo",
+          "description": "Cada proyecto deja conocimiento nuevo. Documentamos, compartimos, mejoramos."
+        }
+      ]
+    },
+    "cta": {
+      "title": "¿Quiere trabajar con nosotros?",
+      "subtitle": "Empezamos con una conversación sobre su contexto.",
+      "button": "Conversemos"
+    }
+  },
+  "contacto": {
+    "eyebrow": "Contacto",
+    "title": "Conversemos sobre su próximo proyecto.",
+    "subtitle": "Respondemos en menos de 24 horas hábiles. La primera reunión es sin compromiso.",
+    "form": {
+      "name": "Nombre completo",
+      "email": "Email corporativo",
+      "company": "Empresa",
+      "phone": "Teléfono (opcional)",
+      "sector": "Sector",
+      "sectorPlaceholder": "Seleccione un sector",
+      "message": "Cuéntenos sobre su proyecto",
+      "messagePlaceholder": "Describa brevemente su contexto y objetivo.",
+      "submit": "Enviar mensaje",
+      "sending": "Enviando...",
+      "success": "Gracias. Recibimos su mensaje y le contactaremos pronto.",
+      "error": "Hubo un error. Inténtelo de nuevo o escríbanos directo a {{email}}.",
+      "required": "Requerido",
+      "optional": "Opcional"
+    },
+    "direct": "Contacto directo",
+    "response": "Tiempo de respuesta",
+    "responseTime": "Menos de 24 horas hábiles"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Política de privacidad",
+      "lastUpdated": "Última actualización"
+    },
+    "terms": {
+      "title": "Términos y condiciones",
+      "lastUpdated": "Última actualización"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "back": "Volver",
+    "learnMore": "Conocer más",
+    "seeMore": "Ver más"
+  }
+}

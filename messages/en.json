@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "siteName": "Regom",
+    "title": "Regom — Smart catalog of digital solutions",
+    "description": "Software specialized in healthcare, education, retail and critical operations. Adaptable. In production."
+  },
+  "nav": {
+    "solutions": "Solutions",
+    "sectors": "Sectors",
+    "process": "Process",
+    "about": "About",
+    "contact": "Contact",
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "switchLanguage": "Switch language"
+  },
+  "footer": {
+    "tagline": "Custom software engineering for critical industries.",
+    "company": "Company",
+    "about": "About",
+    "team": "Team",
+    "process": "Process",
+    "technologies": "Technologies",
+    "solutions": "Solutions",
+    "catalog": "Catalog",
+    "sectors": "Sectors",
+    "sectorHealth": "Healthcare",
+    "sectorEducation": "Education",
+    "sectorRetail": "Retail",
+    "sectorEnterprise": "Enterprise",
+    "sectorGovernment": "Government",
+    "sectorLogistics": "Logistics",
+    "contact": "Contact",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "social": "Social",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "ctaTitle": "Let's build something that gets used.",
+    "ctaContact": "Let's talk"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Software engineering · Chile",
+      "title": "Smart catalog of custom solutions.",
+      "subtitle": "Development specialized in healthcare, education, retail and critical operations. Adaptable. In production.",
+      "ctaPrimary": "Request a meeting",
+      "ctaSecondary": "View catalog",
+      "scroll": "Discover"
+    },
+    "marquee": {
+      "sectors": "Healthcare · Education · Retail · Government · Logistics · Enterprise",
+      "tech": "HL7 · FHIR · AI · Automation · Cloud · Docker · Integration"
+    },
+    "sectors": {
+      "eyebrow": "Industries",
+      "title": "Where we operate.",
+      "subtitle": "Experience in sectors where downtime is not an option and reliability is critical.",
+      "viewSector": "View sector",
+      "viewAll": "View all sectors"
+    },
+    "capabilities": {
+      "eyebrow": "What we do",
+      "title": "Technical capabilities.",
+      "subtitle": "What we know how to do. Without promising what we cannot execute."
+    },
+    "stats": {
+      "eyebrow": "Facts",
+      "title": "Facts, not slogans.",
+      "subtitle": "Concrete indicators about our work and capacity."
+    },
+    "differentiators": {
+      "eyebrow": "Differentiators",
+      "title": "Why Regom.",
+      "items": [
+        {
+          "title": "Software with production evidence",
+          "description": "Systems running in hospitals and real operations today. Not prototypes in slides."
+        },
+        {
+          "title": "Specialization in critical sectors",
+          "description": "Healthcare and operations where downtime is not an option. We know the regulations."
+        },
+        {
+          "title": "Complex integrations solved",
+          "description": "HL7, FHIR, public APIs, legacy systems. Connectors that work in production."
+        },
+        {
+          "title": "Scalable architecture",
+          "description": "Designed to grow without rewriting. Documented and maintainable by your team."
+        },
+        {
+          "title": "Maintainable code",
+          "description": "Succession guaranteed. No black boxes. Client repository."
+        },
+        {
+          "title": "Post-implementation support",
+          "description": "Real accompaniment, not abandonment. Measurable SLAs and committed response."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Methodology",
+      "title": "How we work.",
+      "subtitle": "Six stages. Iterative delivery. Client repository from day one."
+    },
+    "technologies": {
+      "eyebrow": "Stack",
+      "title": "Technologies we master.",
+      "subtitle": "Stack proven in production. No fads, no unnecessary dependencies."
+    },
+    "catalog": {
+      "eyebrow": "Catalog",
+      "title": "Solutions that adapt to your industry.",
+      "subtitle": "Architected and proven templates. We customize each implementation to your operation.",
+      "viewAll": "View full catalog",
+      "viewSolution": "View detail",
+      "badge": {
+        "proven": "Production",
+        "template": "Adaptable"
+      }
+    },
+    "cta": {
+      "eyebrow": "Next step",
+      "title": "Let's talk about your next project.",
+      "subtitle": "We evaluate your context and propose concrete architecture in 30 minutes.",
+      "button": "Schedule meeting"
+    },
+    "statement": {
+      "eyebrow": "Manifesto",
+      "title": "We build software that gets used, not software that looks good on slides.",
+      "body": "Systems running in hospitals and critical operations today. Architecture that scales. Code your team can maintain. Support that responds."
+    }
+  },
+  "soluciones": {
+    "eyebrow": "Catalog",
+    "title": "Solutions that adapt to your industry.",
+    "subtitle": "Architected templates we customize to your operation. Some were born from projects executed in production.",
+    "filter": {
+      "all": "All",
+      "label": "Filter by sector"
+    },
+    "empty": "No solutions in this sector.",
+    "viewSolution": "View detail",
+    "backToCatalog": "Back to catalog",
+    "badge": {
+      "proven": "Production",
+      "template": "Adaptable"
+    },
+    "features": "Capabilities",
+    "relatedSector": "Sector",
+    "cta": {
+      "title": "Need a custom solution?",
+      "subtitle": "We adapt any solution from the catalog to your specific operation.",
+      "button": "Request a meeting"
+    }
+  },
+  "sectores": {
+    "title": "Sector",
+    "subtitle": "Detailed operation by industry.",
+    "highlights": "What we offer",
+    "solutions": "Solutions in this sector",
+    "cta": {
+      "title": "Does your sector need a specific solution?",
+      "subtitle": "We adapt our templates to your industry's operation.",
+      "button": "Let's talk"
+    }
+  },
+  "proceso": {
+    "eyebrow": "Methodology",
+    "title": "How we work.",
+    "subtitle": "Six stages. Iterative delivery. Client repository from day one.",
+    "details": "Details",
+    "cta": {
+      "title": "Ready to start?",
+      "subtitle": "The first stage is a conversation. No commitment.",
+      "button": "Schedule meeting"
+    }
+  },
+  "nosotros": {
+    "eyebrow": "About us",
+    "title": "We build software that gets used.",
+    "subtitle": "Custom software engineering for industries that cannot afford to fail.",
+    "values": {
+      "eyebrow": "Values",
+      "title": "How we think about work.",
+      "items": [
+        {
+          "title": "Evidence over promises",
+          "description": "We show systems running in production, not slides. The demonstration is the implementation."
+        },
+        {
+          "title": "Code as deliverable",
+          "description": "The client receives the code in their repository from day one. Succession guaranteed."
+        },
+        {
+          "title": "Honest conversation",
+          "description": "We say what we can do. What we cannot, we say before it becomes a problem."
+        },
+        {
+          "title": "Continuous learning",
+          "description": "Every project leaves new knowledge. We document, share, improve."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Want to work with us?",
+      "subtitle": "We start with a conversation about your context.",
+      "button": "Let's talk"
+    }
+  },
+  "contacto": {
+    "eyebrow": "Contact",
+    "title": "Let's talk about your next project.",
+    "subtitle": "We respond in less than 24 business hours. The first meeting is without commitment.",
+    "form": {
+      "name": "Full name",
+      "email": "Corporate email",
+      "company": "Company",
+      "phone": "Phone (optional)",
+      "sector": "Sector",
+      "sectorPlaceholder": "Select a sector",
+      "message": "Tell us about your project",
+      "messagePlaceholder": "Briefly describe your context and objective.",
+      "submit": "Send message",
+      "sending": "Sending...",
+      "success": "Thank you. We received your message and will contact you soon.",
+      "error": "There was an error. Try again or write us directly at {{email}}.",
+      "required": "Required",
+      "optional": "Optional"
+    },
+    "direct": "Direct contact",
+    "response": "Response time",
+    "responseTime": "Less than 24 business hours"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy policy",
+      "lastUpdated": "Last updated"
+    },
+    "terms": {
+      "title": "Terms and conditions",
+      "lastUpdated": "Last updated"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "back": "Back",
+    "learnMore": "Learn more",
+    "seeMore": "See more"
+  }
+}

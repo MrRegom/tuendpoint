@@ -1,12 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { brand } from '@/lib/config/brand';
+import { AssistantBot } from '@/components/home/AssistantBot';
 
 /* ------------------------------------------------------------------ */
-/* Datos                                                               */
+/* Datos y pantallas por producto                                      */
 /* ------------------------------------------------------------------ */
+
+type ScreenSpec =
+  | { kind: 'img'; src: string; label: string; click?: [number, number] }
+  | { kind: 'filas-tv'; label: string }
+  | { kind: 'filas-totem'; label: string }
+  | { kind: 'auto-flow'; label: string };
 
 type Product = {
   id: string;
@@ -14,8 +21,8 @@ type Product = {
   line: string;
   tag: string;
   color: string;
-  img: string | null; // null = textura dibujada (automatizaciones)
   aspect: number;
+  screens: ScreenSpec[];
   href?: string;
   cta: string;
 };
@@ -27,42 +34,81 @@ const PRODUCTS: Product[] = [
   {
     id: 'ticpanel',
     name: 'TICPanel',
-    line: 'Inventario, monitoreo y soporte de todos los equipos.',
+    line: 'Inventario en vivo, mesa de ayuda y actas de todos tus equipos.',
     tag: 'En uso · Hospital',
     color: '#38bdf8',
-    img: '/shots/ticpanel.jpg',
     aspect: 1.6,
+    screens: [
+      { kind: 'img', src: '/shots/ticpanel-1.jpg', label: 'Panel', click: [0.015, 0.22] },
+      { kind: 'img', src: '/shots/ticpanel-2.jpg', label: 'Tickets', click: [0.015, 0.27] },
+      { kind: 'img', src: '/shots/ticpanel-3.jpg', label: 'Actas', click: [0.58, 0.56] },
+      { kind: 'img', src: '/shots/ticpanel-4.jpg', label: 'Equipos', click: [0.015, 0.12] },
+    ],
     cta: 'Pedir demo',
   },
   {
     id: 'filas',
     name: 'Gestor de Filas',
-    line: 'Turnos, tótems y pantallas de llamado en tiempo real.',
+    line: 'Tótems, pantallas TV con voz y control de espera en tiempo real.',
     tag: 'En uso · Hospital',
-    color: '#818cf8',
-    img: '/shots/filas.jpg',
+    color: '#faaf40',
     aspect: 1.6,
+    screens: [
+      { kind: 'filas-tv', label: 'TV Llamados' },
+      { kind: 'filas-totem', label: 'Tótem' },
+      { kind: 'img', src: '/shots/filas-1.jpg', label: 'En vivo', click: [0.055, 0.078] },
+      { kind: 'img', src: '/shots/filas-2.jpg', label: 'Resumen', click: [0.055, 0.184] },
+      { kind: 'img', src: '/shots/filas-3.jpg', label: 'Trazabilidad', click: [0.93, 0.115] },
+    ],
     cta: 'Pedir demo',
+  },
+  {
+    id: 'tba',
+    name: 'Logística TBA',
+    line: 'Solicitudes, bodega, órdenes de compra y activos fijos en un solo lugar.',
+    tag: 'En uso · Educación',
+    color: '#2dd4bf',
+    aspect: 1.6,
+    screens: [
+      { kind: 'img', src: '/shots/tba-1.jpg', label: 'Dashboard', click: [0.06, 0.25] },
+      { kind: 'img', src: '/shots/tba-2.jpg', label: 'Bodega', click: [0.06, 0.21] },
+      { kind: 'img', src: '/shots/tba-3.jpg', label: 'Reportes', click: [0.06, 0.128] },
+      { kind: 'img', src: '/shots/tba-4.jpg', label: 'Módulos', click: [0.06, 0.17] },
+    ],
+    href: 'https://logisticatba.cloud',
+    cta: 'Ver logisticatba.cloud',
   },
   {
     id: 'cajaya',
     name: 'CajaYA',
-    line: 'Punto de venta que funciona con o sin internet. Boleta y factura SII.',
-    tag: 'Retail · Próximamente',
+    line: 'Punto de venta rápido que funciona con o sin internet. Stock, turnos y SII.',
+    tag: 'Retail · Offline + SII',
     color: '#a78bfa',
-    img: '/shots/cajaya.jpg',
-    aspect: 2048 / 1080,
+    aspect: 2.0,
+    screens: [
+      { kind: 'img', src: '/shots/cajaya-1.jpg', label: 'POS', click: [0.235, 0.34] },
+      { kind: 'img', src: '/shots/cajaya-2.jpg', label: 'Inicio', click: [0.045, 0.29] },
+      { kind: 'img', src: '/shots/cajaya-3.jpg', label: 'Mi turno', click: [0.72, 0.31] },
+      { kind: 'img', src: '/shots/cajaya-4.jpg', label: 'Turnos', click: [0.045, 0.34] },
+      { kind: 'img', src: '/shots/cajaya-5.jpg', label: 'Stock', click: [0.045, 0.23] },
+      { kind: 'img', src: '/shots/cajaya-6.jpg', label: 'Ventas', click: [0.045, 0.17] },
+    ],
     href: 'https://cajaya.cl',
     cta: 'Ver cajaya.cl',
   },
   {
     id: 'paginago',
     name: 'PaginaGo',
-    line: 'Tu tienda en un link. Los pedidos te llegan ordenados por WhatsApp.',
+    line: 'Tu catálogo en un link. Tus clientes piden y te llega armado al WhatsApp.',
     tag: 'Catálogos · Disponible',
     color: '#facc15',
-    img: '/shots/paginago.jpg',
     aspect: 1.6,
+    screens: [
+      { kind: 'img', src: '/shots/paginago-1.jpg', label: 'Tienda', click: [0.79, 0.035] },
+      { kind: 'img', src: '/shots/paginago-2.jpg', label: 'Cómo funciona', click: [0.68, 0.78] },
+      { kind: 'img', src: '/shots/paginago-3.jpg', label: 'Ejemplos', click: [0.51, 0.035] },
+      { kind: 'img', src: '/shots/paginago-4.jpg', label: 'Planes', click: [0.5, 0.78] },
+    ],
     href: 'https://paginago.com',
     cta: 'Visitar paginago.com',
   },
@@ -72,14 +118,14 @@ const PRODUCTS: Product[] = [
     line: 'Conectamos tus sistemas y eliminamos lo que hoy haces a mano.',
     tag: 'A medida',
     color: '#34d399',
-    img: null,
     aspect: 1.6,
+    screens: [{ kind: 'auto-flow', label: 'Flujo en vivo' }],
     cta: 'Cuéntanos tu proceso',
   },
 ];
 
 const N = PRODUCTS.length;
-const SECTIONS = N + 2; // hero + productos + cierre
+const SECTIONS = N + 2; // hero + 6 productos + cierre
 const SPACING = 34;
 const DWELL = 12;
 const END_Z = -SPACING * (N + 1) - 6;
@@ -102,7 +148,7 @@ function cameraZ(s: number) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Texturas auxiliares                                                 */
+/* Texturas auxiliares y dibujado en vivo                              */
 /* ------------------------------------------------------------------ */
 
 function glowTexture(color: string) {
@@ -131,20 +177,427 @@ function dotTexture() {
   return new THREE.CanvasTexture(c);
 }
 
-/** Diagrama de flujo dibujado para "Automatizaciones" (no hay una app que capturar). */
-function automationTexture(color: string) {
-  const W = 1600;
-  const H = 1000;
-  const c = document.createElement('canvas');
-  c.width = W;
-  c.height = H;
-  const x = c.getContext('2d')!;
+function drawCursor(
+  x: CanvasRenderingContext2D,
+  px: number,
+  py: number,
+  color: string,
+  ripple: number, // 0..1
+) {
+  if (ripple > 0 && ripple < 1) {
+    const r = 10 + ripple * 44;
+    x.save();
+    x.strokeStyle = color;
+    x.globalAlpha = (1 - ripple) * 0.9;
+    x.lineWidth = 4;
+    x.beginPath();
+    x.arc(px, py, r, 0, Math.PI * 2);
+    x.stroke();
+    x.fillStyle = color;
+    x.globalAlpha = (1 - ripple) * 0.28;
+    x.beginPath();
+    x.arc(px, py, r * 0.65, 0, Math.PI * 2);
+    x.fill();
+    x.restore();
+  }
+  x.save();
+  x.translate(px, py);
+  const press = ripple > 0 && ripple < 0.45 ? 0.88 : 1;
+  x.scale(press, press);
+  x.shadowColor = 'rgba(0,0,0,0.45)';
+  x.shadowBlur = 12;
+  x.shadowOffsetY = 4;
+  x.fillStyle = '#0b1020';
+  x.strokeStyle = '#ffffff';
+  x.lineWidth = 3;
+  x.beginPath();
+  x.moveTo(0, 0);
+  x.lineTo(0, 34);
+  x.lineTo(9, 26);
+  x.lineTo(16, 40);
+  x.lineTo(22, 37);
+  x.lineTo(15, 23);
+  x.lineTo(26, 23);
+  x.closePath();
+  x.fill();
+  x.stroke();
+  x.restore();
+}
+
+const CALL_SEQ = [
+  { cod: 'A-042', mod: 'Módulo 3', serv: 'Farmacia Ambulatoria', pref: false },
+  { cod: 'P-019', mod: 'Módulo 1', serv: 'Atención Preferente', pref: true },
+  { cod: 'F-105', mod: 'Módulo 2', serv: 'Entrega de Recetas', pref: false },
+  { cod: 'A-043', mod: 'Módulo 4', serv: 'Farmacia Ambulatoria', pref: false },
+];
+
+/** Pantalla TV de sala de espera real de Gestor de Filas con llamados animados. */
+function drawFilasTV(x: CanvasRenderingContext2D, W: number, H: number, t: number) {
+  const cycle = 3.5;
+  const step = Math.floor(t / cycle);
+  const local = (t % cycle) / cycle; // 0..1
+  const cur = CALL_SEQ[step % CALL_SEQ.length];
+  const prev1 = CALL_SEQ[(step + CALL_SEQ.length - 1) % CALL_SEQ.length];
+  const prev2 = CALL_SEQ[(step + CALL_SEQ.length - 2) % CALL_SEQ.length];
+  const prev3 = CALL_SEQ[(step + CALL_SEQ.length - 3) % CALL_SEQ.length];
+
+  const OSCURO = '#002A54';
+  const OSCURO2 = '#0B3B70';
+  const ACENTO = '#FAAF40';
+
+  // Fondo marino institucional
+  x.fillStyle = OSCURO;
+  x.fillRect(0, 0, W, H);
+
+  // Barra superior
+  x.fillStyle = OSCURO;
+  x.fillRect(0, 0, W, 108);
+  x.fillStyle = ACENTO;
+  x.fillRect(0, 104, W, 5);
+
+  // Icono cruz/salud + nombre unidad
+  x.fillStyle = ACENTO;
+  x.beginPath();
+  x.roundRect(36, 24, 58, 58, 14);
+  x.fill();
+  x.fillStyle = OSCURO;
+  x.fillRect(59, 36, 12, 34);
+  x.fillRect(48, 47, 34, 12);
+
+  x.fillStyle = '#B9CCE6';
+  x.font = '600 21px Inter, Segoe UI, sans-serif';
+  x.fillText('Sala de Espera · Atención en vivo', 112, 46);
+  x.fillStyle = '#ffffff';
+  x.font = '700 38px Inter, Segoe UI, sans-serif';
+  x.fillText('Farmacia CAE', 112, 85);
+
+  // Hora derecha
+  x.fillStyle = '#ffffff';
+  x.font = '700 48px ui-monospace, Consolas, monospace';
+  x.textAlign = 'right';
+  x.fillText('16:42', W - 40, 64);
+  x.fillStyle = '#B9CCE6';
+  x.font = '500 20px Inter, Segoe UI, sans-serif';
+  x.fillText('Sonido y voz activos', W - 40, 90);
+  x.textAlign = 'left';
+
+  // Panel izquierdo (escena + estado de módulos)
+  const ex = 28, ey = 128, ew = 995, eh = 796;
+  x.fillStyle = OSCURO2;
+  x.beginPath();
+  x.roundRect(ex, ey, ew, eh, 18);
+  x.fill();
+
+  x.fillStyle = ACENTO;
+  x.font = '700 20px Inter, Segoe UI, sans-serif';
+  x.fillText('ATENCIÓN AL PACIENTE', ex + 52, ey + 78);
+
+  x.fillStyle = '#ffffff';
+  x.font = '700 64px Inter, Segoe UI, sans-serif';
+  x.fillText('Bienvenido', ex + 52, ey + 152);
+  x.fillStyle = '#B9CCE6';
+  x.font = '400 30px Inter, Segoe UI, sans-serif';
+  x.fillText('Retire su número en el tótem y espere', ex + 52, ey + 206);
+  x.fillText('su llamado con timbre y voz en pantalla.', ex + 52, ey + 246);
+
+  // Tarjetas de estado de módulos en vivo
+  const mods = [
+    { m: 'Módulo 1', c: cur.mod === 'Módulo 1' ? cur.cod : prev1.cod, st: cur.mod === 'Módulo 1' ? 'Llamando' : 'Atendiendo' },
+    { m: 'Módulo 2', c: cur.mod === 'Módulo 2' ? cur.cod : prev2.cod, st: cur.mod === 'Módulo 2' ? 'Llamando' : 'Atendiendo' },
+    { m: 'Módulo 3', c: cur.mod === 'Módulo 3' ? cur.cod : prev3.cod, st: cur.mod === 'Módulo 3' ? 'Llamando' : 'Atendiendo' },
+  ];
+  mods.forEach((md, idx) => {
+    const mx = ex + 52 + idx * 304;
+    const my = ey + 320;
+    const isCalling = md.st === 'Llamando';
+    x.fillStyle = isCalling ? 'rgba(250,175,64,0.16)' : 'rgba(255,255,255,0.06)';
+    x.strokeStyle = isCalling ? ACENTO : 'rgba(255,255,255,0.12)';
+    x.lineWidth = 2;
+    x.beginPath();
+    x.roundRect(mx, my, 284, 185, 16);
+    x.fill();
+    x.stroke();
+
+    x.fillStyle = isCalling ? ACENTO : '#34d399';
+    x.beginPath();
+    x.arc(mx + 28, my + 36, 7, 0, Math.PI * 2);
+    x.fill();
+    x.font = '700 20px Inter, Segoe UI, sans-serif';
+    x.fillText(md.st.toUpperCase(), mx + 44, my + 43);
+
+    x.fillStyle = '#ffffff';
+    x.font = '700 46px ui-monospace, Consolas, monospace';
+    x.fillText(md.c, mx + 24, my + 112);
+    x.fillStyle = '#B9CCE6';
+    x.font = '600 24px Inter, Segoe UI, sans-serif';
+    x.fillText(md.m, mx + 24, my + 154);
+  });
+
+  // Indicador de onda de voz abajo a la izquierda
+  x.fillStyle = 'rgba(255,255,255,0.07)';
+  x.beginPath();
+  x.roundRect(ex + 52, ey + 555, ew - 104, 175, 16);
+  x.fill();
+  x.fillStyle = '#B9CCE6';
+  x.font = '600 22px Inter, Segoe UI, sans-serif';
+  x.fillText('AVISO POR VOZ CHILENA', ex + 84, ey + 606);
+  x.fillStyle = '#ffffff';
+  x.font = '600 30px Inter, Segoe UI, sans-serif';
+  x.fillText(`"Turno ${cur.cod.replace('-', ' ')}, dirigirse a ${cur.mod}"`, ex + 84, ey + 656);
+  // Barras de audio animadas
+  for (let b = 0; b < 18; b++) {
+    const amp = local < 0.65 ? 0.3 + 0.7 * Math.abs(Math.sin(t * 9 + b * 0.7)) : 0.18;
+    const bh = 10 + amp * 34;
+    x.fillStyle = ACENTO;
+    x.beginPath();
+    x.roundRect(ex + 84 + b * 20, ey + 706 - bh, 11, bh, 4);
+    x.fill();
+  }
+
+  // Panel derecho blanco de turnos (exacto a pantalla.html)
+  const tx = 1046, ty = 128, tw = 526, th = 796;
+  x.fillStyle = '#ffffff';
+  x.beginPath();
+  x.roundRect(tx, ty, tw, th, 18);
+  x.fill();
+
+  // Caja amarilla del llamado actual
+  const pulse = local < 0.45 ? 1 + Math.sin(local * Math.PI * 4) * 0.015 : 1;
+  x.save();
+  x.translate(tx + tw / 2, ty + 145);
+  x.scale(pulse, pulse);
+  x.fillStyle = ACENTO;
+  x.beginPath();
+  x.roundRect(-tw / 2 + 24, -120, tw - 48, 240, 14);
+  x.fill();
+  x.fillStyle = OSCURO;
+  x.font = '700 20px Inter, Segoe UI, sans-serif';
+  x.fillText(cur.pref ? 'LLAMANDO · PREFERENTE' : 'LLAMANDO AHORA', -tw / 2 + 48, -80);
+  x.font = '700 104px ui-monospace, Consolas, monospace';
+  x.fillText(cur.cod, -tw / 2 + 44, 22);
+  x.font = '700 36px Inter, Segoe UI, sans-serif';
+  x.fillText(cur.mod, -tw / 2 + 48, 72);
+  x.font = '600 21px Inter, Segoe UI, sans-serif';
+  x.fillText(cur.serv, -tw / 2 + 48, 102);
+  x.restore();
+
+  // Llamados anteriores
+  x.fillStyle = '#5F6B7D';
+  x.font = '700 19px Inter, Segoe UI, sans-serif';
+  x.fillText('LLAMADOS ANTERIORES', tx + 28, ty + 312);
+
+  const hist = [prev1, prev2, prev3];
+  const slideIn = smooth(clamp((local - 0.28) / 0.18));
+  hist.forEach((h, idx) => {
+    const ry = ty + 340 + idx * 112 + (idx === 0 ? (1 - slideIn) * -24 : 0);
+    x.save();
+    if (idx === 0) x.globalAlpha = slideIn;
+    x.strokeStyle = '#D5DBE4';
+    x.lineWidth = 1.5;
+    x.beginPath();
+    x.moveTo(tx + 26, ry + 96);
+    x.lineTo(tx + tw - 26, ry + 96);
+    x.stroke();
+
+    x.fillStyle = '#0F1A2B';
+    x.font = '700 46px ui-monospace, Consolas, monospace';
+    x.fillText(h.cod, tx + 28, ry + 62);
+
+    x.textAlign = 'right';
+    x.fillStyle = '#2B3A52';
+    x.font = '700 28px Inter, Segoe UI, sans-serif';
+    x.fillText(h.mod, tx + tw - 28, ry + 50);
+    x.fillStyle = '#5F6B7D';
+    x.font = '500 19px Inter, Segoe UI, sans-serif';
+    x.fillText(h.serv, tx + tw - 28, ry + 78);
+    x.textAlign = 'left';
+    x.restore();
+  });
+
+  // Pie de espera estimada
+  x.fillStyle = '#EEF1F5';
+  x.beginPath();
+  x.roundRect(tx + 26, ty + 706, tw - 52, 62, 10);
+  x.fill();
+  x.fillStyle = '#2B3A52';
+  x.font = '600 20px Inter, Segoe UI, sans-serif';
+  x.fillText('Espera media:  General 4 min  ·  Preferente 1 min', tx + 44, ty + 744);
+
+  // Marquesina inferior
+  x.fillStyle = ACENTO;
+  x.fillRect(0, H - 52, W, 52);
+  x.fillStyle = OSCURO;
+  x.font = '700 24px Inter, Segoe UI, sans-serif';
+  const mq =
+    'Retire su número en el tótem   ◆   Atención preferente para personas mayores, embarazadas y movilidad reducida   ◆   Esté atento a su llamado en pantalla   ◆   ';
+  const mw = x.measureText(mq).width;
+  const off = -((t * 95) % mw);
+  x.fillText(mq + mq, off, H - 18);
+
+  // Overlay amarillo de llamado a pantalla completa (primeros 0.28 del ciclo, igual que section.llamado en pantalla.html)
+  if (local < 0.3) {
+    const fade = local < 0.05 ? local / 0.05 : local > 0.24 ? (0.3 - local) / 0.06 : 1;
+    x.save();
+    x.globalAlpha = clamp(fade);
+    x.fillStyle = ACENTO;
+    x.fillRect(0, 0, W, H);
+    x.fillStyle = OSCURO;
+    x.font = '700 44px Inter, Segoe UI, sans-serif';
+    x.fillText('Llamando ahora', 84, 118);
+
+    // Pastilla servicio arriba derecha
+    const badgeW = 430;
+    x.fillStyle = OSCURO;
+    x.beginPath();
+    x.roundRect(W - badgeW - 84, 68, badgeW, 70, 14);
+    x.fill();
+    x.fillStyle = ACENTO;
+    x.font = '700 30px Inter, Segoe UI, sans-serif';
+    x.textAlign = 'center';
+    x.fillText(cur.serv, W - badgeW / 2 - 84, 113);
+    x.textAlign = 'left';
+
+    // Código gigante
+    x.fillStyle = OSCURO;
+    x.font = '700 320px ui-monospace, Consolas, monospace';
+    x.fillText(cur.cod, 78, 595);
+
+    // Línea inferior + módulo
+    x.fillRect(84, 735, W - 168, 5);
+    x.font = '600 40px Inter, Segoe UI, sans-serif';
+    x.fillText('Diríjase ahora a', 84, 845);
+    x.textAlign = 'right';
+    x.font = '700 108px Inter, Segoe UI, sans-serif';
+    x.fillText(cur.mod, W - 84, 868);
+    x.textAlign = 'left';
+    x.restore();
+  }
+}
+
+/** Tótem táctil real de Gestor de Filas emitiendo un ticket. */
+function drawFilasTotem(x: CanvasRenderingContext2D, W: number, H: number, t: number) {
+  const cycle = 4.4;
+  const local = (t % cycle) / cycle;
+  const OSCURO = '#002A54';
+  const ACENTO = '#FAAF40';
+
+  x.fillStyle = '#F4F5F7';
+  x.fillRect(0, 0, W, H);
+
+  // Cabecera
+  x.fillStyle = OSCURO;
+  x.fillRect(0, 0, W, 108);
+  x.fillStyle = ACENTO;
+  x.fillRect(0, 102, W, 6);
+  x.fillStyle = '#ffffff';
+  x.font = '700 34px Inter, Segoe UI, sans-serif';
+  x.fillText('Tótem de Autoatención · Farmacia CAE', 56, 66);
+  x.textAlign = 'right';
+  x.font = '700 40px ui-monospace, Consolas, monospace';
+  x.fillText('16:42', W - 56, 68);
+  x.textAlign = 'left';
+
+  if (local < 0.56) {
+    x.fillStyle = '#4B5666';
+    x.font = '700 24px Inter, Segoe UI, sans-serif';
+    x.fillText('Paso 2 de 2 · RUT 16.233.406-9', 68, 185);
+    x.fillStyle = '#0F1A2B';
+    x.font = '700 66px Inter, Segoe UI, sans-serif';
+    x.fillText('¿Qué trámite necesita?', 68, 262);
+
+    const opts = [
+      { l: 'A', name: 'Farmacia Ambulatoria', wait: '4 min espera' },
+      { l: 'F', name: 'Entrega de Recetas Crónicas', wait: '6 min espera' },
+      { l: 'P', name: 'Atención Preferente', wait: '1 min espera' },
+      { l: 'C', name: 'Consultas e Informaciones', wait: 'Sin fila' },
+    ];
+    const tapped = local > 0.36;
+    opts.forEach((op, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const bx = 68 + col * 744;
+      const by = 320 + row * 210;
+      const bw = 716, bh = 180;
+      const active = idx === 0 && tapped;
+      x.fillStyle = active ? ACENTO : '#ffffff';
+      x.strokeStyle = active ? ACENTO : '#CDD3DC';
+      x.lineWidth = 4;
+      x.beginPath();
+      x.roundRect(bx, by, bw, bh, 20);
+      x.fill();
+      x.stroke();
+
+      x.fillStyle = OSCURO;
+      x.beginPath();
+      x.roundRect(bx + 28, by + 40, 96, 100, 14);
+      x.fill();
+      x.fillStyle = '#ffffff';
+      x.font = '700 54px ui-monospace, Consolas, monospace';
+      x.textAlign = 'center';
+      x.fillText(op.l, bx + 76, by + 108);
+      x.textAlign = 'left';
+
+      x.fillStyle = '#0F1A2B';
+      x.font = '700 34px Inter, Segoe UI, sans-serif';
+      x.fillText(op.name, bx + 150, by + 84);
+      x.fillStyle = '#4B5666';
+      x.font = '600 23px Inter, Segoe UI, sans-serif';
+      x.fillText(op.wait, bx + 150, by + 124);
+    });
+
+    const moveT = smooth(clamp(local / 0.36));
+    const cx = 920 + (420 - 920) * moveT;
+    const cy = 760 + (415 - 760) * moveT;
+    const rip = local > 0.36 ? (local - 0.36) / 0.2 : 0;
+    drawCursor(x, cx, cy, OSCURO, rip);
+  } else {
+    // Pantalla de ticket emitido (exacta a .capa.visible de totem.html)
+    const appear = smooth(clamp((local - 0.56) / 0.1));
+    x.save();
+    x.globalAlpha = appear;
+    x.fillStyle = OSCURO;
+    x.fillRect(0, 0, W, H);
+    x.fillStyle = '#B9CCE6';
+    x.font = '600 32px Inter, Segoe UI, sans-serif';
+    x.textAlign = 'center';
+    x.fillText('Su número de atención es', W / 2, 230);
+
+    x.fillStyle = ACENTO;
+    x.beginPath();
+    x.roundRect(W / 2 - 290, 280, 580, 250, 26);
+    x.fill();
+    x.fillStyle = OSCURO;
+    x.font = '700 168px ui-monospace, Consolas, monospace';
+    x.fillText('A-044', W / 2, 462);
+
+    x.fillStyle = '#ffffff';
+    x.font = '700 48px Inter, Segoe UI, sans-serif';
+    x.fillText('Retire su comprobante impreso', W / 2, 640);
+    x.fillStyle = '#B9CCE6';
+    x.font = '500 30px Inter, Segoe UI, sans-serif';
+    x.fillText('Farmacia Ambulatoria · 2 personas antes que usted', W / 2, 700);
+
+    x.fillStyle = ACENTO;
+    x.beginPath();
+    x.roundRect(W / 2 - 170, 775, 340, 82, 18);
+    x.fill();
+    x.fillStyle = OSCURO;
+    x.font = '700 32px Inter, Segoe UI, sans-serif';
+    x.fillText('Listo ✓', W / 2, 827);
+    x.textAlign = 'left';
+    x.restore();
+  }
+}
+
+/** Diagrama animado en vivo para Automatizaciones. */
+function drawAutomationFlow(x: CanvasRenderingContext2D, W: number, H: number, color: string, t: number) {
   const bg = x.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, '#0a0f1c');
   bg.addColorStop(1, '#0d1626');
   x.fillStyle = bg;
   x.fillRect(0, 0, W, H);
-  x.strokeStyle = 'rgba(255,255,255,0.05)';
+
+  x.strokeStyle = 'rgba(255,255,255,0.045)';
   x.lineWidth = 1;
   for (let i = 0; i <= W; i += 50) {
     x.beginPath();
@@ -158,86 +611,190 @@ function automationTexture(color: string) {
     x.lineTo(W, j);
     x.stroke();
   }
+
   const nodes = [
-    { t: 'Correo o formulario', s: 'Llega un documento', px: 130, py: 190 },
-    { t: 'Lee y extrae datos', s: 'IA + reglas', px: 620, py: 190 },
-    { t: 'Valida', s: 'Contra tu sistema', px: 1110, py: 190 },
-    { t: 'SII · APIs · ERP', s: 'Se conecta solo', px: 375, py: 560 },
-    { t: 'Registra', s: 'Sin digitar', px: 865, py: 560 },
+    { t: 'Correo o formulario', s: 'Llega un pedido o documento', px: 120, py: 185 },
+    { t: 'Extrae los datos', s: 'Lectura inteligente', px: 620, py: 185 },
+    { t: 'Valida reglas', s: 'Sin errores humanos', px: 1120, py: 185 },
+    { t: 'SII · APIs · ERP', s: 'Emite DTE y sincroniza', px: 370, py: 545 },
+    { t: 'Notifica y registra', s: 'WhatsApp + respaldo', px: 870, py: 545 },
   ];
-  const nw = 360;
-  const nh = 150;
-  const links: [number, number][] = [
+  const nw = 365;
+  const nh = 155;
+
+  const progress = (t * 0.48) % 5; // recorre los 5 nodos continuamente
+  const activeNode = Math.floor(progress);
+
+  const pairs: [number, number][] = [
     [0, 1],
     [1, 2],
     [2, 3],
     [3, 4],
   ];
-  x.lineWidth = 3;
-  x.strokeStyle = color + 'aa';
-  x.setLineDash([12, 10]);
-  for (const [a, b] of links) {
+
+  // Líneas + pulso viajero
+  pairs.forEach(([a, b], idx) => {
     const A = nodes[a];
     const B = nodes[b];
     const sameRow = A.py === B.py;
+    const x1 = sameRow ? A.px + nw : A.px + nw / 2;
+    const y1 = sameRow ? A.py + nh / 2 : A.py + nh;
+    const x2 = sameRow ? B.px : B.px + nw / 2;
+    const y2 = sameRow ? B.py + nh / 2 : B.py;
+
+    x.save();
+    x.lineWidth = 3;
+    x.strokeStyle = color + '66';
+    x.setLineDash([12, 10]);
+    x.lineDashOffset = -t * 48;
     x.beginPath();
     if (sameRow) {
-      x.moveTo(A.px + nw, A.py + nh / 2);
-      x.lineTo(B.px, B.py + nh / 2);
+      x.moveTo(x1, y1);
+      x.lineTo(x2, y2);
     } else {
-      x.moveTo(A.px + nw / 2, A.py + nh);
-      x.bezierCurveTo(A.px + nw / 2, A.py + nh + 120, B.px + nw / 2, B.py - 120, B.px + nw / 2, B.py);
+      x.moveTo(x1, y1);
+      x.bezierCurveTo(x1, y1 + 125, x2, y2 - 125, x2, y2);
     }
     x.stroke();
-  }
-  x.setLineDash([]);
+    x.restore();
+
+    // Paquete luminoso viajando por el tramo activo
+    const segU = progress - idx;
+    if (segU >= 0 && segU <= 1) {
+      let px = 0;
+      let py = 0;
+      if (sameRow) {
+        px = x1 + (x2 - x1) * segU;
+        py = y1 + (y2 - y1) * segU;
+      } else {
+        const u = segU;
+        const m = 1 - u;
+        const cy1 = y1 + 125;
+        const cy2 = y2 - 125;
+        px = m * m * m * x1 + 3 * m * m * u * x1 + 3 * m * u * u * x2 + u * u * u * x2;
+        py = m * m * m * y1 + 3 * m * m * u * cy1 + 3 * m * u * u * cy2 + u * u * u * y2;
+      }
+      const g = x.createRadialGradient(px, py, 0, px, py, 28);
+      g.addColorStop(0, '#ffffff');
+      g.addColorStop(0.35, color);
+      g.addColorStop(1, color + '00');
+      x.fillStyle = g;
+      x.beginPath();
+      x.arc(px, py, 28, 0, Math.PI * 2);
+      x.fill();
+    }
+  });
+
   nodes.forEach((n, i) => {
-    x.fillStyle = '#111a2c';
-    x.strokeStyle = color;
-    x.lineWidth = 2.5;
+    const isHit = i === activeNode;
+    x.fillStyle = isHit ? '#15243b' : '#111a2c';
+    x.strokeStyle = isHit ? '#ffffff' : color;
+    x.lineWidth = isHit ? 3.5 : 2;
     x.beginPath();
     x.roundRect(n.px, n.py, nw, nh, 22);
     x.fill();
     x.stroke();
-    x.fillStyle = color;
+
+    x.fillStyle = isHit ? '#ffffff' : color;
     x.beginPath();
-    x.arc(n.px + 44, n.py + nh / 2, 14, 0, Math.PI * 2);
+    x.arc(n.px + 42, n.py + nh / 2, isHit ? 15 : 12, 0, Math.PI * 2);
     x.fill();
+
     x.fillStyle = '#ffffff';
-    x.font = '600 30px Inter, Segoe UI, Arial, sans-serif';
-    x.fillText(n.t, n.px + 76, n.py + 66);
-    x.fillStyle = '#8b97ad';
-    x.font = '400 24px Inter, Segoe UI, Arial, sans-serif';
-    x.fillText(n.s, n.px + 76, n.py + 104);
-    x.fillStyle = color + '33';
-    x.font = '700 70px Inter, Segoe UI, Arial, sans-serif';
-    x.fillText(String(i + 1), n.px + nw - 70, n.py + 60);
+    x.font = '600 28px Inter, Segoe UI, sans-serif';
+    x.fillText(n.t, n.px + 72, n.py + 66);
+    x.fillStyle = '#94a3b8';
+    x.font = '400 22px Inter, Segoe UI, sans-serif';
+    x.fillText(n.s, n.px + 72, n.py + 104);
   });
+
   x.fillStyle = '#ffffff';
-  x.font = '600 44px Inter, Segoe UI, Arial, sans-serif';
-  x.fillText('Del trabajo manual al flujo automático', 130, 860);
+  x.font = '600 40px Inter, Segoe UI, sans-serif';
+  x.fillText('Del trabajo manual al flujo automático en segundos', 120, 845);
   x.fillStyle = '#8b97ad';
-  x.font = '400 28px Inter, Segoe UI, Arial, sans-serif';
-  x.fillText('Cada paso queda registrado y se avisa si algo falla.', 130, 910);
-  const t = new THREE.CanvasTexture(c);
-  return t;
+  x.font = '400 26px Inter, Segoe UI, sans-serif';
+  x.fillText('Funciona 24/7, deja registro y avisa al instante si algo requiere revisión.', 120, 892);
 }
 
 /* ------------------------------------------------------------------ */
-/* Componente                                                          */
+/* Componente principal                                                */
 /* ------------------------------------------------------------------ */
+
+const TOPICS = ['Automatizar', 'Software a medida', 'Producto', 'Web 3D'] as const;
 
 export function Immersive() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
   const barRef = useRef<HTMLDivElement>(null);
+
   const [active, setActive] = useState(0);
   const [fallback, setFallback] = useState(false);
+
+  // Índice de pantalla activa por producto (sincronizado entre UI y motor 3D)
+  const [screenIdx, setScreenIdx] = useState<number[]>(() => PRODUCTS.map(() => 0));
+  const manualRef = useRef<{ idx: number; until: number }[]>(PRODUCTS.map(() => ({ idx: 0, until: 0 })));
+  const screenIdxRef = useRef<number[]>(PRODUCTS.map(() => 0));
+
+  // Estado del formulario de contacto
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [topic, setTopic] = useState<string>('Automatizar');
+  const [message, setMessage] = useState('');
+  const [formState, setFormState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [sentSummary, setSentSummary] = useState('');
+
+  const productIndexById = useMemo(() => {
+    const map: Record<string, number> = {};
+    PRODUCTS.forEach((p, idx) => {
+      map[p.id] = idx + 1;
+    });
+    return map;
+  }, []);
 
   const goTo = useCallback((k: number) => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
     window.scrollTo({ top: (k / (SECTIONS - 1)) * max, behavior: 'smooth' });
   }, []);
+
+  const selectScreen = useCallback((prodIdx: number, sIdx: number) => {
+    manualRef.current[prodIdx] = { idx: sIdx, until: performance.now() / 1000 + 11 };
+    screenIdxRef.current[prodIdx] = sIdx;
+    setScreenIdx((prev) => {
+      if (prev[prodIdx] === sIdx) return prev;
+      const next = [...prev];
+      next[prodIdx] = sIdx;
+      return next;
+    });
+  }, []);
+
+  const handlePrefillContact = useCallback((newTopic: string, draft: string) => {
+    if (newTopic) setTopic(newTopic);
+    if (draft) setMessage(draft);
+    setFormState('idle');
+  }, []);
+
+  const submitForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim().length < 2 || contact.trim().length < 4 || message.trim().length < 4) return;
+    setFormState('sending');
+    const summary = `Hola tuEndpoint, soy ${name.trim()} (${contact.trim()}). Tema: ${topic}. ${message.trim()}`;
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, contact, topic, message }),
+      });
+      if (!res.ok) throw new Error('err');
+      setSentSummary(summary);
+      setFormState('sent');
+      setName('');
+      setContact('');
+      setMessage('');
+    } catch {
+      setSentSummary(summary);
+      setFormState('sent');
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -264,7 +821,7 @@ export function Immersive() {
     };
 
     /* ---- partículas ---- */
-    const COUNT = 4500;
+    const COUNT = 4800;
     const length = SPACING * (N + 2) + 80;
     const pos = new Float32Array(COUNT * 3);
     const col = new Float32Array(COUNT * 3);
@@ -299,8 +856,8 @@ export function Immersive() {
     const points = new THREE.Points(pg, pm);
     scene.add(points);
 
-    /* ---- estelas de velocidad ---- */
-    const STREAKS = 260;
+    /* ---- estelas ---- */
+    const STREAKS = 280;
     const sp = new Float32Array(STREAKS * 6);
     for (let i = 0; i < STREAKS; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -316,7 +873,20 @@ export function Immersive() {
     const sm = track(new THREE.LineBasicMaterial({ color: 0x6f8cff, transparent: true, opacity: 0.25 }));
     scene.add(new THREE.LineSegments(sg, sm));
 
-    /* ---- portales ---- */
+    /* ---- precarga de capturas reales ---- */
+    const imgCache = new Map<string, HTMLImageElement>();
+    PRODUCTS.forEach((p) => {
+      p.screens.forEach((sc) => {
+        if (sc.kind === 'img' && !imgCache.has(sc.src)) {
+          const im = new Image();
+          im.decoding = 'async';
+          im.src = sc.src;
+          imgCache.set(sc.src, im);
+        }
+      });
+    });
+
+    /* ---- portales animados con CanvasTexture ---- */
     type Portal = {
       group: THREE.Group;
       plane: THREE.Mesh;
@@ -324,32 +894,46 @@ export function Immersive() {
       ring1: THREE.Mesh;
       ring2: THREE.Mesh;
       aspect: number;
+      canvas: HTMLCanvasElement;
+      ctx: CanvasRenderingContext2D;
+      tex: THREE.CanvasTexture;
+      cw: number;
+      ch: number;
     };
-    const loader = new THREE.TextureLoader();
+
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
     const ringGeo = track(new THREE.TorusGeometry(1, 0.0032, 8, 160));
     const planeGeo = track(new THREE.PlaneGeometry(1, 1));
+
     const portals: Portal[] = PRODUCTS.map((p, i) => {
       const group = new THREE.Group();
       group.position.z = -SPACING * (i + 1);
-      let tex: THREE.Texture;
-      if (p.img) {
-        tex = loader.load(p.img, (t) => {
-          const im = t.image as HTMLImageElement;
-          portal.aspect = im.width / im.height;
-          layout();
-        });
-      } else {
-        tex = automationTexture(p.color);
-      }
+      const cw = p.aspect > 1.8 ? 1920 : 1600;
+      const ch = p.aspect > 1.8 ? 960 : 1000;
+      const c = document.createElement('canvas');
+      c.width = cw;
+      c.height = ch;
+      const ctx = c.getContext('2d')!;
+      ctx.fillStyle = '#0a0f1c';
+      ctx.fillRect(0, 0, cw, ch);
+
+      const tex = track(new THREE.CanvasTexture(c));
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = maxAniso;
-      track(tex);
+
       const mat = track(new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, transparent: true }));
       const plane = new THREE.Mesh(planeGeo, mat);
       const gt = track(glowTexture(p.color));
       const glow = new THREE.Sprite(
-        track(new THREE.SpriteMaterial({ map: gt, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending })),
+        track(
+          new THREE.SpriteMaterial({
+            map: gt,
+            transparent: true,
+            opacity: 0.55,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+          }),
+        ),
       );
       glow.position.z = -3;
       const rm1 = track(new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.9 }));
@@ -359,22 +943,140 @@ export function Immersive() {
       ring2.position.z = -2.5;
       group.add(glow, plane, ring1, ring2);
       scene.add(group);
-      const portal: Portal = { group, plane, glow, ring1, ring2, aspect: p.aspect };
-      return portal;
+
+      return { group, plane, glow, ring1, ring2, aspect: p.aspect, canvas: c, ctx, tex, cw, ch };
     });
+
+    /* ---- dibujo de un screen individual sobre el canvas del portal ---- */
+    function renderScreenSpec(
+      ctx: CanvasRenderingContext2D,
+      W: number,
+      H: number,
+      spec: ScreenSpec,
+      color: string,
+      t: number,
+      zoom = 1,
+    ) {
+      if (spec.kind === 'filas-tv') {
+        drawFilasTV(ctx, W, H, t);
+        return;
+      }
+      if (spec.kind === 'filas-totem') {
+        drawFilasTotem(ctx, W, H, t);
+        return;
+      }
+      if (spec.kind === 'auto-flow') {
+        drawAutomationFlow(ctx, W, H, color, t);
+        return;
+      }
+      const im = imgCache.get(spec.src);
+      if (im && im.complete && im.naturalWidth > 0) {
+        ctx.save();
+        if (zoom !== 1) {
+          ctx.translate(W / 2, H / 2);
+          ctx.scale(zoom, zoom);
+          ctx.translate(-W / 2, -H / 2);
+        }
+        ctx.drawImage(im, 0, 0, W, H);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#0c1324';
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    function updatePortalCanvas(pt: Portal, prodIdx: number, t: number, nowSec: number) {
+      const p = PRODUCTS[prodIdx];
+      const total = p.screens.length;
+      const { ctx, cw: W, ch: H } = pt;
+
+      if (total === 1) {
+        renderScreenSpec(ctx, W, H, p.screens[0], p.color, t, 1);
+        pt.tex.needsUpdate = true;
+        return;
+      }
+
+      const man = manualRef.current[prodIdx];
+      // Duración un poco mayor en Gestor de Filas para disfrutar 2 llamados en TV
+      const stepDur = p.id === 'filas' ? 6.6 : 4.5;
+      let curIdx: number;
+      let local = 0;
+      const isManual = nowSec < man.until;
+
+      if (isManual) {
+        curIdx = man.idx;
+        local = 0.25;
+      } else {
+        const cyc = (t + prodIdx * 1.1) / stepDur;
+        curIdx = Math.floor(cyc) % total;
+        local = cyc - Math.floor(cyc);
+      }
+
+      if (screenIdxRef.current[prodIdx] !== curIdx) {
+        screenIdxRef.current[prodIdx] = curIdx;
+        setScreenIdx((prev) => {
+          if (prev[prodIdx] === curIdx) return prev;
+          const next = [...prev];
+          next[prodIdx] = curIdx;
+          return next;
+        });
+      }
+
+      const curSpec = p.screens[curIdx];
+      const nextSpec = p.screens[(curIdx + 1) % total];
+      const zoom = curSpec.kind === 'img' ? 1 + 0.018 * Math.sin(local * Math.PI) : 1;
+
+      renderScreenSpec(ctx, W, H, curSpec, p.color, t, zoom);
+
+      if (!isManual) {
+        // Si es captura de pantalla, animamos cursor navegando y haciendo clic antes de pasar a la siguiente vista
+        if (curSpec.kind === 'img' && curSpec.click && local > 0.22 && local < 0.86) {
+          const [tx, ty] = curSpec.click;
+          const moveU = smooth(clamp((local - 0.22) / 0.34));
+          const startX = W * 0.54;
+          const startY = H * 0.58;
+          const cx = startX + (tx * W - startX) * moveU;
+          const cy = startY + (ty * H - startY) * moveU;
+          const rip = local > 0.58 ? clamp((local - 0.58) / 0.22) : 0;
+          drawCursor(ctx, cx, cy, p.color, rip);
+        }
+
+        // Transición suave hacia la siguiente pantalla
+        if (local > 0.82) {
+          const alpha = smooth((local - 0.82) / 0.18);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          renderScreenSpec(ctx, W, H, nextSpec, p.color, t, 1);
+          ctx.restore();
+        }
+      }
+
+      pt.tex.needsUpdate = true;
+    }
 
     /* ---- endpoint final ---- */
     const end = new THREE.Group();
     end.position.z = END_Z;
-    const core = new THREE.Mesh(track(new THREE.SphereGeometry(0.5, 32, 32)), track(new THREE.MeshBasicMaterial({ color: 0xffffff })));
+    const core = new THREE.Mesh(
+      track(new THREE.SphereGeometry(0.42, 32, 32)),
+      track(new THREE.MeshBasicMaterial({ color: 0xffffff })),
+    );
     const wire = new THREE.Mesh(
-      track(new THREE.IcosahedronGeometry(2.6, 1)),
-      track(new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.5 })),
+      track(new THREE.IcosahedronGeometry(2.5, 1)),
+      track(new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.38 })),
     );
     const eg = new THREE.Sprite(
-      track(new THREE.SpriteMaterial({ map: track(glowTexture('#38bdf8')), transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending })),
+      track(
+        new THREE.SpriteMaterial({
+          map: track(glowTexture('#38bdf8')),
+          transparent: true,
+          opacity: 0.5,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        }),
+      ),
     );
-    eg.scale.setScalar(14);
+    eg.scale.setScalar(13);
     const pulses = [0, 1, 2].map(() => {
       const m = track(new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 }));
       const r = new THREE.Mesh(ringGeo, m);
@@ -399,13 +1101,16 @@ export function Immersive() {
         const ph = pw / pt.aspect;
         pt.plane.scale.set(pw, ph, 1);
         pt.group.position.x = wide ? visW * 0.19 : 0;
-        pt.group.position.y = wide ? 0 : visH * 0.16;
+        pt.group.position.y = wide ? 0 : visH * 0.17;
         pt.glow.scale.set(pw * 1.7, ph * 1.9, 1);
         const R = Math.hypot(pw, ph) * 0.6;
         pt.ring1.scale.setScalar(R);
         pt.ring2.scale.setScalar(R * 1.28);
         pt.group.rotation.y = wide ? -0.1 : 0;
       });
+      // En escritorio desplazamos suavemente el núcleo final hacia la izquierda para enmarcar "Hablemos."
+      end.position.x = wide ? -visW * 0.28 : 0;
+      end.position.y = wide ? 0 : visH * 0.26;
     }
     layout();
     window.addEventListener('resize', layout);
@@ -438,21 +1143,24 @@ export function Immersive() {
       raf = requestAnimationFrame(loop);
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
+      const nowSec = performance.now() / 1000;
       current += (target - current) * Math.min(1, dt * 4.5);
       const s = current * (SECTIONS - 1);
 
       const z = cameraZ(s);
-      camera.position.set(mouse.x * 0.9, -mouse.y * 0.55, z);
-      camera.lookAt(mouse.x * 0.4, -mouse.y * 0.25, z - 20);
+      camera.position.set(mouse.x * 0.85, -mouse.y * 0.5, z);
+      camera.lookAt(mouse.x * 0.35, -mouse.y * 0.22, z - 20);
 
       points.rotation.z = t * 0.012;
       portals.forEach((pt, i) => {
         pt.ring1.rotation.z = t * 0.15 * (i % 2 ? -1 : 1);
         pt.ring2.rotation.z = -t * 0.1;
-        // aparece al acercarse; desaparece al atravesarlo
         const dist = z - pt.group.position.z;
         const o = dist < 0 ? 0 : smooth((DWELL + 24 - dist) / 24);
         pt.group.visible = o > 0.01;
+        if (o > 0.02) {
+          updatePortalCanvas(pt, i, t, nowSec);
+        }
         (pt.plane.material as THREE.MeshBasicMaterial).opacity = o;
         pt.glow.material.opacity = 0.55 * o;
         (pt.ring1.material as THREE.MeshBasicMaterial).opacity = 0.9 * o;
@@ -462,12 +1170,11 @@ export function Immersive() {
       wire.rotation.y = t * 0.3;
       pulses.forEach((r, i) => {
         const k = (t * 0.35 + i / 3) % 1;
-        r.scale.setScalar(2 + k * 16);
-        (r.material as THREE.MeshBasicMaterial).opacity = (1 - k) * 0.5;
+        r.scale.setScalar(2 + k * 14);
+        (r.material as THREE.MeshBasicMaterial).opacity = (1 - k) * 0.42;
       });
       core.scale.setScalar(1 + Math.sin(t * 2.2) * 0.06);
 
-      // textos
       for (let k = 0; k < SECTIONS; k++) {
         const el = textRefs.current[k];
         if (!el) continue;
@@ -505,19 +1212,24 @@ export function Immersive() {
 
   const ctaMsg = 'Hola, quiero conversar sobre un proyecto con tuEndpoint.';
 
-  /* Sin WebGL: lista simple, sin 3D */
   if (fallback) {
     return (
-      <div className="immersive-root min-h-screen bg-[#05060b] text-white px-6 py-24">
+      <div className="immersive-root min-h-screen bg-[#05060b] px-6 py-24 text-white">
         <h1 className="text-4xl font-semibold tracking-tight">Automatizamos. Creamos a medida.</h1>
         <ul className="mt-12 grid gap-8 md:grid-cols-2">
-          {PRODUCTS.map((p) => (
-            <li key={p.id}>
-              {p.img && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.img} alt={p.name} className="rounded-xl border border-white/10" />}
-              <h2 className="mt-3 text-2xl font-semibold">{p.name}</h2>
-              <p className="text-white/60">{p.line}</p>
-            </li>
-          ))}
+          {PRODUCTS.map((p) => {
+            const firstImg = p.screens.find((sc) => sc.kind === 'img');
+            return (
+              <li key={p.id}>
+                {firstImg && firstImg.kind === 'img' && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={firstImg.src} alt={p.name} className="rounded-xl border border-white/10" />
+                )}
+                <h2 className="mt-3 text-2xl font-semibold">{p.name}</h2>
+                <p className="text-white/60">{p.line}</p>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );
@@ -591,7 +1303,7 @@ export function Immersive() {
         <div
           key={p.id}
           ref={setRef(i + 1)}
-          className="fixed inset-x-0 bottom-0 z-10 px-6 pb-[7vh] will-change-transform md:inset-y-0 md:flex md:items-center md:px-[6vw] md:pb-0"
+          className="fixed inset-x-0 bottom-0 z-10 px-6 pb-[8vh] will-change-transform md:inset-y-0 md:flex md:items-center md:px-[6vw] md:pb-0"
         >
           <div className="max-w-md md:max-w-[26rem]">
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/50">
@@ -599,13 +1311,37 @@ export function Immersive() {
               <span className="h-px w-8 bg-white/25" />
               <span>{p.tag}</span>
             </div>
-            <h2 className="mt-4 text-5xl font-semibold leading-none tracking-tight md:text-6xl">{p.name}</h2>
-            <p className="mt-4 text-lg leading-snug text-white/65">{p.line}</p>
+            <h2 className="mt-3 text-4xl font-semibold leading-none tracking-tight sm:text-5xl md:text-6xl">{p.name}</h2>
+            <p className="mt-3.5 text-base leading-snug text-white/65 sm:text-lg">{p.line}</p>
+
+            {/* Selector interactivo de pantallas */}
+            {p.screens.length > 1 && (
+              <div className="mt-4 flex flex-wrap gap-1.5" aria-label={`Vistas de ${p.name}`}>
+                {p.screens.map((sc, sIdx) => {
+                  const isCur = screenIdx[i] === sIdx;
+                  return (
+                    <button
+                      key={sc.label}
+                      type="button"
+                      onClick={() => selectScreen(i, sIdx)}
+                      className={`rounded-full border px-3 py-1 text-xs transition-all ${
+                        isCur
+                          ? 'border-white/50 bg-white/15 font-medium text-white'
+                          : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/30 hover:text-white'
+                      }`}
+                    >
+                      {sc.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             <a
               href={p.href ?? wa(`Hola, quiero ver una demo de ${p.name}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-black transition-transform hover:scale-[1.03]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-black transition-transform hover:scale-[1.03]"
               style={{ backgroundColor: p.color }}
             >
               {p.cta}
@@ -615,33 +1351,145 @@ export function Immersive() {
         </div>
       ))}
 
-      {/* Cierre */}
+      {/* Cierre + Formulario de contacto */}
       <div
         ref={setRef(SECTIONS - 1)}
-        className="fixed inset-0 z-10 flex flex-col items-center justify-center px-6 text-center will-change-transform"
+        className="fixed inset-0 z-10 flex items-center justify-center px-6 py-16 will-change-transform md:px-[7vw]"
       >
-        <h2 className="text-6xl font-semibold tracking-tight sm:text-8xl">Hablemos.</h2>
-        <p className="mt-5 max-w-md text-lg text-white/60">Cuéntanos qué proceso quieres dejar de hacer a mano.</p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={wa(ctaMsg)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform hover:scale-[1.03]"
-          >
-            Escribir por WhatsApp
-          </a>
-          <a
-            href={`mailto:${brand.email}`}
-            className="rounded-full border border-white/25 px-6 py-3 text-sm font-medium transition-colors hover:bg-white/10"
-          >
-            {brand.email}
-          </a>
+        <div className="grid w-full max-w-5xl items-center gap-8 md:grid-cols-12 md:gap-12">
+          <div className="text-center md:col-span-5 md:text-left">
+            <h2 className="text-5xl font-semibold tracking-tight sm:text-7xl">Hablemos.</h2>
+            <p className="mt-4 text-base text-white/65 sm:text-lg">
+              Cuéntanos qué quieres automatizar o construir. Respondemos en el día.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 md:justify-start">
+              <a
+                href={wa(ctaMsg)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-black transition-transform hover:scale-[1.03] sm:text-sm"
+              >
+                WhatsApp · {brand.phone}
+              </a>
+              <a
+                href={`mailto:${brand.email}`}
+                className="rounded-full border border-white/20 px-4 py-2.5 text-xs text-white/80 transition-colors hover:bg-white/10 sm:text-sm"
+              >
+                {brand.email}
+              </a>
+            </div>
+            <p className="mt-8 hidden text-xs text-white/35 md:block">
+              © {new Date().getFullYear()} tuEndpoint · {brand.address}
+            </p>
+          </div>
+
+          <div className="md:col-span-7">
+            <div className="rounded-2xl border border-white/15 bg-[#090d18]/85 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+              {formState === 'sent' ? (
+                <div className="space-y-4 py-4 text-center">
+                  <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#34d399]/20 text-lg text-[#34d399]">
+                    ✓
+                  </div>
+                  <h3 className="text-xl font-semibold">Recibimos tu mensaje</h3>
+                  <p className="text-sm text-white/65">
+                    Te responderemos a la brevedad. Si quieres respuesta inmediata, envíanos una copia directa por WhatsApp:
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <a
+                      href={wa(sentSummary)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full bg-[#38bdf8] px-5 py-2.5 text-xs font-semibold text-[#05060b] transition-transform hover:scale-[1.03]"
+                    >
+                      Abrir en WhatsApp ahora →
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setFormState('idle')}
+                      className="rounded-full border border-white/15 px-4 py-2.5 text-xs text-white/70 hover:text-white"
+                    >
+                      Enviar otro mensaje
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={submitForm} className="space-y-4">
+                  <div className="flex flex-wrap gap-1.5">
+                    {TOPICS.map((tp) => (
+                      <button
+                        key={tp}
+                        type="button"
+                        onClick={() => setTopic(tp)}
+                        className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                          topic === tp
+                            ? 'border-[#38bdf8] bg-[#38bdf8]/20 font-medium text-white'
+                            : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white'
+                        }`}
+                      >
+                        {tp}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <input
+                      type="text"
+                      required
+                      minLength={2}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Tu nombre"
+                      aria-label="Tu nombre"
+                      className="w-full rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      required
+                      minLength={4}
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      placeholder="Correo o WhatsApp"
+                      aria-label="Correo o WhatsApp"
+                      className="w-full rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
+                    />
+                  </div>
+
+                  <textarea
+                    rows={3}
+                    required
+                    minLength={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Cuéntanos en pocas palabras qué necesitas..."
+                    aria-label="Mensaje"
+                    className="w-full resize-none rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
+                  />
+
+                  <div className="flex items-center justify-between gap-4 pt-1">
+                    <span className="text-xs text-white/40">Diagnóstico inicial sin costo.</span>
+                    <button
+                      type="submit"
+                      disabled={formState === 'sending'}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#38bdf8] px-6 py-2.5 text-sm font-semibold text-[#05060b] transition-transform hover:scale-[1.03] disabled:opacity-60"
+                    >
+                      {formState === 'sending' ? 'Enviando...' : 'Enviar mensaje'}
+                      <span aria-hidden>→</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="absolute bottom-6 text-xs text-white/35">
-          © {new Date().getFullYear()} tuEndpoint · {brand.address}
-        </p>
       </div>
+
+      {/* Asistente guiado paso a paso */}
+      <AssistantBot
+        productIndexById={productIndexById}
+        contactIndex={SECTIONS - 1}
+        onNavigate={goTo}
+        onPrefillContact={handlePrefillContact}
+      />
 
       {/* Progreso */}
       <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-white/5">

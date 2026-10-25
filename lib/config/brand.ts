@@ -5,7 +5,7 @@ export const brand = {
   description:
     'Desarrollamos soluciones tecnológicas para empresas. Salud, educación, retail, logística y más.',
   email: 'mr.reinaldo.g@gmail.com',
-  phone: '+56 7 9492 5337',
+  phone: '+56 9 492 5337',
   address: 'Viña del Mar, Chile',
   url: 'https://tuendpoint.vercel.app',
   ogImage: '/og-image.png',

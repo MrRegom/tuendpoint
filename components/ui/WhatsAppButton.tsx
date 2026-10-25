@@ -2,10 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
+import { brand } from '@/lib/config/brand';
 
 export function WhatsAppButton() {
-  const phoneNumber = '56912345678'; // Default generic, they can change it later
-  const message = encodeURIComponent('Hola, me gustaría agendar una reunión para evaluar la implementación de una solución tecnológica adaptable para mi empresa.');
+  const phoneNumber = brand.phone.replace(/\D/g, '');
+  const message = encodeURIComponent(
+    'Hola, quiero conversar sobre un proyecto con tuEndpoint.'
+  );
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (

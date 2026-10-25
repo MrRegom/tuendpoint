@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playIntroBounceSound } from '@/lib/sound';
 
 interface InitialLoadingIntroProps {
   onComplete?: () => void;
@@ -9,9 +10,10 @@ interface InitialLoadingIntroProps {
 }
 
 /**
- * Intro sobre el mismo fondo espacial:
+ * Intro sobre fondo limpio:
  * 1) "tu" entra desde la izquierda y "Endpoınt" desde la derecha.
- * 2) Una vez unidos, el punto cae desde arriba y rebota quedando claramente sobre la "ı".
+ * 2) El punto azul cae desde arriba rebotando exactamente sobre la "ı".
+ * 3) Acompañado de sonido sutil acústico de rebote.
  */
 export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLoadingIntroProps) {
   const [isVisible, setIsVisible] = useState(true);
@@ -19,8 +21,7 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
   const handleDismiss = useCallback(() => {
     sessionStorage.setItem('tuendpoint_intro_seen', 'true');
     setIsVisible(false);
-    onComplete?.();
-  }, [onComplete]);
+  }, []);
 
   useEffect(() => {
     if (!forceShow && sessionStorage.getItem('tuendpoint_intro_seen') === 'true') {
@@ -28,9 +29,16 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
       onComplete?.();
       return;
     }
-    const finishTimer = setTimeout(handleDismiss, 2900);
+    const finishTimer = setTimeout(handleDismiss, 2800);
     return () => clearTimeout(finishTimer);
   }, [forceShow, onComplete, handleDismiss]);
+
+  // Sonido acústico sincronizado con los rebotes
+  useEffect(() => {
+    if (!isVisible) return;
+    const cleanupSound = playIntroBounceSound();
+    return () => cleanupSound();
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -40,21 +48,21 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
   }, [isVisible, handleDismiss]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onComplete}>
       {isVisible && (
         <motion.div
           key="intro"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.03 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
           onClick={handleDismiss}
-          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-transparent"
+          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-[#f8fafc]/90 backdrop-blur-sm"
           role="img"
           aria-label="tuEndpoint"
         >
           <div
             aria-hidden
-            className="relative flex items-baseline text-5xl font-semibold leading-none tracking-tight text-white sm:text-7xl md:text-8xl"
+            className="relative flex items-baseline text-5xl font-semibold leading-none tracking-tight text-[#0f172a] sm:text-7xl md:text-8xl"
           >
             {/* "tu" entra desde la izquierda */}
             <motion.span
@@ -74,25 +82,27 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
               className="inline-flex items-baseline"
             >
               <span>Endpo</span>
-              <span className="relative inline-block">
+              <span className="relative inline-flex justify-center">
                 <span>{'\u0131'}</span>
-                <motion.span
-                  className="absolute left-1/2 -translate-x-1/2 rounded-full bg-[#38bdf8]"
-                  style={{
-                    top: '-0.02em',
-                    width: '0.145em',
-                    height: '0.145em',
-                    boxShadow: '0 0 14px rgba(56, 189, 248, 0.75)',
-                  }}
-                  initial={{ y: -440, opacity: 0 }}
-                  animate={{ y: [-440, 0, -68, 0, -24, 0, -6, 0], opacity: [0, 1, 1, 1, 1, 1, 1, 1] }}
-                  transition={{
-                    delay: 0.52,
-                    duration: 1.55,
-                    times: [0, 0.34, 0.5, 0.64, 0.76, 0.87, 0.94, 1],
-                    ease: 'easeInOut',
-                  }}
-                />
+                {/* Contenedor con ancho 100% y flex-center para que el punto quede milimétricamente centrado sin verse afectado por transformaciones inline */}
+                <span className="pointer-events-none absolute inset-x-0 flex justify-center" style={{ top: '-0.02em' }}>
+                  <motion.span
+                    className="block rounded-full bg-[#0284c7]"
+                    style={{
+                      width: '0.145em',
+                      height: '0.145em',
+                      boxShadow: '0 2px 8px rgba(2, 132, 199, 0.5)',
+                    }}
+                    initial={{ y: -440, opacity: 0 }}
+                    animate={{ y: [-440, 0, -68, 0, -24, 0, -6, 0], opacity: [0, 1, 1, 1, 1, 1, 1, 1] }}
+                    transition={{
+                      delay: 0.52,
+                      duration: 1.55,
+                      times: [0, 0.34, 0.5, 0.64, 0.76, 0.87, 0.94, 1],
+                      ease: 'easeInOut',
+                    }}
+                  />
+                </span>
               </span>
               <span>nt</span>
             </motion.span>
@@ -102,3 +112,4 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
     </AnimatePresence>
   );
 }
+

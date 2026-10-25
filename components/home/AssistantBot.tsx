@@ -7,7 +7,7 @@ import { brand } from '@/lib/config/brand';
 
 type ActionChip = {
   label: string;
-  kind: 'step' | 'portal' | 'contact' | 'wa';
+  kind: 'step' | 'portal' | 'contact' | 'wa' | 'link';
   value: string;
   draft?: string;
 };
@@ -33,6 +33,7 @@ const ROOT_STATE: GuideState = {
   title: '¿Qué necesitas resolver?',
   chips: [
     { label: 'Productos listos en operación', kind: 'step', value: 'productos' },
+    { label: 'Catálogos online (PaginaGo ya a la venta)', kind: 'link', value: 'https://paginago.com' },
     { label: 'Automatizar un proceso manual', kind: 'step', value: 'automatizar' },
     { label: 'Software o web 3D a medida', kind: 'step', value: 'medida' },
     { label: 'Plazos y modalidad de trabajo', kind: 'step', value: 'precios' },
@@ -47,7 +48,7 @@ function resolveStep(key: string, label: string): GuideState {
         eyebrow: 'PRODUCTOS PROPIOS',
         title: '¿En qué sector operas?',
         chips: [
-          { label: 'Salud o atención de público', kind: 'step', value: 'area_salud' },
+          { label: 'Salud o atención de público (Hospital)', kind: 'step', value: 'area_salud' },
           { label: 'Educación, bodega o inventario', kind: 'step', value: 'area_bodega' },
           { label: 'Comercio, POS o catálogo WhatsApp', kind: 'step', value: 'area_comercio' },
         ],
@@ -90,18 +91,19 @@ function resolveStep(key: string, label: string): GuideState {
     case 'area_comercio':
       return {
         id: key,
-        eyebrow: 'RETAIL Y VENTAS',
-        title: 'CajaYA y PaginaGo',
+        eyebrow: 'RETAIL Y VENTAS ONLINE',
+        title: 'PaginaGo y CajaYA',
         detail:
-          'CajaYA es punto de venta con o sin internet, stock, turnos y SII. PaginaGo arma tu catálogo online directo a WhatsApp.',
+          'PaginaGo ya está disponible a la venta: crea catálogos rápidos integrados a WhatsApp. CajaYA es punto de venta con o sin internet, stock y SII.',
         chips: [
-          { label: 'Ir a CajaYA', kind: 'portal', value: 'cajaya' },
-          { label: 'Ir a PaginaGo', kind: 'portal', value: 'paginago' },
+          { label: 'Abrir paginago.com (A la venta hoy)', kind: 'link', value: 'https://paginago.com' },
+          { label: 'Ver PaginaGo en esta página', kind: 'portal', value: 'paginago' },
+          { label: 'Ver CajaYA (POS + SII)', kind: 'portal', value: 'cajaya' },
           {
             label: 'Consultar para mi negocio',
             kind: 'contact',
             value: 'Producto',
-            draft: 'Hola, me interesa implementar CajaYA / PaginaGo en mi negocio.',
+            draft: 'Hola, me interesa implementar PaginaGo / CajaYA en mi negocio.',
           },
         ],
       };
@@ -185,10 +187,11 @@ function resolveStep(key: string, label: string): GuideState {
         eyebrow: 'ALCANCE Y TIEMPOS',
         title: 'Evaluación inicial sin costo',
         detail:
-          'PaginaGo parte en $6.990/mes. Para nuestros sistemas (Filas, TICPanel, TBA, CajaYA) o desarrollos a medida, cotizamos por alcance cerrado y entregas rápidas.',
+          'PaginaGo parte en $6.990/mes y ya está a la venta en paginago.com. Para nuestros sistemas hospitalarios o desarrollos a medida cotizamos por alcance cerrado.',
         chips: [
+          { label: 'Ver planes en paginago.com', kind: 'link', value: 'https://paginago.com' },
           {
-            label: 'Solicitar propuesta',
+            label: 'Solicitar propuesta a medida',
             kind: 'contact',
             value: 'A medida',
             draft: 'Hola, quiero evaluar alcance, costos y plazos para un proyecto.',
@@ -203,6 +206,19 @@ function answerFreeText(q: string): GuideState {
   const s = q.toLowerCase();
   const shortQ = q.length > 34 ? `${q.slice(0, 34)}…` : q;
 
+  if (/paginago|cat[aá]logo|tienda|whatsapp/.test(s)) {
+    return {
+      id: `q-${Date.now()}`,
+      eyebrow: `PAGINAGO · A LA VENTA HOY`,
+      title: 'PaginaGo.com',
+      detail: 'Tu catálogo online listo en minutos para vender directo por WhatsApp. Producto disponible a la venta hoy.',
+      chips: [
+        { label: 'Abrir paginago.com ahora', kind: 'link', value: 'https://paginago.com' },
+        { label: 'Ver demostración en la página', kind: 'portal', value: 'paginago' },
+        { label: 'Consultar contratación por WhatsApp', kind: 'wa', value: 'Hola, quiero contratar PaginaGo.' },
+      ],
+    };
+  }
   if (/fila|turno|totem|tótem|llamad|pantalla|tv/.test(s)) {
     return {
       id: `q-${Date.now()}`,
@@ -251,18 +267,6 @@ function answerFreeText(q: string): GuideState {
       ],
     };
   }
-  if (/paginago|cat[aá]logo|tienda|whatsapp/.test(s)) {
-    return {
-      id: `q-${Date.now()}`,
-      eyebrow: `CONSULTA · ${shortQ}`,
-      title: 'PaginaGo',
-      detail: 'Creas tu catálogo online en minutos, compartes un link y recibes los pedidos listos en tu WhatsApp.',
-      chips: [
-        { label: 'Ir a PaginaGo', kind: 'portal', value: 'paginago' },
-        { label: 'Consultar en formulario', kind: 'contact', value: 'Producto', draft: 'Hola, quiero consultar por PaginaGo.' },
-      ],
-    };
-  }
   if (/web|3d|p[aá]gina|sitio|dise[ñn]o/.test(s)) {
     return {
       id: `q-${Date.now()}`,
@@ -282,7 +286,7 @@ function answerFreeText(q: string): GuideState {
       title: 'Diagnóstico sin costo',
       detail: 'Sobre nuestros productos base implementamos en pocos días; un desarrollo nuevo se entrega por etapas cerradas.',
       chips: [
-        { label: 'Dejar datos para cotizar', kind: 'contact', value: 'Software a medida', draft: `Hola, mi consulta: ${q}` },
+        { label: 'Dejar datos para cotizar', kind: 'contact', value: 'A medida', draft: `Hola, mi consulta: ${q}` },
         { label: 'WhatsApp directo', kind: 'wa', value: `Hola, tengo esta consulta: ${q}` },
       ],
     };
@@ -294,7 +298,7 @@ function answerFreeText(q: string): GuideState {
       title: brand.address,
       detail: `Trabajamos con empresas en todo Chile. Escríbenos a ${brand.email} o conversemos directo.`,
       chips: [
-        { label: 'Ir al formulario', kind: 'contact', value: 'Software a medida', draft: '' },
+        { label: 'Ir al formulario', kind: 'contact', value: 'A medida', draft: '' },
         { label: 'Abrir WhatsApp', kind: 'wa', value: 'Hola, quiero conversar con el equipo de tuEndpoint.' },
       ],
     };
@@ -305,7 +309,7 @@ function answerFreeText(q: string): GuideState {
     title: 'Lo revisamos contigo',
     detail: 'Podemos automatizar ese flujo o construirlo a medida. Elige cómo prefieres continuar:',
     chips: [
-      { label: 'Enviar detalle en formulario', kind: 'contact', value: 'Software a medida', draft: q },
+      { label: 'Enviar detalle en formulario', kind: 'contact', value: 'A medida', draft: q },
       { label: 'Conversar por WhatsApp', kind: 'wa', value: `Hola tuEndpoint, quería consultar: ${q}` },
     ],
   };
@@ -358,6 +362,11 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
     if (c.kind === 'wa') {
       const url = `https://wa.me/${brand.phone.replace(/\D/g, '')}?text=${encodeURIComponent(c.value)}`;
       window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (c.kind === 'link') {
+      window.open(c.value, '_blank', 'noopener,noreferrer');
+      return;
     }
   };
 
@@ -383,22 +392,22 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-3 w-[min(92vw,356px)] border border-white/10 border-t-[#38bdf8]/75 bg-[#05070e]/95 px-5 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.85)] backdrop-blur-2xl"
+            className="mb-3 w-[min(92vw,356px)] border border-slate-200/90 border-t-[#0284c7] bg-white/95 px-5 py-4 text-[#0f172a] shadow-[0_24px_70px_rgba(15,23,42,0.14)] backdrop-blur-2xl"
           >
             {/* Cabecera editorial mínima */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               {history.length > 0 ? (
                 <button
                   type="button"
                   onClick={goBack}
-                  className="inline-flex items-center gap-1.5 text-xs text-white/55 transition-colors hover:text-[#38bdf8]"
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-[#0284c7]"
                 >
                   <span aria-hidden>←</span>
                   <span>Volver</span>
                 </button>
               ) : (
-                <span className="text-xs font-medium tracking-tight text-white/85">
-                  tuEndpoint<span className="text-[#38bdf8]">.</span>
+                <span className="text-xs font-semibold tracking-tight text-[#0f172a]">
+                  tuEndpoint<span className="text-[#0284c7]">.</span>
                 </span>
               )}
 
@@ -407,7 +416,7 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                   <button
                     type="button"
                     onClick={resetRoot}
-                    className="text-[11px] uppercase tracking-[0.16em] text-white/35 transition-colors hover:text-white"
+                    className="text-[11px] uppercase tracking-[0.16em] text-slate-400 transition-colors hover:text-slate-800"
                   >
                     Inicio
                   </button>
@@ -416,14 +425,14 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                   type="button"
                   onClick={() => setOpen(false)}
                   aria-label="Cerrar"
-                  className="text-white/45 transition-colors hover:text-white"
+                  className="text-slate-400 transition-colors hover:text-slate-700"
                 >
                   <X className="h-3.5 w-3.5" strokeWidth={1.75} />
                 </button>
               </div>
             </div>
 
-            {/* Vista activa en el mismo plano (sin burbujas ni tarjetas de chat IA) */}
+            {/* Vista activa en el mismo plano (sin burbujas de chat IA) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={current.id}
@@ -434,41 +443,41 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                 className="pt-4"
               >
                 {current.eyebrow && (
-                  <div className="truncate font-mono text-[10px] uppercase tracking-[0.2em] text-[#38bdf8]">
+                  <div className="truncate font-mono text-[10px] uppercase tracking-[0.2em] text-[#0284c7]">
                     {current.eyebrow}
                   </div>
                 )}
-                <h3 className="mt-1.5 text-lg font-medium leading-snug tracking-tight text-white">
+                <h3 className="mt-1.5 text-lg font-semibold leading-snug tracking-tight text-[#0f172a]">
                   {current.title}
                 </h3>
                 {current.detail && (
-                  <p className="mt-2 text-[13px] leading-relaxed text-white/60">
+                  <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
                     {current.detail}
                   </p>
                 )}
 
                 {/* Filas editoriales numeradas con línea inferior */}
-                <div className="mt-3.5 divide-y divide-white/[0.08] border-t border-white/[0.08]">
+                <div className="mt-3.5 divide-y divide-slate-100 border-t border-slate-100">
                   {current.chips.map((c, idx) => (
                     <button
                       key={c.label}
                       type="button"
                       onClick={() => handleChip(c)}
-                      className="group relative flex w-full items-center justify-between gap-3 py-2.5 text-left transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-[1px] after:origin-left after:scale-x-0 after:bg-[#38bdf8] after:transition-transform after:duration-200 hover:after:scale-x-100"
+                      className="group relative flex w-full items-center justify-between gap-3 py-2.5 text-left transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-[1.5px] after:origin-left after:scale-x-0 after:bg-[#0284c7] after:transition-transform after:duration-200 hover:after:scale-x-100"
                     >
                       <span className="flex min-w-0 items-baseline gap-3">
-                        <span className="font-mono text-[11px] text-white/30 transition-colors group-hover:text-[#38bdf8]">
+                        <span className="font-mono text-[11px] text-slate-400 transition-colors group-hover:text-[#0284c7]">
                           {String(idx + 1).padStart(2, '0')}
                         </span>
-                        <span className="truncate text-[13px] text-white/75 transition-colors group-hover:text-white">
+                        <span className="truncate text-[13px] text-slate-700 transition-colors group-hover:text-[#0f172a]">
                           {c.label}
                         </span>
                       </span>
                       <span
                         aria-hidden
-                        className="shrink-0 text-xs text-white/35 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#38bdf8]"
+                        className="shrink-0 text-xs text-slate-400 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#0284c7]"
                       >
-                        {c.kind === 'wa' ? '↗' : '→'}
+                        {c.kind === 'wa' || c.kind === 'link' ? '↗' : '→'}
                       </span>
                     </button>
                   ))}
@@ -476,10 +485,10 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
               </motion.div>
             </AnimatePresence>
 
-            {/* Línea de consulta directa minimalista (sin caja redondeada) */}
+            {/* Línea de consulta directa minimalista */}
             <form
               onSubmit={onSubmit}
-              className="mt-4 flex items-center gap-2 border-b border-white/15 pb-1.5 transition-colors focus-within:border-[#38bdf8]"
+              className="mt-4 flex items-center gap-2 border-b border-slate-200 pb-1.5 transition-colors focus-within:border-[#0284c7]"
             >
               <input
                 type="text"
@@ -487,12 +496,12 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="O escribe tu consulta aquí..."
                 aria-label="Escribe tu consulta"
-                className="min-w-0 flex-1 bg-transparent text-xs text-white placeholder:text-white/30 focus:outline-none"
+                className="min-w-0 flex-1 bg-transparent text-xs text-[#0f172a] placeholder:text-slate-400 focus:outline-none"
               />
               <button
                 type="submit"
                 aria-label="Consultar"
-                className="text-xs font-medium text-[#38bdf8] transition-transform hover:translate-x-0.5"
+                className="text-xs font-semibold text-[#0284c7] transition-transform hover:translate-x-0.5"
               >
                 →
               </button>
@@ -505,12 +514,12 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Cerrar guía' : 'Abrir guía'}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#05070e]/80 text-white/70 backdrop-blur-md transition-all hover:border-[#38bdf8]/60 hover:text-white"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/90 text-slate-700 shadow-md backdrop-blur-md transition-all hover:border-[#0284c7] hover:text-[#0284c7]"
       >
         {open ? (
-          <X className="h-[17px] w-[17px]" strokeWidth={1.6} />
+          <X className="h-[17px] w-[17px]" strokeWidth={1.8} />
         ) : (
-          <MessageSquare className="h-[16px] w-[16px]" strokeWidth={1.6} />
+          <MessageSquare className="h-[16px] w-[16px]" strokeWidth={1.8} />
         )}
       </button>
     </div>

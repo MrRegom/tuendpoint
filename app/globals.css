@@ -265,4 +265,4 @@ body:has(.immersive-root) .skip-link,
 body:has(.immersive-root) a[aria-label="Contactar por WhatsApp"] {
   display: none !important;
 }
-body:has(.immersive-root) { background: #05060b; }
+body:has(.immersive-root) { background: #f8fafc; color: #0f172a; }

@@ -32,7 +32,7 @@ type Product = {
 const wa = (msg: string) =>
   `https://wa.me/${brand.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
 
-const BRAND_BLUE = '#38bdf8';
+const BRAND_BLUE = '#0284c7';
 
 const PRODUCTS: Product[] = [
   {
@@ -103,8 +103,8 @@ const PRODUCTS: Product[] = [
   {
     id: 'paginago',
     name: 'PaginaGo',
-    line: 'Tu catálogo en un link. Tus clientes piden y te llega armado al WhatsApp.',
-    tag: 'Catálogos · Disponible',
+    line: 'Tu catálogo online en un link. Vende por WhatsApp sin burocracia.',
+    tag: 'A la venta · paginago.com',
     color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
@@ -114,7 +114,7 @@ const PRODUCTS: Product[] = [
       { kind: 'img', src: '/shots/paginago-4.jpg', label: 'Planes', click: [0.5, 0.78] },
     ],
     href: 'https://paginago.com',
-    cta: 'Visitar paginago.com',
+    cta: 'Ir a paginago.com',
   },
   {
     id: 'auto',
@@ -158,14 +158,14 @@ function cameraZ(s: number) {
 /* Texturas auxiliares y dibujado en vivo                              */
 /* ------------------------------------------------------------------ */
 
-function glowTexture(color: string) {
+function shadowTexture() {
   const c = document.createElement('canvas');
   c.width = c.height = 256;
   const x = c.getContext('2d')!;
   const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, color);
-  g.addColorStop(0.35, color + '55');
-  g.addColorStop(1, color + '00');
+  g.addColorStop(0, 'rgba(15, 23, 42, 0.22)');
+  g.addColorStop(0.45, 'rgba(15, 23, 42, 0.07)');
+  g.addColorStop(1, 'rgba(15, 23, 42, 0)');
   x.fillStyle = g;
   x.fillRect(0, 0, 256, 256);
   return new THREE.CanvasTexture(c);
@@ -176,9 +176,9 @@ function dotTexture() {
   c.width = c.height = 64;
   const x = c.getContext('2d')!;
   const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-  g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.4, '#ffffffaa');
-  g.addColorStop(1, '#ffffff00');
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.5, 'rgba(255,255,255,0.75)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
   x.fillStyle = g;
   x.fillRect(0, 0, 64, 64);
   return new THREE.CanvasTexture(c);
@@ -944,10 +944,10 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    const BG = 0x05060b;
+    const BG = 0xf8fafc;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(BG);
-    scene.fog = new THREE.FogExp2(BG, 0.017);
+    scene.fog = new THREE.FogExp2(BG, 0.014);
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
 
     const disposables: { dispose: () => void }[] = [];
@@ -956,20 +956,20 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       return o;
     };
 
-    /* ---- partículas discretas fuera del eje central ---- */
-    const COUNT = 3000;
+    /* ---- partículas discretas en espacio tridimensional claro ---- */
+    const COUNT = 2600;
     const length = SPACING * (N + 2) + 80;
     const pos = new Float32Array(COUNT * 3);
     const col = new Float32Array(COUNT * 3);
-    const cA = new THREE.Color('#9fb4ff');
-    const cB = new THREE.Color(BRAND_BLUE);
+    const cA = new THREE.Color('#94a3b8');
+    const cB = new THREE.Color('#0ea5e9');
     for (let i = 0; i < COUNT; i++) {
       const a = Math.random() * Math.PI * 2;
       const r = 8.5 + Math.pow(Math.random(), 0.8) * 34;
       pos[i * 3] = Math.cos(a) * r;
       pos[i * 3 + 1] = Math.sin(a) * r * 0.72;
       pos[i * 3 + 2] = 25 - Math.random() * length;
-      const c = cA.clone().lerp(cB, Math.random() * 0.65);
+      const c = cA.clone().lerp(cB, Math.random() * 0.75);
       col[i * 3] = c.r;
       col[i * 3 + 1] = c.g;
       col[i * 3 + 2] = c.b;
@@ -980,19 +980,19 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
     const dotTex = track(dotTexture());
     const pm = track(
       new THREE.PointsMaterial({
-        size: 0.34,
+        size: 0.38,
         map: dotTex,
         vertexColors: true,
         transparent: true,
-        opacity: 0.52,
+        opacity: 0.45,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
       }),
     );
     const points = new THREE.Points(pg, pm);
     scene.add(points);
 
-    /* ---- estelas sutiles ---- */
+    /* ---- estelas arquitectónicas sutiles ---- */
     const STREAKS = 150;
     const sp = new Float32Array(STREAKS * 6);
     for (let i = 0; i < STREAKS; i++) {
@@ -1006,7 +1006,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
     }
     const sg = track(new THREE.BufferGeometry());
     sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-    const sm = track(new THREE.LineBasicMaterial({ color: 0x6f8cff, transparent: true, opacity: 0.12 }));
+    const sm = track(new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.28 }));
     scene.add(new THREE.LineSegments(sg, sm));
 
     /* ---- precarga de capturas reales ---- */
@@ -1022,7 +1022,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       });
     });
 
-    /* ---- ventanas limpias con CanvasTexture (sin aros ni ruido visual) ---- */
+    /* ---- ventanas limpias con sombra arquitectónica de estudio ---- */
     const BAR_H = 42;
     type Portal = {
       group: THREE.Group;
@@ -1039,7 +1039,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
 
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
     const planeGeo = track(new THREE.PlaneGeometry(1, 1));
-    const sharedGlowTex = track(glowTexture(BRAND_BLUE));
+    const sharedShadowTex = track(shadowTexture());
     let isNarrowViewport = window.innerWidth < 768;
 
     const portals: Portal[] = PRODUCTS.map((p, i) => {
@@ -1064,15 +1064,16 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       const glow = new THREE.Sprite(
         track(
           new THREE.SpriteMaterial({
-            map: sharedGlowTex,
+            map: sharedShadowTex,
             transparent: true,
-            opacity: 0.14,
+            opacity: 0.72,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending,
           }),
         ),
       );
-      glow.position.z = -2.5;
+      glow.position.z = -1.2;
+      glow.position.y = -0.16;
       group.add(glow, plane);
       scene.add(group);
 
@@ -1112,7 +1113,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
         ctx.drawImage(im, ox, oy, W * zoom, H * zoom);
         return { ox, oy, scale: zoom };
       }
-      ctx.fillStyle = '#0a0f1c';
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, W, H);
       return { ox: 0, oy: 0, scale: 1 };
     }
@@ -1152,7 +1153,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       const curSpec = p.screens[curIdx];
       const nextSpec = p.screens[(curIdx + 1) % total];
 
-      // Marco limpio con esquinas redondeadas (sin fondo exterior)
+      // Marco limpio con esquinas redondeadas
       const R = 22;
       ctx.clearRect(0, 0, W, totalH);
       ctx.save();
@@ -1160,33 +1161,33 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       ctx.roundRect(2, 2, W - 4, totalH - 4, R);
       ctx.clip();
 
-      // Barra superior minimalista para enmarcar la aplicación con nitidez
-      ctx.fillStyle = '#090D16';
+      // Barra superior estilo titanio claro para enmarcar la app limpiamente
+      ctx.fillStyle = '#F1F5F9';
       ctx.fillRect(0, 0, W, BAR_H);
-      ctx.fillStyle = 'rgba(255,255,255,0.09)';
+      ctx.fillStyle = '#E2E8F0';
       ctx.fillRect(0, BAR_H - 1, W, 1);
 
       for (let d = 0; d < 3; d++) {
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.fillStyle = '#94A3B8';
         ctx.beginPath();
         ctx.arc(28 + d * 18, BAR_H / 2, 4.8, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      ctx.fillStyle = 'rgba(255,255,255,0.68)';
-      ctx.font = '500 16px Inter, Segoe UI, sans-serif';
+      ctx.fillStyle = '#334155';
+      ctx.font = '600 16px Inter, Segoe UI, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(`${p.name}  ·  ${curSpec.label}`, W / 2, BAR_H / 2 + 6);
       ctx.textAlign = 'left';
 
-      // Indicador discreto en azul tuEndpoint a la derecha
+      // Indicador discreto en azul
       ctx.fillStyle = BRAND_BLUE;
       ctx.beginPath();
-      ctx.arc(W - 118, BAR_H / 2, 3.8, 0, Math.PI * 2);
+      ctx.arc(W - 128, BAR_H / 2, 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.fillStyle = '#475569';
       ctx.font = '500 14px Inter, Segoe UI, sans-serif';
-      ctx.fillText('En vivo', W - 106, BAR_H / 2 + 5);
+      ctx.fillText(p.id === 'paginago' ? 'A la venta' : 'En vivo', W - 116, BAR_H / 2 + 5);
 
       // Área útil de la aplicación
       ctx.save();
@@ -1232,8 +1233,8 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       ctx.restore(); // fin área útil
       ctx.restore(); // fin clip redondeado
 
-      // Borde fino alrededor de la ventana para separarla limpiamente del espacio oscuro
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      // Borde fino alrededor de la ventana
+      ctx.strokeStyle = '#CBD5E1';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.roundRect(2, 2, W - 4, totalH - 4, R);
@@ -1377,23 +1378,32 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
   }
 
   return (
-    <div className="immersive-root relative bg-[#05060b] text-white">
+    <div className="immersive-root relative bg-[#f8fafc] text-[#0f172a]">
       <canvas ref={canvasRef} className="fixed inset-0 h-screen w-screen" aria-hidden />
 
       <div className={`transition-opacity duration-700 ${introDone ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
         {/* Navegación mínima */}
         <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-5 py-5 md:px-10">
-          <button type="button" onClick={() => goTo(0)} className="text-lg font-semibold tracking-tight" aria-label="Inicio">
-            tuEndpoint<span className="text-[#38bdf8]">.</span>
+          <button type="button" onClick={() => goTo(0)} className="text-lg font-bold tracking-tight text-[#0f172a]" aria-label="Inicio">
+            tuEndpoint<span className="text-[#0284c7]">.</span>
           </button>
-          <div className="flex items-center gap-6 text-sm text-white/70">
-            <button type="button" onClick={() => goTo(1)} className="hidden transition-colors hover:text-white sm:block">
+          <div className="flex items-center gap-5 sm:gap-7 text-sm font-medium text-slate-600">
+            <button type="button" onClick={() => goTo(1)} className="hidden transition-colors hover:text-[#0f172a] sm:block">
               Productos
             </button>
+            <a
+              href="https://paginago.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 border-b border-[#0284c7]/60 pb-0.5 text-[#0284c7] transition-colors hover:border-[#0284c7] hover:text-[#0369a1]"
+            >
+              <span>PaginaGo</span>
+              <span className="text-xs" aria-hidden>↗</span>
+            </a>
             <button
               type="button"
               onClick={() => goTo(SECTIONS - 1)}
-              className="border-b border-[#38bdf8]/70 pb-0.5 text-sm font-medium text-white transition-colors hover:border-[#38bdf8] hover:text-[#38bdf8]"
+              className="border-b border-slate-300 pb-0.5 text-slate-700 transition-colors hover:border-slate-800 hover:text-[#0f172a]"
             >
               Hablemos
             </button>
@@ -1412,7 +1422,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
             >
               <span
                 className={`absolute inset-0 rounded-full transition-all duration-300 ${
-                  active === k ? 'scale-125 bg-[#38bdf8]' : 'bg-white/20 group-hover:bg-white/55'
+                  active === k ? 'scale-125 bg-[#0284c7]' : 'bg-slate-300 group-hover:bg-slate-500'
                 }`}
               />
             </button>
@@ -1424,28 +1434,28 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
           ref={setRef(0)}
           className="fixed inset-0 z-10 flex flex-col items-center justify-center px-5 text-center will-change-transform"
         >
-          <h1 className="flex flex-col items-center text-[2.15rem] font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-8xl">
-            <span className="whitespace-nowrap text-white">
-              Automatizamos<span className="text-[#38bdf8]">.</span>
+          <h1 className="flex flex-col items-center text-[2.15rem] font-bold leading-[1.1] tracking-tight text-[#0f172a] sm:text-6xl md:text-8xl">
+            <span className="whitespace-nowrap">
+              Automatizamos<span className="text-[#0284c7]">.</span>
             </span>
-            <span className="mt-1.5 flex min-h-[1.2em] max-w-[92vw] items-center justify-center text-white/60">
+            <span className="mt-1.5 flex min-h-[1.2em] max-w-[92vw] items-center justify-center text-slate-500 font-semibold">
               <TextMorph
                 words={['Creamos a medida.', 'Conectamos sistemas.', 'Productos propios.', 'Webs interactivas.']}
                 interval={2600}
-                dotClassName="text-[#38bdf8]"
+                dotClassName="text-[#0284c7]"
               />
             </span>
           </h1>
-          <p className="mt-6 max-w-sm text-base text-white/50 sm:max-w-md sm:text-lg">
+          <p className="mt-6 max-w-sm text-base text-slate-600 sm:max-w-md sm:text-lg">
             Software propio y soluciones en producción.
           </p>
           <button
             type="button"
             onClick={() => goTo(1)}
-            className="mt-14 flex flex-col items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-white/40 transition-colors hover:text-white"
+            className="mt-14 flex flex-col items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-slate-500 transition-colors hover:text-[#0f172a]"
           >
             Desliza
-            <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-[#38bdf8]/80 via-white/30 to-transparent" />
+            <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-[#0284c7] via-slate-300 to-transparent" />
           </button>
         </div>
 
@@ -1457,15 +1467,15 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
             className="fixed inset-x-0 bottom-0 z-10 px-5 pb-[6.5vh] will-change-transform md:inset-y-0 md:flex md:items-center md:px-[5.5vw] md:pb-0"
           >
             <div className="max-w-md md:max-w-[23.5rem]">
-              <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-white/45">
-                <span className="font-mono text-[#38bdf8]">{String(i + 1).padStart(2, '0')}</span>
-                <span className="h-px w-7 bg-white/20" />
+              <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-slate-500">
+                <span className="font-mono font-semibold text-[#0284c7]">{String(i + 1).padStart(2, '0')}</span>
+                <span className="h-px w-7 bg-slate-300" />
                 <span>{p.tag}</span>
               </div>
-              <h2 className="mt-2.5 text-3xl font-semibold leading-none tracking-tight sm:text-5xl md:text-6xl">
+              <h2 className="mt-2.5 text-3xl font-bold leading-none tracking-tight text-[#0f172a] sm:text-5xl md:text-6xl">
                 {p.name}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">{p.line}</p>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">{p.line}</p>
 
               {/* Selector minimalista de pantallas (solo texto + línea azul activa) */}
               {p.screens.length > 1 && (
@@ -1479,8 +1489,8 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                         onClick={() => selectScreen(i, sIdx)}
                         className={`relative pb-1.5 text-xs tracking-wide transition-colors sm:text-[13px] ${
                           isCur
-                            ? 'font-medium text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[1.5px] after:bg-[#38bdf8]'
-                            : 'text-white/40 hover:text-white/80'
+                            ? 'font-semibold text-[#0f172a] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-[#0284c7]'
+                            : 'text-slate-500 hover:text-slate-900'
                         }`}
                       >
                         {sc.label}
@@ -1490,17 +1500,31 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                 </div>
               )}
 
-              <a
-                href={p.href ?? wa(`Hola, quiero ver una demo de ${p.name}.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group mt-5 inline-flex items-center gap-2 border-b border-[#38bdf8]/75 pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:border-[#38bdf8] hover:text-sky-300"
-              >
-                <span>{p.cta}</span>
-                <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <a
+                  href={p.href ?? wa(`Hola, quiero ver una demo de ${p.name}.`)}
+                  target={p.href ? '_blank' : undefined}
+                  rel={p.href ? 'noopener noreferrer' : undefined}
+                  className="group inline-flex items-center gap-2 border-b border-[#0284c7]/80 pb-1 text-sm font-semibold text-[#0284c7] transition-colors hover:border-[#0284c7] hover:text-[#0369a1]"
+                >
+                  <span>{p.cta}</span>
+                  <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+                    {p.href ? '↗' : '→'}
+                  </span>
+                </a>
+
+                {p.id === 'paginago' && (
+                  <a
+                    href={wa('Hola, quiero consultar por la contratación de PaginaGo.')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 border-b border-slate-300 pb-1 text-sm text-slate-600 transition-colors hover:border-slate-800 hover:text-[#0f172a]"
+                  >
+                    <span>Consultar por WhatsApp</span>
+                    <span aria-hidden>→</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -1512,10 +1536,10 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
         >
           <div className="grid w-full max-w-5xl items-center gap-7 md:grid-cols-12 md:gap-12">
             <div className="text-center md:col-span-5 md:text-left">
-              <h2 className="text-4xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
-                Hablemos<span className="text-[#38bdf8]">.</span>
+              <h2 className="text-4xl font-bold tracking-tight text-[#0f172a] sm:text-6xl md:text-7xl">
+                Hablemos<span className="text-[#0284c7]">.</span>
               </h2>
-              <p className="mt-3 text-sm text-white/60 sm:mt-4 sm:text-base">
+              <p className="mt-3 text-sm text-slate-600 sm:mt-4 sm:text-base">
                 Cuéntanos qué quieres automatizar o construir. Respondemos en el día.
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:justify-start">
@@ -1523,7 +1547,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                   href={wa(ctaMsg)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 border-b border-[#38bdf8]/75 pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:border-[#38bdf8] hover:text-sky-300"
+                  className="group inline-flex items-center gap-2 border-b border-[#0284c7] pb-1 text-sm font-semibold text-[#0284c7] transition-colors hover:text-[#0369a1]"
                 >
                   <span>Escribir por WhatsApp</span>
                   <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
@@ -1532,23 +1556,29 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                 </a>
                 <a
                   href={`mailto:${brand.email}`}
-                  className="border-b border-white/20 pb-1 text-sm text-white/70 transition-colors hover:border-white/50 hover:text-white"
+                  className="border-b border-slate-300 pb-1 text-sm text-slate-700 transition-colors hover:border-slate-800 hover:text-[#0f172a]"
                 >
                   {brand.email}
                 </a>
               </div>
-              <p className="mt-8 hidden text-xs text-white/35 md:block">
-                © {new Date().getFullYear()} tuEndpoint · {brand.address}
-              </p>
+              <div className="mt-8 hidden text-xs text-slate-500 md:block space-y-1">
+                <p>© {new Date().getFullYear()} tuEndpoint · {brand.address}</p>
+                <p>
+                  Producto comercial:{' '}
+                  <a href="https://paginago.com" target="_blank" rel="noopener noreferrer" className="text-[#0284c7] underline hover:text-[#0369a1]">
+                    paginago.com
+                  </a>
+                </p>
+              </div>
             </div>
 
             <div className="md:col-span-7">
-              <div className="border border-white/10 border-t-[#38bdf8]/70 bg-[#060912]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+              <div className="border border-slate-200/90 border-t-2 border-t-[#0284c7] bg-white/95 p-5 shadow-xl backdrop-blur-xl sm:p-7">
                 {formState === 'sent' ? (
                   <div className="space-y-4 py-4 text-center md:text-left">
-                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#38bdf8]">MENSAJE RECIBIDO</div>
-                    <h3 className="text-xl font-semibold">Te responderemos a la brevedad</h3>
-                    <p className="text-sm text-white/60">
+                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#0284c7]">MENSAJE RECIBIDO</div>
+                    <h3 className="text-xl font-bold text-[#0f172a]">Te responderemos a la brevedad</h3>
+                    <p className="text-sm text-slate-600">
                       Si necesitas respuesta inmediata, puedes enviarnos también una copia directa por WhatsApp:
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-6 pt-2 md:justify-start">
@@ -1556,7 +1586,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                         href={wa(sentSummary)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-2 border-b border-[#38bdf8] pb-1 text-sm font-medium text-[#38bdf8] hover:text-sky-300"
+                        className="group inline-flex items-center gap-2 border-b border-[#0284c7] pb-1 text-sm font-semibold text-[#0284c7] hover:text-[#0369a1]"
                       >
                         <span>Abrir en WhatsApp ahora</span>
                         <span aria-hidden className="transition-transform group-hover:translate-x-1">
@@ -1566,7 +1596,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                       <button
                         type="button"
                         onClick={() => setFormState('idle')}
-                        className="border-b border-white/20 pb-1 text-xs text-white/65 hover:text-white"
+                        className="border-b border-slate-300 pb-1 text-xs text-slate-600 hover:text-slate-900"
                       >
                         Enviar otro mensaje
                       </button>
@@ -1574,7 +1604,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                   </div>
                 ) : (
                   <form onSubmit={submitForm} className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-white/[0.08] pb-2">
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-100 pb-2">
                       {TOPICS.map((tp) => (
                         <button
                           key={tp}
@@ -1582,8 +1612,8 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                           onClick={() => setTopic(tp)}
                           className={`relative pb-1.5 text-xs tracking-wide transition-colors ${
                             topic === tp
-                              ? 'font-medium text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[1.5px] after:bg-[#38bdf8]'
-                              : 'text-white/40 hover:text-white/80'
+                              ? 'font-semibold text-[#0f172a] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-[#0284c7]'
+                              : 'text-slate-500 hover:text-slate-900'
                           }`}
                         >
                           {tp}
@@ -1600,7 +1630,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Tu nombre"
                         aria-label="Tu nombre"
-                        className="w-full border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
+                        className="w-full border-b border-slate-200 bg-transparent py-2 text-sm text-[#0f172a] placeholder:text-slate-400 focus:border-[#0284c7] focus:outline-none"
                       />
                       <input
                         type="text"
@@ -1610,7 +1640,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                         onChange={(e) => setContact(e.target.value)}
                         placeholder="Correo o WhatsApp"
                         aria-label="Correo o WhatsApp"
-                        className="w-full border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
+                        className="w-full border-b border-slate-200 bg-transparent py-2 text-sm text-[#0f172a] placeholder:text-slate-400 focus:border-[#0284c7] focus:outline-none"
                       />
                     </div>
 
@@ -1622,15 +1652,15 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Cuéntanos en pocas palabras qué necesitas..."
                       aria-label="Mensaje"
-                      className="w-full resize-none border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
+                      className="w-full resize-none border-b border-slate-200 bg-transparent py-2 text-sm text-[#0f172a] placeholder:text-slate-400 focus:border-[#0284c7] focus:outline-none"
                     />
 
                     <div className="flex items-center justify-between gap-4 pt-2">
-                      <span className="text-xs text-white/35">Diagnóstico sin costo.</span>
+                      <span className="text-xs text-slate-500">Diagnóstico sin costo.</span>
                       <button
                         type="submit"
                         disabled={formState === 'sending'}
-                        className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b border-[#38bdf8] pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:text-sky-300 disabled:opacity-50"
+                        className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b border-[#0284c7] pb-1 text-sm font-semibold text-[#0284c7] transition-colors hover:text-[#0369a1] disabled:opacity-50"
                       >
                         <span>{formState === 'sending' ? 'Enviando...' : 'Enviar mensaje'}</span>
                         <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
@@ -1654,8 +1684,8 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
         />
 
         {/* Progreso */}
-        <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-white/5">
-          <div ref={barRef} className="h-full origin-left bg-[#38bdf8]/75" style={{ transform: 'scaleX(0)' }} />
+        <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-slate-200/80">
+          <div ref={barRef} className="h-full origin-left bg-[#0284c7]" style={{ transform: 'scaleX(0)' }} />
         </div>
       </div>
 

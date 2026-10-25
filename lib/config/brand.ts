@@ -4,7 +4,7 @@ export const brand = {
   tagline: 'Consultora de software a medida',
   description:
     'Desarrollamos soluciones tecnológicas para empresas. Salud, educación, retail, logística y más.',
-  email: 'mr.reinaldo.g@gmail.com',
+  email: 'contacto@tuendpoint.cl',
   phone: '+56 9 492 5337',
   address: 'Viña del Mar, Chile',
   url: 'https://tuendpoint.vercel.app',

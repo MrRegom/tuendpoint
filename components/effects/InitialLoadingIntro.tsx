@@ -9,8 +9,9 @@ interface InitialLoadingIntroProps {
 }
 
 /**
- * Intro: "tuEndpoint" y el punto de la "i" cae desde arriba y rebota hasta su lugar.
- * La "i" se escribe sin punto (U+0131) y el punto es un elemento animado aparte.
+ * Intro sobre el mismo fondo espacial:
+ * 1) "tu" entra desde la izquierda y "Endpoınt" desde la derecha.
+ * 2) Una vez unidos, el punto cae desde arriba y rebota quedando claramente sobre la "ı".
  */
 export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLoadingIntroProps) {
   const [isVisible, setIsVisible] = useState(true);
@@ -27,7 +28,7 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
       onComplete?.();
       return;
     }
-    const finishTimer = setTimeout(handleDismiss, 3000);
+    const finishTimer = setTimeout(handleDismiss, 2900);
     return () => clearTimeout(finishTimer);
   }, [forceShow, onComplete, handleDismiss]);
 
@@ -44,34 +45,57 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
         <motion.div
           key="intro"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.04 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
+          exit={{ opacity: 0, scale: 1.03 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
           onClick={handleDismiss}
-          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-[#05060b]"
+          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-transparent"
           role="img"
           aria-label="tuEndpoint"
         >
           <div
             aria-hidden
-            className="relative flex items-baseline text-5xl font-semibold leading-none tracking-tight text-white sm:text-7xl"
+            className="relative flex items-baseline text-5xl font-semibold leading-none tracking-tight text-white sm:text-7xl md:text-8xl"
           >
-            <span>tuEndpo</span>
-            <span className="relative inline-block">
-              <span>{'\u0131'}</span>
-              <motion.span
-                className="absolute left-1/2 -translate-x-1/2 rounded-full bg-[#38bdf8]"
-                style={{ top: '0.12em', width: '0.14em', height: '0.14em', boxShadow: '0 0 18px #38bdf8' }}
-                initial={{ y: -520, opacity: 0 }}
-                animate={{ y: [-520, 0, -80, 0, -26, 0, -7, 0], opacity: 1 }}
-                transition={{
-                  duration: 1.8,
-                  times: [0, 0.34, 0.5, 0.64, 0.76, 0.86, 0.94, 1],
-                  ease: 'easeInOut',
-                  opacity: { duration: 0.15 },
-                }}
-              />
-            </span>
-            <span>nt</span>
+            {/* "tu" entra desde la izquierda */}
+            <motion.span
+              initial={{ x: -84, opacity: 0, filter: 'blur(8px)' }}
+              animate={{ x: 0, opacity: 1, filter: 'blur(0px)' }}
+              transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-block"
+            >
+              tu
+            </motion.span>
+
+            {/* "Endpoınt" entra desde la derecha */}
+            <motion.span
+              initial={{ x: 84, opacity: 0, filter: 'blur(8px)' }}
+              animate={{ x: 0, opacity: 1, filter: 'blur(0px)' }}
+              transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-flex items-baseline"
+            >
+              <span>Endpo</span>
+              <span className="relative inline-block">
+                <span>{'\u0131'}</span>
+                <motion.span
+                  className="absolute left-1/2 -translate-x-1/2 rounded-full bg-[#38bdf8]"
+                  style={{
+                    top: '-0.02em',
+                    width: '0.145em',
+                    height: '0.145em',
+                    boxShadow: '0 0 14px rgba(56, 189, 248, 0.75)',
+                  }}
+                  initial={{ y: -440, opacity: 0 }}
+                  animate={{ y: [-440, 0, -68, 0, -24, 0, -6, 0], opacity: [0, 1, 1, 1, 1, 1, 1, 1] }}
+                  transition={{
+                    delay: 0.52,
+                    duration: 1.55,
+                    times: [0, 0.34, 0.5, 0.64, 0.76, 0.87, 0.94, 1],
+                    ease: 'easeInOut',
+                  }}
+                />
+              </span>
+              <span>nt</span>
+            </motion.span>
           </div>
         </motion.div>
       )}

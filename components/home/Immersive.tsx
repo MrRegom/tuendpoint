@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three';
 import { brand } from '@/lib/config/brand';
 import { AssistantBot } from '@/components/home/AssistantBot';
+import { TextMorph } from '@/components/ui/text-morph';
 
 /* ------------------------------------------------------------------ */
 /* Datos y pantallas por producto                                      */
@@ -13,7 +14,8 @@ type ScreenSpec =
   | { kind: 'img'; src: string; label: string; click?: [number, number] }
   | { kind: 'filas-tv'; label: string }
   | { kind: 'filas-totem'; label: string }
-  | { kind: 'auto-flow'; label: string };
+  | { kind: 'auto-monitor'; label: string }
+  | { kind: 'auto-reglas'; label: string };
 
 type Product = {
   id: string;
@@ -117,9 +119,12 @@ const PRODUCTS: Product[] = [
     name: 'Automatizaciones',
     line: 'Conectamos tus sistemas y eliminamos lo que hoy haces a mano.',
     tag: 'A medida',
-    color: '#34d399',
+    color: '#38bdf8',
     aspect: 1.6,
-    screens: [{ kind: 'auto-flow', label: 'Flujo en vivo' }],
+    screens: [
+      { kind: 'auto-monitor', label: 'Ejecuciones' },
+      { kind: 'auto-reglas', label: 'Reglas' },
+    ],
     cta: 'Cuéntanos tu proceso',
   },
 ];
@@ -589,131 +594,260 @@ function drawFilasTotem(x: CanvasRenderingContext2D, W: number, H: number, t: nu
   }
 }
 
-/** Diagrama animado en vivo para Automatizaciones. */
-function drawAutomationFlow(x: CanvasRenderingContext2D, W: number, H: number, color: string, t: number) {
-  const bg = x.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#0a0f1c');
-  bg.addColorStop(1, '#0d1626');
-  x.fillStyle = bg;
+const AUTO_LOGS = [
+  { h: '17:38:14', ev: 'Venta POS #8941', dest: 'Factura Electrónica SII · Folio 48219', est: 'Aceptado SII', ms: '0,7 s' },
+  { h: '17:38:02', ev: 'Orden #OC-204', dest: 'Recepción creada en Bodega Central', est: 'Sincronizado', ms: '1,1 s' },
+  { h: '17:37:45', ev: 'Stock bajo mínimo', dest: 'Aviso enviado a encargado de compras', est: 'Entregado', ms: '0,4 s' },
+  { h: '17:37:19', ev: 'Cartola bancaria', dest: 'Conciliación de 18 transferencias', est: 'Cuadrado', ms: '1,3 s' },
+  { h: '17:36:50', ev: 'Acta firmada #309', dest: 'PDF respaldado y enviado por correo', est: 'Guardado', ms: '0,5 s' },
+  { h: '17:36:12', ev: 'Pedido web #1108', dest: 'Guía de despacho + descuento de stock', est: 'Emitida', ms: '0,8 s' },
+];
+
+function drawAutoShell(x: CanvasRenderingContext2D, W: number, H: number, activeTab: 0 | 1) {
+  x.fillStyle = '#F4F6F9';
   x.fillRect(0, 0, W, H);
 
-  x.strokeStyle = 'rgba(255,255,255,0.045)';
-  x.lineWidth = 1;
-  for (let i = 0; i <= W; i += 50) {
-    x.beginPath();
-    x.moveTo(i, 0);
-    x.lineTo(i, H);
-    x.stroke();
-  }
-  for (let j = 0; j <= H; j += 50) {
-    x.beginPath();
-    x.moveTo(0, j);
-    x.lineTo(W, j);
-    x.stroke();
-  }
+  // Barra lateral sobria estilo consola empresarial real
+  const sbW = 240;
+  x.fillStyle = '#0F172A';
+  x.fillRect(0, 0, sbW, H);
 
-  const nodes = [
-    { t: 'Correo o formulario', s: 'Llega un pedido o documento', px: 120, py: 185 },
-    { t: 'Extrae los datos', s: 'Lectura inteligente', px: 620, py: 185 },
-    { t: 'Valida reglas', s: 'Sin errores humanos', px: 1120, py: 185 },
-    { t: 'SII · APIs · ERP', s: 'Emite DTE y sincroniza', px: 370, py: 545 },
-    { t: 'Notifica y registra', s: 'WhatsApp + respaldo', px: 870, py: 545 },
-  ];
-  const nw = 365;
-  const nh = 155;
+  x.fillStyle = '#FFFFFF';
+  x.font = '700 24px Inter, Segoe UI, sans-serif';
+  x.fillText('Integraciones', 28, 54);
+  x.fillStyle = '#64748B';
+  x.font = '500 15px Inter, Segoe UI, sans-serif';
+  x.fillText('Consola operativa', 28, 78);
 
-  const progress = (t * 0.48) % 5; // recorre los 5 nodos continuamente
-  const activeNode = Math.floor(progress);
-
-  const pairs: [number, number][] = [
-    [0, 1],
-    [1, 2],
-    [2, 3],
-    [3, 4],
-  ];
-
-  // Líneas + pulso viajero
-  pairs.forEach(([a, b], idx) => {
-    const A = nodes[a];
-    const B = nodes[b];
-    const sameRow = A.py === B.py;
-    const x1 = sameRow ? A.px + nw : A.px + nw / 2;
-    const y1 = sameRow ? A.py + nh / 2 : A.py + nh;
-    const x2 = sameRow ? B.px : B.px + nw / 2;
-    const y2 = sameRow ? B.py + nh / 2 : B.py;
-
-    x.save();
-    x.lineWidth = 3;
-    x.strokeStyle = color + '66';
-    x.setLineDash([12, 10]);
-    x.lineDashOffset = -t * 48;
-    x.beginPath();
-    if (sameRow) {
-      x.moveTo(x1, y1);
-      x.lineTo(x2, y2);
-    } else {
-      x.moveTo(x1, y1);
-      x.bezierCurveTo(x1, y1 + 125, x2, y2 - 125, x2, y2);
-    }
-    x.stroke();
-    x.restore();
-
-    // Paquete luminoso viajando por el tramo activo
-    const segU = progress - idx;
-    if (segU >= 0 && segU <= 1) {
-      let px = 0;
-      let py = 0;
-      if (sameRow) {
-        px = x1 + (x2 - x1) * segU;
-        py = y1 + (y2 - y1) * segU;
-      } else {
-        const u = segU;
-        const m = 1 - u;
-        const cy1 = y1 + 125;
-        const cy2 = y2 - 125;
-        px = m * m * m * x1 + 3 * m * m * u * x1 + 3 * m * u * u * x2 + u * u * u * x2;
-        py = m * m * m * y1 + 3 * m * m * u * cy1 + 3 * m * u * u * cy2 + u * u * u * y2;
-      }
-      const g = x.createRadialGradient(px, py, 0, px, py, 28);
-      g.addColorStop(0, '#ffffff');
-      g.addColorStop(0.35, color);
-      g.addColorStop(1, color + '00');
-      x.fillStyle = g;
+  const navItems = ['Ejecuciones', 'Reglas activas', 'Conectores', 'Alertas'];
+  navItems.forEach((label, idx) => {
+    const ny = 126 + idx * 54;
+    const isSel = idx === activeTab;
+    if (isSel) {
+      x.fillStyle = '#1E293B';
       x.beginPath();
-      x.arc(px, py, 28, 0, Math.PI * 2);
+      x.roundRect(14, ny, sbW - 28, 44, 10);
       x.fill();
     }
+    x.fillStyle = isSel ? '#FFFFFF' : '#94A3B8';
+    x.font = `${isSel ? 600 : 500} 18px Inter, Segoe UI, sans-serif`;
+    x.fillText(label, 32, ny + 28);
   });
 
-  nodes.forEach((n, i) => {
-    const isHit = i === activeNode;
-    x.fillStyle = isHit ? '#15243b' : '#111a2c';
-    x.strokeStyle = isHit ? '#ffffff' : color;
-    x.lineWidth = isHit ? 3.5 : 2;
+  // Barra superior blanca limpia
+  x.fillStyle = '#FFFFFF';
+  x.fillRect(sbW, 0, W - sbW, 84);
+  x.fillStyle = '#E2E8F0';
+  x.fillRect(sbW, 83, W - sbW, 1);
+
+  x.fillStyle = '#0F172A';
+  x.font = '700 26px Inter, Segoe UI, sans-serif';
+  x.fillText(activeTab === 0 ? 'Ejecuciones en tiempo real' : 'Reglas automáticas configuradas', sbW + 40, 52);
+
+  // Estado sobrio a la derecha
+  x.fillStyle = '#ECFDF5';
+  x.beginPath();
+  x.roundRect(W - 210, 24, 170, 36, 18);
+  x.fill();
+  x.fillStyle = '#10B981';
+  x.beginPath();
+  x.arc(W - 188, 42, 5, 0, Math.PI * 2);
+  x.fill();
+  x.fillStyle = '#065F46';
+  x.font = '600 15px Inter, Segoe UI, sans-serif';
+  x.fillText('Operando 24/7', W - 172, 47);
+}
+
+/** Monitor limpio de integraciones reales (sin grillas ni neones estilo IA). */
+function drawAutoMonitor(x: CanvasRenderingContext2D, W: number, H: number, t: number) {
+  drawAutoShell(x, W, H, 0);
+  const L = 280;
+
+  const cycle = 3.2;
+  const step = Math.floor(t / cycle);
+  const local = (t % cycle) / cycle;
+
+  // 3 KPIs limpios
+  const kpis = [
+    { label: 'EJECUCIONES HOY', val: String(1284 + (step % 12)), sub: 'Sin intervención manual' },
+    { label: 'DOCUMENTOS SII', val: '312', sub: 'Boletas y facturas emitidas' },
+    { label: 'ERRORES PENDIENTES', val: '0', sub: 'Reintento y aviso automático' },
+  ];
+  kpis.forEach((k, i) => {
+    const kx = L + i * 432;
+    const ky = 114;
+    const kw = 412, kh = 142;
+    x.fillStyle = '#FFFFFF';
+    x.strokeStyle = '#E2E8F0';
+    x.lineWidth = 1.5;
     x.beginPath();
-    x.roundRect(n.px, n.py, nw, nh, 22);
+    x.roundRect(kx, ky, kw, kh, 14);
     x.fill();
     x.stroke();
 
-    x.fillStyle = isHit ? '#ffffff' : color;
-    x.beginPath();
-    x.arc(n.px + 42, n.py + nh / 2, isHit ? 15 : 12, 0, Math.PI * 2);
-    x.fill();
-
-    x.fillStyle = '#ffffff';
-    x.font = '600 28px Inter, Segoe UI, sans-serif';
-    x.fillText(n.t, n.px + 72, n.py + 66);
-    x.fillStyle = '#94a3b8';
-    x.font = '400 22px Inter, Segoe UI, sans-serif';
-    x.fillText(n.s, n.px + 72, n.py + 104);
+    x.fillStyle = '#64748B';
+    x.font = '600 15px Inter, Segoe UI, sans-serif';
+    x.fillText(k.label, kx + 26, ky + 38);
+    x.fillStyle = '#0F172A';
+    x.font = '700 44px Inter, Segoe UI, sans-serif';
+    x.fillText(k.val, kx + 26, ky + 92);
+    x.fillStyle = '#64748B';
+    x.font = '400 16px Inter, Segoe UI, sans-serif';
+    x.fillText(k.sub, kx + 26, ky + 122);
   });
 
-  x.fillStyle = '#ffffff';
-  x.font = '600 40px Inter, Segoe UI, sans-serif';
-  x.fillText('Del trabajo manual al flujo automático en segundos', 120, 845);
-  x.fillStyle = '#8b97ad';
-  x.font = '400 26px Inter, Segoe UI, sans-serif';
-  x.fillText('Funciona 24/7, deja registro y avisa al instante si algo requiere revisión.', 120, 892);
+  // Tabla de actividad reciente
+  const tx = L, ty = 284, tw = 1276, th = 676;
+  x.fillStyle = '#FFFFFF';
+  x.strokeStyle = '#E2E8F0';
+  x.lineWidth = 1.5;
+  x.beginPath();
+  x.roundRect(tx, ty, tw, th, 14);
+  x.fill();
+  x.stroke();
+
+  // Encabezado tabla
+  x.fillStyle = '#F8FAFC';
+  x.beginPath();
+  x.roundRect(tx + 1, ty + 1, tw - 2, 56, [14, 14, 0, 0]);
+  x.fill();
+  x.fillStyle = '#E2E8F0';
+  x.fillRect(tx, ty + 57, tw, 1);
+
+  x.fillStyle = '#64748B';
+  x.font = '600 14px Inter, Segoe UI, sans-serif';
+  x.fillText('HORA', tx + 28, ty + 35);
+  x.fillText('ORIGEN', tx + 155, ty + 35);
+  x.fillText('ACCIÓN AUTOMÁTICA', tx + 430, ty + 35);
+  x.fillText('ESTADO', tx + 985, ty + 35);
+  x.fillText('TIEMPO', tx + 1175, ty + 35);
+
+  const slide = smooth(clamp(local / 0.22));
+  for (let r = 0; r < 5; r++) {
+    const item = AUTO_LOGS[(step + AUTO_LOGS.length - r) % AUTO_LOGS.length];
+    const ry = ty + 62 + r * 118 + (r === 0 ? (1 - slide) * -22 : 0);
+    x.save();
+    if (r === 0) x.globalAlpha = slide;
+
+    if (r < 4) {
+      x.fillStyle = '#F1F5F9';
+      x.fillRect(tx + 24, ry + 114, tw - 48, 1);
+    }
+
+    x.fillStyle = '#64748B';
+    x.font = '500 18px ui-monospace, Consolas, monospace';
+    x.fillText(item.h, tx + 28, ry + 64);
+
+    x.fillStyle = '#0F172A';
+    x.font = '600 20px Inter, Segoe UI, sans-serif';
+    x.fillText(item.ev, tx + 155, ry + 64);
+
+    x.fillStyle = '#334155';
+    x.font = '400 20px Inter, Segoe UI, sans-serif';
+    x.fillText(item.dest, tx + 430, ry + 64);
+
+    x.fillStyle = '#ECFDF5';
+    x.beginPath();
+    x.roundRect(tx + 980, ry + 40, 152, 36, 18);
+    x.fill();
+    x.fillStyle = '#047857';
+    x.font = '600 16px Inter, Segoe UI, sans-serif';
+    x.fillText(item.est, tx + 1002, ry + 63);
+
+    x.fillStyle = '#64748B';
+    x.font = '500 18px ui-monospace, Consolas, monospace';
+    x.fillText(item.ms, tx + 1175, ry + 64);
+    x.restore();
+  }
+
+  // Cursor navegando hacia "Reglas activas" antes del cambio de vista
+  const navPhase = (t % 4.5) / 4.5;
+  if (navPhase > 0.45 && navPhase < 0.88) {
+    const u = smooth(clamp((navPhase - 0.45) / 0.28));
+    const cx = 760 + (110 - 760) * u;
+    const cy = 520 + (202 - 520) * u;
+    const rip = navPhase > 0.73 ? clamp((navPhase - 0.73) / 0.14) : 0;
+    drawCursor(x, cx, cy, '#0EA5E9', rip);
+  }
+}
+
+/** Segunda vista limpia: listado de reglas operativas reales. */
+function drawAutoReglas(x: CanvasRenderingContext2D, W: number, H: number, t: number) {
+  drawAutoShell(x, W, H, 1);
+  const L = 280;
+
+  const rules = [
+    {
+      from: 'CajaYA · Venta cerrada',
+      arrow: 'Emite boleta o factura en SII y descuenta bodega',
+      meta: 'Tiempo real · API SII + Inventario',
+    },
+    {
+      from: 'Correo · Orden de compra PDF',
+      arrow: 'Extrae ítems y crea pre-recepción en Bodega',
+      meta: 'Cada 2 min · Correo → ERP',
+    },
+    {
+      from: 'Banco · Cartola de movimientos',
+      arrow: 'Cruza transferencias con facturas pendientes',
+      meta: 'Diario 08:30 · Finanzas',
+    },
+    {
+      from: 'Bodega · Stock bajo mínimo',
+      arrow: 'Envía resumen de reposición al encargado',
+      meta: 'Inmediato · WhatsApp corporativo',
+    },
+  ];
+
+  rules.forEach((rl, i) => {
+    const ry = 122 + i * 204;
+    x.fillStyle = '#FFFFFF';
+    x.strokeStyle = '#E2E8F0';
+    x.lineWidth = 1.5;
+    x.beginPath();
+    x.roundRect(L, ry, 1276, 180, 14);
+    x.fill();
+    x.stroke();
+
+    x.fillStyle = '#F1F5F9';
+    x.beginPath();
+    x.roundRect(L + 30, ry + 32, 320, 44, 10);
+    x.fill();
+    x.fillStyle = '#0F172A';
+    x.font = '600 18px Inter, Segoe UI, sans-serif';
+    x.fillText(rl.from, L + 48, ry + 60);
+
+    x.fillStyle = '#94A3B8';
+    x.font = '600 22px Inter, Segoe UI, sans-serif';
+    x.fillText('→', L + 372, ry + 61);
+
+    x.fillStyle = '#0F172A';
+    x.font = '600 23px Inter, Segoe UI, sans-serif';
+    x.fillText(rl.arrow, L + 412, ry + 61);
+
+    x.fillStyle = '#64748B';
+    x.font = '400 18px Inter, Segoe UI, sans-serif';
+    x.fillText(rl.meta, L + 32, ry + 132);
+
+    // Switch activo limpio
+    x.fillStyle = '#10B981';
+    x.beginPath();
+    x.roundRect(L + 1170, ry + 40, 68, 36, 18);
+    x.fill();
+    x.fillStyle = '#FFFFFF';
+    x.beginPath();
+    x.arc(L + 1220, ry + 58, 13, 0, Math.PI * 2);
+    x.fill();
+  });
+
+  const navPhase = (t % 4.5) / 4.5;
+  if (navPhase > 0.45 && navPhase < 0.88) {
+    const u = smooth(clamp((navPhase - 0.45) / 0.28));
+    const cx = 820 + (110 - 820) * u;
+    const cy = 480 + (148 - 480) * u;
+    const rip = navPhase > 0.73 ? clamp((navPhase - 0.73) / 0.14) : 0;
+    drawCursor(x, cx, cy, '#0EA5E9', rip);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -722,7 +856,7 @@ function drawAutomationFlow(x: CanvasRenderingContext2D, W: number, H: number, c
 
 const TOPICS = ['Automatizar', 'Software a medida', 'Producto', 'Web 3D'] as const;
 
-export function Immersive() {
+export function Immersive({ introDone = true }: { introDone?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
   const barRef = useRef<HTMLDivElement>(null);
@@ -965,8 +1099,12 @@ export function Immersive() {
         drawFilasTotem(ctx, W, H, t);
         return;
       }
-      if (spec.kind === 'auto-flow') {
-        drawAutomationFlow(ctx, W, H, color, t);
+      if (spec.kind === 'auto-monitor') {
+        drawAutoMonitor(ctx, W, H, t);
+        return;
+      }
+      if (spec.kind === 'auto-reglas') {
+        drawAutoReglas(ctx, W, H, t);
         return;
       }
       const im = imgCache.get(spec.src);
@@ -1239,64 +1377,67 @@ export function Immersive() {
     <div className="immersive-root relative bg-[#05060b] text-white">
       <canvas ref={canvasRef} className="fixed inset-0 h-screen w-screen" aria-hidden />
 
-      {/* Navegación mínima */}
-      <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-5 md:px-10">
-        <button type="button" onClick={() => goTo(0)} className="text-lg font-semibold tracking-tight" aria-label="Inicio">
-          tuEndpoint<span className="text-[#38bdf8]">.</span>
-        </button>
-        <div className="flex items-center gap-6 text-sm text-white/70">
-          <button type="button" onClick={() => goTo(1)} className="hidden transition-colors hover:text-white sm:block">
-            Productos
+      <div className={`transition-opacity duration-700 ${introDone ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+        {/* Navegación mínima */}
+        <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-5 md:px-10">
+          <button type="button" onClick={() => goTo(0)} className="text-lg font-semibold tracking-tight" aria-label="Inicio">
+            tuEndpoint<span className="text-[#38bdf8]">.</span>
           </button>
+          <div className="flex items-center gap-6 text-sm text-white/70">
+            <button type="button" onClick={() => goTo(1)} className="hidden transition-colors hover:text-white sm:block">
+              Productos
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(SECTIONS - 1)}
+              className="rounded-full border border-white/20 px-4 py-1.5 text-white transition-colors hover:bg-white hover:text-black"
+            >
+              Hablemos
+            </button>
+          </div>
+        </nav>
+
+        {/* Puntos de navegación */}
+        <div className="fixed right-5 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 md:flex" aria-label="Secciones">
+          {Array.from({ length: SECTIONS }).map((_, k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => goTo(k)}
+              aria-label={k === 0 ? 'Inicio' : k === SECTIONS - 1 ? 'Contacto' : PRODUCTS[k - 1].name}
+              className="group relative h-2.5 w-2.5"
+            >
+              <span
+                className={`absolute inset-0 rounded-full transition-all duration-300 ${active === k ? 'scale-125 bg-white' : 'bg-white/25 group-hover:bg-white/60'}`}
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Hero */}
+        <div
+          ref={setRef(0)}
+          className="fixed inset-0 z-10 flex flex-col items-center justify-center px-6 text-center will-change-transform"
+        >
+          <h1 className="flex flex-col items-center text-balance text-5xl font-semibold leading-[1.06] tracking-tight sm:text-7xl md:text-8xl">
+            <span className="text-white">Automatizamos.</span>
+            <span className="mt-1 flex min-h-[1.16em] items-center justify-center text-white/55">
+              <TextMorph
+                words={['Creamos a medida.', 'Conectamos sistemas.', 'Productos propios.', 'Webs interactivas.']}
+                interval={2600}
+              />
+            </span>
+          </h1>
+          <p className="mt-6 max-w-md text-lg text-white/55">Software propio y soluciones en producción.</p>
           <button
             type="button"
-            onClick={() => goTo(SECTIONS - 1)}
-            className="rounded-full border border-white/20 px-4 py-1.5 text-white transition-colors hover:bg-white hover:text-black"
+            onClick={() => goTo(1)}
+            className="mt-14 flex flex-col items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/45 transition-colors hover:text-white"
           >
-            Hablemos
+            Desliza
+            <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-white/60 to-transparent" />
           </button>
         </div>
-      </nav>
-
-      {/* Puntos de navegación */}
-      <div className="fixed right-5 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 md:flex" aria-label="Secciones">
-        {Array.from({ length: SECTIONS }).map((_, k) => (
-          <button
-            key={k}
-            type="button"
-            onClick={() => goTo(k)}
-            aria-label={k === 0 ? 'Inicio' : k === SECTIONS - 1 ? 'Contacto' : PRODUCTS[k - 1].name}
-            className="group relative h-2.5 w-2.5"
-          >
-            <span
-              className={`absolute inset-0 rounded-full transition-all duration-300 ${active === k ? 'scale-125 bg-white' : 'bg-white/25 group-hover:bg-white/60'}`}
-            />
-          </button>
-        ))}
-      </div>
-
-      {/* Hero */}
-      <div
-        ref={setRef(0)}
-        className="fixed inset-0 z-10 flex flex-col items-center justify-center px-6 text-center will-change-transform"
-      >
-        <h1 className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl md:text-8xl">
-          Automatizamos.
-          <br />
-          <span className="bg-gradient-to-r from-[#38bdf8] via-[#a78bfa] to-[#facc15] bg-clip-text text-transparent">
-            Creamos a medida.
-          </span>
-        </h1>
-        <p className="mt-6 max-w-md text-lg text-white/60">Software propio y productos que ya funcionan.</p>
-        <button
-          type="button"
-          onClick={() => goTo(1)}
-          className="mt-14 flex flex-col items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/50 transition-colors hover:text-white"
-        >
-          Desliza
-          <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-white/60 to-transparent" />
-        </button>
-      </div>
 
       {/* Productos */}
       {PRODUCTS.map((p, i) => (
@@ -1369,7 +1510,7 @@ export function Immersive() {
                 rel="noopener noreferrer"
                 className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-black transition-transform hover:scale-[1.03] sm:text-sm"
               >
-                WhatsApp · {brand.phone}
+                Escribir por WhatsApp
               </a>
               <a
                 href={`mailto:${brand.email}`}
@@ -1494,6 +1635,7 @@ export function Immersive() {
       {/* Progreso */}
       <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-white/5">
         <div ref={barRef} className="h-full origin-left bg-white/70" style={{ transform: 'scaleX(0)' }} />
+      </div>
       </div>
 
       {/* Espaciador de scroll */}

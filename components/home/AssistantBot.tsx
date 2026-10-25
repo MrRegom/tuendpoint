@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { MessageCircle, X } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 
 type ActionChip = {
@@ -25,10 +26,10 @@ interface AssistantBotProps {
 }
 
 const ROOT_CHIPS: ActionChip[] = [
-  { label: '1. Ver productos listos', kind: 'step', value: 'productos' },
-  { label: '2. Automatizar un proceso', kind: 'step', value: 'automatizar' },
-  { label: '3. Software o web 3D a medida', kind: 'step', value: 'medida' },
-  { label: '4. Precios y tiempos', kind: 'step', value: 'precios' },
+  { label: 'Ver productos listos', kind: 'step', value: 'productos' },
+  { label: 'Automatizar un proceso', kind: 'step', value: 'automatizar' },
+  { label: 'Software o web a medida', kind: 'step', value: 'medida' },
+  { label: 'Precios y plazos', kind: 'step', value: 'precios' },
 ];
 
 function replyToStep(key: string, label: string): { userText: string; botText: string; chips: ActionChip[] } {
@@ -36,7 +37,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
     case 'productos':
       return {
         userText: label,
-        botText: 'Paso 2 de 2 · ¿En qué área operas?',
+        botText: '¿En qué área operas?',
         chips: [
           { label: 'Salud o atención de público', kind: 'step', value: 'area_salud' },
           { label: 'Colegio, bodega o inventario', kind: 'step', value: 'area_bodega' },
@@ -47,7 +48,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       return {
         userText: 'Salud o atención de público',
         botText:
-          'Tenemos dos sistemas en producción hospitalaria: Gestor de Filas (tótem, TV de llamados con voz y métricas) y TICPanel (inventario TI con agente, soporte y actas).',
+          'Contamos con dos sistemas en operación hospitalaria: Gestor de Filas (tótem, TV de llamados con voz y métricas) y TICPanel (inventario TI con agente, tickets y actas).',
         chips: [
           { label: 'Ver Gestor de Filas', kind: 'portal', value: 'filas' },
           { label: 'Ver TICPanel', kind: 'portal', value: 'ticpanel' },
@@ -63,7 +64,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       return {
         userText: 'Colegio, bodega o inventario',
         botText:
-          'Operamos Logística TBA: solicitudes internas, órdenes de compra, bodega, activos fijos, bajas y auditoría completa.',
+          'Operamos Logística TBA: solicitudes internas, órdenes de compra, bodega, activos fijos, bajas y auditoría.',
         chips: [
           { label: 'Ver Logística TBA', kind: 'portal', value: 'tba' },
           {
@@ -78,7 +79,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       return {
         userText: 'Comercio, POS o catálogo',
         botText:
-          'Para punto de venta tenemos CajaYA (funciona con o sin internet, stock, turnos y DTE SII). Para vender rápido por link está PaginaGo con pedidos directo a WhatsApp.',
+          'Para punto de venta tenemos CajaYA (opera con o sin internet, stock, turnos y DTE SII). Para vender rápido por link está PaginaGo con pedidos a WhatsApp.',
         chips: [
           { label: 'Ver CajaYA', kind: 'portal', value: 'cajaya' },
           { label: 'Ver PaginaGo', kind: 'portal', value: 'paginago' },
@@ -93,7 +94,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
     case 'automatizar':
       return {
         userText: label,
-        botText: 'Paso 2 de 2 · ¿Qué te quita más tiempo hoy?',
+        botText: '¿Qué te quita más tiempo hoy?',
         chips: [
           { label: 'Planillas Excel y doble digitación', kind: 'step', value: 'auto_excel' },
           { label: 'Facturación SII o conectar sistemas', kind: 'step', value: 'auto_sii' },
@@ -108,12 +109,12 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
           ? 'Reemplazamos planillas sueltas por un flujo único que valida y registra sin volver a digitar.'
           : key === 'auto_sii'
             ? 'Conectamos tus ventas o sistema interno directo con SII, APIs y ERP de forma automática.'
-            : 'Programamos la lectura de datos, envío de reportes y alertas en tiempo real cuando algo requiere atención.';
+            : 'Programamos lectura de datos, envío de reportes y alertas cuando algo requiere atención.';
       return {
         userText: label,
-        botText: `${detail} ¿Revisamos tu caso sin costo?`,
+        botText: `${detail} ¿Revisamos tu caso?`,
         chips: [
-          { label: 'Ver flujo en 3D', kind: 'portal', value: 'auto' },
+          { label: 'Ver Automatizaciones', kind: 'portal', value: 'auto' },
           {
             label: 'Dejar mi caso en el formulario',
             kind: 'contact',
@@ -127,7 +128,7 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
     case 'medida':
       return {
         userText: label,
-        botText: 'Paso 2 de 2 · ¿Qué necesitas construir?',
+        botText: '¿Qué necesitas construir?',
         chips: [
           { label: 'Sistema web a medida', kind: 'step', value: 'medida_sistema' },
           { label: 'Web interactiva 3D (como esta)', kind: 'step', value: 'medida_web' },
@@ -139,10 +140,10 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
     case 'medida_totem': {
       const msg =
         key === 'medida_web'
-          ? 'Diseñamos sitios inmersivos 3D rápidos, limpios y orientados a conversión (como este sitio o PaginaGo).'
+          ? 'Diseñamos sitios inmersivos 3D rápidos, limpios y orientados a conversión.'
           : key === 'medida_totem'
             ? 'Construimos interfaces táctiles para tótems, pantallas TV y apps que siguen operando aunque caiga internet.'
-            : 'Desarrollamos plataformas completas a la medida de tu operación, con entregas visibles desde las primeras semanas.';
+            : 'Desarrollamos plataformas completas a la medida de tu operación, con entregas por etapas.';
       return {
         userText: label,
         botText: msg,
@@ -162,16 +163,16 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       return {
         userText: label,
         botText:
-          'PaginaGo parte en $6.990/mes. Para nuestros sistemas (Filas, TICPanel, TBA, CajaYA) o desarrollos a medida, la evaluación inicial es gratis y cotizamos por alcance claro, sin letra chica.',
+          'PaginaGo parte en $6.990/mes. Para nuestros sistemas (Filas, TICPanel, TBA, CajaYA) o desarrollos a medida, la evaluación inicial es sin costo y cotizamos por alcance cerrado.',
         chips: [
           {
-            label: 'Pedir cotización gratis',
+            label: 'Pedir cotización',
             kind: 'contact',
             value: 'Software a medida',
             draft: 'Hola, quiero evaluar costos y plazos para un proyecto.',
           },
           { label: 'WhatsApp directo', kind: 'wa', value: 'Hola, quiero consultar valores y plazos con tuEndpoint.' },
-          { label: '← Volver al inicio', kind: 'step', value: 'inicio' },
+          { label: '← Volver', kind: 'step', value: 'inicio' },
         ],
       };
   }
@@ -181,25 +182,25 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   const s = q.toLowerCase();
   if (/fila|turno|totem|tótem|llamad|pantalla|tv/.test(s)) {
     return {
-      text: 'Nuestro Gestor de Filas incluye tótem táctil (con o sin RUT), pantalla TV de llamados con timbre y voz, atención por módulo y trazabilidad completa.',
+      text: 'Gestor de Filas incluye tótem táctil, pantalla TV de llamados con timbre y voz, atención por módulo y trazabilidad.',
       chips: [
-        { label: 'Ver Gestor de Filas animado', kind: 'portal', value: 'filas' },
+        { label: 'Ver Gestor de Filas', kind: 'portal', value: 'filas' },
         { label: 'Solicitar demo', kind: 'contact', value: 'Producto', draft: 'Hola, quiero ver una demo del Gestor de Filas.' },
       ],
     };
   }
   if (/caja|pos|sii|boleta|factura|dte|internet|offline|stock/.test(s)) {
     return {
-      text: 'CajaYA es nuestro punto de venta inteligente: opera con o sin internet, controla turnos y stock, y se integra con productos y emisión DTE ante el SII.',
+      text: 'CajaYA opera con o sin internet, controla turnos y stock, y se integra con catálogo de productos y emisión DTE ante el SII.',
       chips: [
-        { label: 'Ver pantallas de CajaYA', kind: 'portal', value: 'cajaya' },
+        { label: 'Ver CajaYA', kind: 'portal', value: 'cajaya' },
         { label: 'Consultar por CajaYA', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa CajaYA para mi negocio.' },
       ],
     };
   }
   if (/ticpanel|hospital|equipo|soporte|ticket|acta/.test(s)) {
     return {
-      text: 'TICPanel gestiona casi 2.000 equipos en hospital: telemetría en vivo por agente, mesa de ayuda con SLA y actas de entrega firmadas.',
+      text: 'TICPanel gestiona casi 2.000 equipos en hospital: telemetría en vivo por agente, mesa de ayuda con SLA y actas firmadas.',
       chips: [
         { label: 'Ver TICPanel', kind: 'portal', value: 'ticpanel' },
         { label: 'Pedir demo', kind: 'contact', value: 'Producto', draft: 'Hola, quiero conocer TICPanel.' },
@@ -208,7 +209,7 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/tba|colegio|bodega|compra|activo|inventario/.test(s)) {
     return {
-      text: 'Logística TBA administra solicitudes internas, bodega, órdenes de compra, activos fijos y auditoría institucional en un solo lugar.',
+      text: 'Logística TBA administra solicitudes internas, bodega, órdenes de compra, activos fijos y auditoría institucional.',
       chips: [
         { label: 'Ver Logística TBA', kind: 'portal', value: 'tba' },
         { label: 'Consultar implementación', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa un sistema como Logística TBA.' },
@@ -217,7 +218,7 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/paginago|cat[aá]logo|tienda|whatsapp/.test(s)) {
     return {
-      text: 'Con PaginaGo creas tu catálogo online en minutos, compartes un único link o QR y recibes los pedidos listos en tu WhatsApp.',
+      text: 'Con PaginaGo creas tu catálogo online en minutos, compartes un único link y recibes los pedidos armados en tu WhatsApp.',
       chips: [
         { label: 'Ver PaginaGo', kind: 'portal', value: 'paginago' },
         { label: 'Ir al formulario', kind: 'contact', value: 'Producto', draft: 'Hola, quiero consultar por PaginaGo.' },
@@ -226,16 +227,16 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/web|3d|p[aá]gina|sitio|dise[ñn]o/.test(s)) {
     return {
-      text: 'Sí, creamos sitios web interactivos y experiencias 3D limpias como esta, pensadas para destacar tu marca y convertir visitas en clientes.',
+      text: 'Creamos sitios web interactivos y experiencias 3D limpias como esta, pensadas para destacar tu marca.',
       chips: [
-        { label: 'Cotizar mi sitio web', kind: 'contact', value: 'Web 3D', draft: 'Hola, quiero cotizar una página web moderna / 3D para mi empresa.' },
+        { label: 'Cotizar mi sitio web', kind: 'contact', value: 'Web 3D', draft: 'Hola, quiero cotizar una página web moderna para mi empresa.' },
         { label: 'Hablar por WhatsApp', kind: 'wa', value: 'Hola, quiero cotizar una página web interactiva con tuEndpoint.' },
       ],
     };
   }
   if (/precio|valor|cu[aá]nto|costo|cotiz|plazo|tiempo|demora/.test(s)) {
     return {
-      text: 'Evaluamos tu idea gratis. Si partimos de uno de nuestros productos base toma pocos días; un sistema nuevo a medida se entrega por etapas funcionales desde las primeras semanas.',
+      text: 'Evaluamos tu idea sin costo. Sobre nuestros productos base toma pocos días; un desarrollo nuevo se entrega por etapas funcionales.',
       chips: [
         { label: 'Dejar datos para cotizar', kind: 'contact', value: 'Software a medida', draft: `Hola, mi consulta: ${q}` },
         { label: 'WhatsApp directo', kind: 'wa', value: `Hola, tengo esta consulta: ${q}` },
@@ -244,7 +245,7 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/ubic|d[oó]nde|vi[ñn]a|chile|correo|tel[eé]fono|contacto|humano/.test(s)) {
     return {
-      text: `Estamos en ${brand.address} y trabajamos con empresas e instituciones en todo Chile. Puedes escribirnos en el formulario o directo al ${brand.phone}.`,
+      text: `Estamos en ${brand.address} y trabajamos con empresas en todo Chile. Escríbenos a ${brand.email} o por el formulario.`,
       chips: [
         { label: 'Ir al formulario', kind: 'contact', value: 'Software a medida', draft: '' },
         { label: 'Abrir WhatsApp', kind: 'wa', value: 'Hola, quiero conversar con el equipo de tuEndpoint.' },
@@ -252,11 +253,11 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
     };
   }
   return {
-    text: 'Podemos ayudarte automatizando ese flujo o construyéndolo a medida. ¿Prefieres dejarnos el detalle en el formulario o hablar directo por WhatsApp?',
+    text: 'Podemos resolverlo automatizando ese flujo o creándolo a medida. ¿Prefieres dejarnos el detalle en el formulario o conversar por WhatsApp?',
     chips: [
-      { label: 'Usar formulario con mi consulta', kind: 'contact', value: 'Software a medida', draft: q },
-      { label: 'Enviar por WhatsApp', kind: 'wa', value: `Hola tuEndpoint, quería consultar: ${q}` },
-      { label: 'Ver opciones guiadas', kind: 'step', value: 'inicio' },
+      { label: 'Usar formulario', kind: 'contact', value: 'Software a medida', draft: q },
+      { label: 'WhatsApp', kind: 'wa', value: `Hola tuEndpoint, quería consultar: ${q}` },
+      { label: 'Opciones', kind: 'step', value: 'inicio' },
     ],
   };
 }
@@ -268,7 +269,7 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
     {
       id: 1,
       from: 'bot',
-      text: 'Hola 👋 Te guío en 2 pasos cortos o escribe tu pregunta abajo.',
+      text: '¿Qué estás buscando? Elige una opción o escríbenos tu consulta.',
       chips: ROOT_CHIPS,
     },
   ]);
@@ -286,7 +287,7 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
       {
         id: nextId.current++,
         from: 'bot',
-        text: 'Hola 👋 Te guío en 2 pasos cortos o escribe tu pregunta abajo.',
+        text: '¿Qué estás buscando? Elige una opción o escríbenos tu consulta.',
         chips: ROOT_CHIPS,
       },
     ]);
@@ -342,25 +343,22 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
       {open && (
         <div
           role="dialog"
-          aria-label="Asistente tuEndpoint"
-          className="mb-3 flex max-h-[72vh] w-[min(92vw,360px)] flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#090d18]/95 text-white shadow-2xl backdrop-blur-xl"
+          aria-label="Consultas rápidas"
+          className="mb-3 flex max-h-[70vh] w-[min(90vw,340px)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[#080b14]/95 text-white shadow-2xl backdrop-blur-xl"
         >
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#38bdf8] shadow-[0_0_8px_#38bdf8]" />
-              <span className="text-sm font-medium tracking-tight">Guía tuEndpoint</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-white/50">
+            <span className="text-xs font-medium tracking-wide text-white/80">tuEndpoint</span>
+            <div className="flex items-center gap-3 text-xs text-white/45">
               <button type="button" onClick={resetFlow} className="transition-colors hover:text-white">
-                Reiniciar
+                Inicio
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Cerrar asistente"
-                className="text-sm leading-none transition-colors hover:text-white"
+                aria-label="Cerrar"
+                className="transition-colors hover:text-white"
               >
-                ✕
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -371,8 +369,8 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                 <div
                   className={
                     m.from === 'user'
-                      ? 'max-w-[82%] rounded-2xl rounded-br-sm bg-[#38bdf8] px-3.5 py-2 text-xs font-medium text-[#05060b]'
-                      : 'max-w-[92%] rounded-2xl rounded-bl-sm bg-white/[0.06] px-3.5 py-2.5 text-[13px] leading-relaxed text-white/90'
+                      ? 'max-w-[82%] rounded-2xl rounded-br-sm bg-white px-3.5 py-2 text-xs font-medium text-[#05060b]'
+                      : 'max-w-[92%] rounded-2xl rounded-bl-sm bg-white/[0.06] px-3.5 py-2.5 text-[13px] leading-relaxed text-white/85'
                   }
                 >
                   {m.text}
@@ -384,7 +382,7 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
                         key={c.label}
                         type="button"
                         onClick={() => handleChip(c)}
-                        className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-left text-xs text-white/85 transition-colors hover:border-[#38bdf8]/60 hover:bg-[#38bdf8]/15 hover:text-white"
+                        className="rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 text-left text-xs text-white/75 transition-colors hover:border-white/35 hover:bg-white/10 hover:text-white"
                       >
                         {c.label}
                       </button>
@@ -400,13 +398,13 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe una pregunta..."
-              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
+              placeholder="Escribe tu consulta..."
+              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-white/35 focus:outline-none"
             />
             <button
               type="submit"
-              aria-label="Enviar pregunta"
-              className="rounded-xl bg-[#38bdf8] px-3 py-2 text-xs font-semibold text-[#05060b] transition-transform hover:scale-[1.03]"
+              aria-label="Enviar"
+              className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#05060b] transition-opacity hover:opacity-90"
             >
               →
             </button>
@@ -417,13 +415,10 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2.5 rounded-full border border-white/15 bg-[#0b1020]/90 px-4 py-2.5 text-xs font-medium text-white shadow-lg backdrop-blur-md transition-all hover:border-[#38bdf8]/60 hover:bg-[#111933]"
+        aria-label={open ? 'Cerrar consultas' : 'Abrir consultas'}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/70 backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/10 hover:text-white"
       >
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#38bdf8] opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#38bdf8]" />
-        </span>
-        <span>{open ? 'Cerrar guía' : '¿Dudas? Guía rápida'}</span>
+        {open ? <X className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <MessageCircle className="h-[18px] w-[18px]" strokeWidth={1.75} />}
       </button>
     </div>
   );

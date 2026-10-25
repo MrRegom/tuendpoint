@@ -1,11 +1,12 @@
 {
   "meta": {
     "siteName": "tuEndpoint",
-    "title": "tuEndpoint — Catálogo inteligente de soluciones digitales",
-    "description": "Software especializado en salud, educación, retail y operaciones críticas. Adaptable. En producción."
+    "title": "tuEndpoint — Arquitectura de Software & Automatizaciones",
+    "description": "Software de misión crítica probado en salud, educación, retail y automatización de procesos. Rendimiento enterprise en producción."
   },
   "nav": {
     "solutions": "Soluciones",
+    "portal": "Portal",
     "sectors": "Sectores",
     "process": "Proceso",
     "about": "Nosotros",
@@ -44,12 +45,21 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Consultoría y Desarrollo · Chile",
-      "title": "Transformación Digital y Software a Medida.",
-      "subtitle": "Desarrollamos ecosistemas tecnológicos que aceleran su operación y reducen costos. Expertos en salud, retail e integraciones críticas.",
-      "ctaPrimary": "Solicitar una reunión",
-      "ctaSecondary": "Ver catálogo",
-      "scroll": "Descubrir"
+      "eyebrow": "Enterprise Engineering · Misión Crítica",
+      "title": "Software de Misión Crítica & Automatizaciones de Alto Rendimiento.",
+      "subtitle": "Diseñamos e implementamos ecosistemas digitales donde el fallo no está contemplado. Probados en hospitales de alta complejidad, instituciones académicas y empresas que requieren alta disponibilidad, trazabilidad inmutable y automatización inteligente.",
+      "ctaPrimary": "Explorar Portal de Productos",
+      "ctaSecondary": "Hablemos de su Proyecto",
+      "scroll": "Explorar Portal"
+    },
+    "portal": {
+      "eyebrow": "Portal Inmersivo · Ecosistema de Software",
+      "title": "Nuestras Soluciones en Producción Real.",
+      "subtitle": "Atraviese el portal interactivo y explore los 5 sistemas empresariales que hemos diseñado, desplegado y mantenido con estándares de misión crítica.",
+      "viewSpecs": "Ficha Técnica Completa",
+      "exploreArchitecture": "Explorar Arquitectura",
+      "productsVerified": "5 de 5 módulos verificados en producción",
+      "requestDemo": "Solicitar Demostración o Cotización"
     },
     "marquee": {
       "sectors": "Salud · Educación · Retail · Gobierno · Logística · Empresas",

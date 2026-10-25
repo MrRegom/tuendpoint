@@ -22,6 +22,7 @@ export function Nav() {
   }, []);
 
   const navItems = [
+    { key: 'portal', href: '/#portal-experience' },
     { key: 'solutions', href: '/soluciones' },
     { key: 'sectors', href: '/#sectores' },
     { key: 'process', href: '/proceso' },

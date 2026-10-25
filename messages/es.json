@@ -1,4 +1,4 @@
-{
+﻿{
   "meta": {
     "siteName": "tuEndpoint",
     "title": "tuEndpoint — Arquitectura de Software & Automatizaciones",
@@ -6,7 +6,7 @@
   },
   "nav": {
     "solutions": "Soluciones",
-    "portal": "Portal",
+    "portal": "Productos",
     "sectors": "Sectores",
     "process": "Proceso",
     "about": "Nosotros",

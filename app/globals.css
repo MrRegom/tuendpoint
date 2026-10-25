@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -257,3 +257,44 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== FrameSequenceHero (scroll-driven product showcase) ===== */
+@keyframes fsh-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.fsh-root { position: relative; background: #fff; color: #0a0a0a; }
+.fsh-loader { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .75rem; background: #fff; transition: opacity .5s ease, visibility .5s; }
+.fsh-loader-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.fsh-loader-text { font-size: .75rem; letter-spacing: .08em; color: #71717a; }
+.fsh-loader-track { width: 160px; height: 2px; background: #e4e4e7; overflow: hidden; border-radius: 2px; }
+.fsh-loader-fill { display: block; height: 100%; background: #0a0a0a; transition: width .2s linear; }
+.fsh-nav { display: none; }
+.fsh-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding-top: 5.5rem; }
+.fsh-copy { text-align: center; padding: 0 1.25rem; }
+.fsh-title { font-size: clamp(1.75rem, 3.4vw, 3rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+.fsh-sub { margin-top: .6rem; font-size: .95rem; color: #71717a; transition: opacity .3s ease; }
+.fsh-sub-hidden { opacity: 0; }
+.fsh-canvas-wrap { order: 2; margin-top: 1.75rem; width: min(92vw, 1000px, calc(52vh * 1.6)); aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; border: 1px solid #e4e4e7; box-shadow: 0 30px 70px -30px rgba(0,0,0,.25); background: #fafafa; }
+.fsh-copy { order: 1; }
+.fsh-canvas { width: 100%; height: 100%; object-fit: contain; user-select: none; }
+.fsh-cards { order: 3; position: relative; width: min(92vw, 520px); flex: 1; margin-top: 1.25rem; }
+.fsh-card { position: absolute; inset: 0 0 auto 0; opacity: 0; transform: translateY(14px); transition: opacity .4s ease, transform .4s ease; pointer-events: none; }
+.fsh-card-active { opacity: 1; transform: none; }
+.fsh-card-prev { transform: translateY(-14px); }
+.fsh-card-inner { position: relative; padding: 1rem 0 0; text-align: center; }
+.fsh-card-glow { display: none; }
+.fsh-card-head { display: flex; justify-content: center; align-items: center; gap: .6rem; font-size: .75rem; color: #a1a1aa; }
+.fsh-card-head strong { color: var(--c); }
+.fsh-card-icon { display: none; }
+.fsh-card-title { margin-top: .4rem; font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+.fsh-card-desc { margin-top: .25rem; font-size: .95rem; color: #71717a; }
+.fsh-card-foot { margin-top: .9rem; display: flex; align-items: center; justify-content: center; gap: .75rem; }
+.fsh-ticks { display: flex; gap: 6px; }
+.fsh-tick { display: block; width: 28px; height: 3px; border-radius: 3px; background: #e4e4e7; overflow: hidden; }
+.fsh-tick span { display: block; height: 100%; background: var(--c); transform-origin: left; transform: scaleX(0); }
+.fsh-card-label { display: none; }
+.fsh-progress { display: none; }
+.fsh-spacer { width: 100%; }
+@media (max-height: 700px) { .fsh-canvas-wrap { width: min(92vw, 1000px, calc(44vh * 1.6)); } }
+

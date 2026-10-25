@@ -1,11 +1,11 @@
-{
+﻿{
   "meta": {
     "siteName": "Regom",
     "title": "Regom — Smart catalog of digital solutions",
     "description": "Software specialized in healthcare, education, retail and critical operations. Adaptable. In production."
   },
   "nav": {
-    "portal": "Portal",
+    "portal": "Productos",
     "solutions": "Solutions",
     "sectors": "Sectors",
     "process": "Process",

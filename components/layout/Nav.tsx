@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -22,7 +22,7 @@ export function Nav() {
   }, []);
 
   const navItems = [
-    { key: 'portal', href: '/#portal-experience' },
+    { key: 'portal', href: '/#productos' },
     { key: 'solutions', href: '/soluciones' },
     { key: 'sectors', href: '/#sectores' },
     { key: 'process', href: '/proceso' },
@@ -153,3 +153,4 @@ export function Nav() {
     </>
   );
 }
+

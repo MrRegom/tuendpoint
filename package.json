@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "3.9.1",
+    "@types/three": "^0.169.0",
     "clsx": "2.1.1",
     "framer-motion": "11.11.17",
     "isomorphic-git": "^1.44.4",
@@ -21,6 +22,7 @@
     "react-dom": "18.3.1",
     "react-hook-form": "7.53.2",
     "tailwind-merge": "2.5.4",
+    "three": "^0.169.0",
     "zod": "3.23.8"
   },
   "devDependencies": {

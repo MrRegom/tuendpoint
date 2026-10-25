@@ -32,13 +32,15 @@ type Product = {
 const wa = (msg: string) =>
   `https://wa.me/${brand.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
 
+const BRAND_BLUE = '#38bdf8';
+
 const PRODUCTS: Product[] = [
   {
     id: 'ticpanel',
     name: 'TICPanel',
     line: 'Inventario en vivo, mesa de ayuda y actas de todos tus equipos.',
     tag: 'En uso · Hospital',
-    color: '#38bdf8',
+    color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
       { kind: 'img', src: '/shots/ticpanel-1.jpg', label: 'Panel', click: [0.015, 0.22] },
@@ -53,7 +55,7 @@ const PRODUCTS: Product[] = [
     name: 'Gestor de Filas',
     line: 'Tótems, pantallas TV con voz y control de espera en tiempo real.',
     tag: 'En uso · Hospital',
-    color: '#faaf40',
+    color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
       { kind: 'filas-tv', label: 'TV Llamados' },
@@ -69,7 +71,7 @@ const PRODUCTS: Product[] = [
     name: 'Logística TBA',
     line: 'Solicitudes, bodega, órdenes de compra y activos fijos en un solo lugar.',
     tag: 'En uso · Educación',
-    color: '#2dd4bf',
+    color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
       { kind: 'img', src: '/shots/tba-1.jpg', label: 'Dashboard', click: [0.06, 0.25] },
@@ -85,7 +87,7 @@ const PRODUCTS: Product[] = [
     name: 'CajaYA',
     line: 'Punto de venta rápido que funciona con o sin internet. Stock, turnos y SII.',
     tag: 'Retail · Offline + SII',
-    color: '#a78bfa',
+    color: BRAND_BLUE,
     aspect: 2.0,
     screens: [
       { kind: 'img', src: '/shots/cajaya-1.jpg', label: 'POS', click: [0.235, 0.34] },
@@ -103,7 +105,7 @@ const PRODUCTS: Product[] = [
     name: 'PaginaGo',
     line: 'Tu catálogo en un link. Tus clientes piden y te llega armado al WhatsApp.',
     tag: 'Catálogos · Disponible',
-    color: '#facc15',
+    color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
       { kind: 'img', src: '/shots/paginago-1.jpg', label: 'Tienda', click: [0.79, 0.035] },
@@ -119,7 +121,7 @@ const PRODUCTS: Product[] = [
     name: 'Automatizaciones',
     line: 'Conectamos tus sistemas y eliminamos lo que hoy haces a mano.',
     tag: 'A medida',
-    color: '#38bdf8',
+    color: BRAND_BLUE,
     aspect: 1.6,
     screens: [
       { kind: 'auto-monitor', label: 'Ejecuciones' },
@@ -854,7 +856,7 @@ function drawAutoReglas(x: CanvasRenderingContext2D, W: number, H: number, t: nu
 /* Componente principal                                                */
 /* ------------------------------------------------------------------ */
 
-const TOPICS = ['Automatizar', 'Software a medida', 'Producto', 'Web 3D'] as const;
+const TOPICS = ['Automatizar', 'A medida', 'Producto', 'Web 3D'] as const;
 
 export function Immersive({ introDone = true }: { introDone?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -954,20 +956,20 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       return o;
     };
 
-    /* ---- partículas ---- */
-    const COUNT = 4800;
+    /* ---- partículas discretas fuera del eje central ---- */
+    const COUNT = 3000;
     const length = SPACING * (N + 2) + 80;
     const pos = new Float32Array(COUNT * 3);
     const col = new Float32Array(COUNT * 3);
     const cA = new THREE.Color('#9fb4ff');
-    const cB = new THREE.Color('#38bdf8');
+    const cB = new THREE.Color(BRAND_BLUE);
     for (let i = 0; i < COUNT; i++) {
       const a = Math.random() * Math.PI * 2;
-      const r = 5 + Math.pow(Math.random(), 0.75) * 34;
+      const r = 8.5 + Math.pow(Math.random(), 0.8) * 34;
       pos[i * 3] = Math.cos(a) * r;
-      pos[i * 3 + 1] = Math.sin(a) * r * 0.7;
+      pos[i * 3 + 1] = Math.sin(a) * r * 0.72;
       pos[i * 3 + 2] = 25 - Math.random() * length;
-      const c = cA.clone().lerp(cB, Math.random());
+      const c = cA.clone().lerp(cB, Math.random() * 0.65);
       col[i * 3] = c.r;
       col[i * 3 + 1] = c.g;
       col[i * 3 + 2] = c.b;
@@ -978,11 +980,11 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
     const dotTex = track(dotTexture());
     const pm = track(
       new THREE.PointsMaterial({
-        size: 0.5,
+        size: 0.34,
         map: dotTex,
         vertexColors: true,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.52,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
       }),
@@ -990,21 +992,21 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
     const points = new THREE.Points(pg, pm);
     scene.add(points);
 
-    /* ---- estelas ---- */
-    const STREAKS = 280;
+    /* ---- estelas sutiles ---- */
+    const STREAKS = 150;
     const sp = new Float32Array(STREAKS * 6);
     for (let i = 0; i < STREAKS; i++) {
       const a = Math.random() * Math.PI * 2;
-      const r = 6 + Math.random() * 22;
+      const r = 9.5 + Math.random() * 22;
       const z = 20 - Math.random() * length;
-      const len = 3 + Math.random() * 9;
+      const len = 3 + Math.random() * 8;
       const x = Math.cos(a) * r;
-      const y = Math.sin(a) * r * 0.7;
+      const y = Math.sin(a) * r * 0.72;
       sp.set([x, y, z, x, y, z - len], i * 6);
     }
     const sg = track(new THREE.BufferGeometry());
     sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-    const sm = track(new THREE.LineBasicMaterial({ color: 0x6f8cff, transparent: true, opacity: 0.25 }));
+    const sm = track(new THREE.LineBasicMaterial({ color: 0x6f8cff, transparent: true, opacity: 0.12 }));
     scene.add(new THREE.LineSegments(sg, sm));
 
     /* ---- precarga de capturas reales ---- */
@@ -1020,36 +1022,38 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       });
     });
 
-    /* ---- portales animados con CanvasTexture ---- */
+    /* ---- ventanas limpias con CanvasTexture (sin aros ni ruido visual) ---- */
+    const BAR_H = 42;
     type Portal = {
       group: THREE.Group;
       plane: THREE.Mesh;
       glow: THREE.Sprite;
-      ring1: THREE.Mesh;
-      ring2: THREE.Mesh;
       aspect: number;
       canvas: HTMLCanvasElement;
       ctx: CanvasRenderingContext2D;
       tex: THREE.CanvasTexture;
       cw: number;
       ch: number;
+      contentH: number;
     };
 
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
-    const ringGeo = track(new THREE.TorusGeometry(1, 0.0032, 8, 160));
     const planeGeo = track(new THREE.PlaneGeometry(1, 1));
+    const sharedGlowTex = track(glowTexture(BRAND_BLUE));
+    let isNarrowViewport = window.innerWidth < 768;
 
     const portals: Portal[] = PRODUCTS.map((p, i) => {
       const group = new THREE.Group();
       group.position.z = -SPACING * (i + 1);
       const cw = p.aspect > 1.8 ? 1920 : 1600;
-      const ch = p.aspect > 1.8 ? 960 : 1000;
+      const contentH = p.aspect > 1.8 ? 960 : 1000;
+      const ch = contentH + BAR_H;
       const c = document.createElement('canvas');
       c.width = cw;
       c.height = ch;
       const ctx = c.getContext('2d')!;
-      ctx.fillStyle = '#0a0f1c';
-      ctx.fillRect(0, 0, cw, ch);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
       const tex = track(new THREE.CanvasTexture(c));
       tex.colorSpace = THREE.SRGBColorSpace;
@@ -1057,198 +1061,209 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
 
       const mat = track(new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, transparent: true }));
       const plane = new THREE.Mesh(planeGeo, mat);
-      const gt = track(glowTexture(p.color));
       const glow = new THREE.Sprite(
         track(
           new THREE.SpriteMaterial({
-            map: gt,
+            map: sharedGlowTex,
             transparent: true,
-            opacity: 0.55,
+            opacity: 0.14,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
           }),
         ),
       );
-      glow.position.z = -3;
-      const rm1 = track(new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.9 }));
-      const rm2 = track(new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.35 }));
-      const ring1 = new THREE.Mesh(ringGeo, rm1);
-      const ring2 = new THREE.Mesh(ringGeo, rm2);
-      ring2.position.z = -2.5;
-      group.add(glow, plane, ring1, ring2);
+      glow.position.z = -2.5;
+      group.add(glow, plane);
       scene.add(group);
 
-      return { group, plane, glow, ring1, ring2, aspect: p.aspect, canvas: c, ctx, tex, cw, ch };
+      return { group, plane, glow, aspect: cw / ch, canvas: c, ctx, tex, cw, ch, contentH };
     });
 
-    /* ---- dibujo de un screen individual sobre el canvas del portal ---- */
+    /* ---- dibujo de un screen individual dentro del área útil de la ventana ---- */
     function renderScreenSpec(
       ctx: CanvasRenderingContext2D,
       W: number,
       H: number,
       spec: ScreenSpec,
-      color: string,
       t: number,
       zoom = 1,
-    ) {
+      focus: [number, number] = [0.5, 0.5],
+    ): { ox: number; oy: number; scale: number } {
       if (spec.kind === 'filas-tv') {
         drawFilasTV(ctx, W, H, t);
-        return;
+        return { ox: 0, oy: 0, scale: 1 };
       }
       if (spec.kind === 'filas-totem') {
         drawFilasTotem(ctx, W, H, t);
-        return;
+        return { ox: 0, oy: 0, scale: 1 };
       }
       if (spec.kind === 'auto-monitor') {
         drawAutoMonitor(ctx, W, H, t);
-        return;
+        return { ox: 0, oy: 0, scale: 1 };
       }
       if (spec.kind === 'auto-reglas') {
         drawAutoReglas(ctx, W, H, t);
-        return;
+        return { ox: 0, oy: 0, scale: 1 };
       }
       const im = imgCache.get(spec.src);
       if (im && im.complete && im.naturalWidth > 0) {
-        ctx.save();
-        if (zoom !== 1) {
-          ctx.translate(W / 2, H / 2);
-          ctx.scale(zoom, zoom);
-          ctx.translate(-W / 2, -H / 2);
-        }
-        ctx.drawImage(im, 0, 0, W, H);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = '#0c1324';
-        ctx.fillRect(0, 0, W, H);
+        const ox = zoom > 1 ? clamp(W / 2 - focus[0] * W * zoom, W * (1 - zoom), 0) : 0;
+        const oy = zoom > 1 ? clamp(H / 2 - focus[1] * H * zoom, H * (1 - zoom), 0) : 0;
+        ctx.drawImage(im, ox, oy, W * zoom, H * zoom);
+        return { ox, oy, scale: zoom };
       }
+      ctx.fillStyle = '#0a0f1c';
+      ctx.fillRect(0, 0, W, H);
+      return { ox: 0, oy: 0, scale: 1 };
     }
 
     function updatePortalCanvas(pt: Portal, prodIdx: number, t: number, nowSec: number) {
       const p = PRODUCTS[prodIdx];
       const total = p.screens.length;
-      const { ctx, cw: W, ch: H } = pt;
-
-      if (total === 1) {
-        renderScreenSpec(ctx, W, H, p.screens[0], p.color, t, 1);
-        pt.tex.needsUpdate = true;
-        return;
-      }
+      const { ctx, cw: W, ch: totalH, contentH: H } = pt;
 
       const man = manualRef.current[prodIdx];
-      // Duración un poco mayor en Gestor de Filas para disfrutar 2 llamados en TV
-      const stepDur = p.id === 'filas' ? 6.6 : 4.5;
-      let curIdx: number;
+      const stepDur = p.id === 'filas' ? 6.6 : 4.6;
+      let curIdx = 0;
       let local = 0;
       const isManual = nowSec < man.until;
 
-      if (isManual) {
-        curIdx = man.idx;
-        local = 0.25;
-      } else {
-        const cyc = (t + prodIdx * 1.1) / stepDur;
-        curIdx = Math.floor(cyc) % total;
-        local = cyc - Math.floor(cyc);
-      }
+      if (total > 1) {
+        if (isManual) {
+          curIdx = man.idx;
+          local = 0.25;
+        } else {
+          const cyc = (t + prodIdx * 1.1) / stepDur;
+          curIdx = Math.floor(cyc) % total;
+          local = cyc - Math.floor(cyc);
+        }
 
-      if (screenIdxRef.current[prodIdx] !== curIdx) {
-        screenIdxRef.current[prodIdx] = curIdx;
-        setScreenIdx((prev) => {
-          if (prev[prodIdx] === curIdx) return prev;
-          const next = [...prev];
-          next[prodIdx] = curIdx;
-          return next;
-        });
+        if (screenIdxRef.current[prodIdx] !== curIdx) {
+          screenIdxRef.current[prodIdx] = curIdx;
+          setScreenIdx((prev) => {
+            if (prev[prodIdx] === curIdx) return prev;
+            const next = [...prev];
+            next[prodIdx] = curIdx;
+            return next;
+          });
+        }
       }
 
       const curSpec = p.screens[curIdx];
       const nextSpec = p.screens[(curIdx + 1) % total];
-      const zoom = curSpec.kind === 'img' ? 1 + 0.018 * Math.sin(local * Math.PI) : 1;
 
-      renderScreenSpec(ctx, W, H, curSpec, p.color, t, zoom);
+      // Marco limpio con esquinas redondeadas (sin fondo exterior)
+      const R = 22;
+      ctx.clearRect(0, 0, W, totalH);
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(2, 2, W - 4, totalH - 4, R);
+      ctx.clip();
 
-      if (!isManual) {
-        // Si es captura de pantalla, animamos cursor navegando y haciendo clic antes de pasar a la siguiente vista
+      // Barra superior minimalista para enmarcar la aplicación con nitidez
+      ctx.fillStyle = '#090D16';
+      ctx.fillRect(0, 0, W, BAR_H);
+      ctx.fillStyle = 'rgba(255,255,255,0.09)';
+      ctx.fillRect(0, BAR_H - 1, W, 1);
+
+      for (let d = 0; d < 3; d++) {
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.arc(28 + d * 18, BAR_H / 2, 4.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = 'rgba(255,255,255,0.68)';
+      ctx.font = '500 16px Inter, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${p.name}  ·  ${curSpec.label}`, W / 2, BAR_H / 2 + 6);
+      ctx.textAlign = 'left';
+
+      // Indicador discreto en azul tuEndpoint a la derecha
+      ctx.fillStyle = BRAND_BLUE;
+      ctx.beginPath();
+      ctx.arc(W - 118, BAR_H / 2, 3.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '500 14px Inter, Segoe UI, sans-serif';
+      ctx.fillText('En vivo', W - 106, BAR_H / 2 + 5);
+
+      // Área útil de la aplicación
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, BAR_H, W, H);
+      ctx.clip();
+      ctx.translate(0, BAR_H);
+
+      const focusPt: [number, number] =
+        curSpec.kind === 'img' && curSpec.click ? curSpec.click : [0.5, 0.45];
+      // En celular acercamos suavemente hacia la acción activa para apreciar los detalles reales de cada pantalla
+      const zoomAmp = isNarrowViewport ? 0.22 : 0.025;
+      const zoom =
+        !isManual && curSpec.kind === 'img'
+          ? 1 + zoomAmp * Math.sin(clamp((local - 0.08) / 0.76) * Math.PI)
+          : 1;
+
+      const tf = renderScreenSpec(ctx, W, H, curSpec, t, zoom, focusPt);
+
+      if (!isManual && total > 1) {
         if (curSpec.kind === 'img' && curSpec.click && local > 0.22 && local < 0.86) {
           const [tx, ty] = curSpec.click;
           const moveU = smooth(clamp((local - 0.22) / 0.34));
           const startX = W * 0.54;
           const startY = H * 0.58;
-          const cx = startX + (tx * W - startX) * moveU;
-          const cy = startY + (ty * H - startY) * moveU;
+          const rawX = startX + (tx * W - startX) * moveU;
+          const rawY = startY + (ty * H - startY) * moveU;
+          const cx = tf.ox + rawX * tf.scale;
+          const cy = tf.oy + rawY * tf.scale;
           const rip = local > 0.58 ? clamp((local - 0.58) / 0.22) : 0;
-          drawCursor(ctx, cx, cy, p.color, rip);
+          drawCursor(ctx, cx, cy, BRAND_BLUE, rip);
         }
 
-        // Transición suave hacia la siguiente pantalla
         if (local > 0.82) {
           const alpha = smooth((local - 0.82) / 0.18);
           ctx.save();
           ctx.globalAlpha = alpha;
-          renderScreenSpec(ctx, W, H, nextSpec, p.color, t, 1);
+          renderScreenSpec(ctx, W, H, nextSpec, t, 1);
           ctx.restore();
         }
       }
 
+      ctx.restore(); // fin área útil
+      ctx.restore(); // fin clip redondeado
+
+      // Borde fino alrededor de la ventana para separarla limpiamente del espacio oscuro
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(2, 2, W - 4, totalH - 4, R);
+      ctx.stroke();
+
       pt.tex.needsUpdate = true;
     }
-
-    /* ---- endpoint final ---- */
-    const end = new THREE.Group();
-    end.position.z = END_Z;
-    const core = new THREE.Mesh(
-      track(new THREE.SphereGeometry(0.42, 32, 32)),
-      track(new THREE.MeshBasicMaterial({ color: 0xffffff })),
-    );
-    const wire = new THREE.Mesh(
-      track(new THREE.IcosahedronGeometry(2.5, 1)),
-      track(new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.38 })),
-    );
-    const eg = new THREE.Sprite(
-      track(
-        new THREE.SpriteMaterial({
-          map: track(glowTexture('#38bdf8')),
-          transparent: true,
-          opacity: 0.5,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending,
-        }),
-      ),
-    );
-    eg.scale.setScalar(13);
-    const pulses = [0, 1, 2].map(() => {
-      const m = track(new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 }));
-      const r = new THREE.Mesh(ringGeo, m);
-      end.add(r);
-      return r;
-    });
-    end.add(eg, core, wire);
-    scene.add(end);
 
     /* ---- layout responsivo ---- */
     function layout() {
       const w = window.innerWidth;
       const h = window.innerHeight;
+      isNarrowViewport = w < 768;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       const visH = 2 * DWELL * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
       const visW = visH * camera.aspect;
-      const wide = camera.aspect > 1.25;
+      const wide = camera.aspect > 1.18;
       portals.forEach((pt) => {
-        const pw = wide ? Math.min(visW * 0.56, visH * 0.72 * pt.aspect) : Math.min(visW * 0.92, visH * 0.4 * pt.aspect);
+        const pw = wide
+          ? Math.min(visW * 0.59, visH * 0.78 * pt.aspect)
+          : Math.min(visW * 0.95, visH * 0.45 * pt.aspect);
         const ph = pw / pt.aspect;
         pt.plane.scale.set(pw, ph, 1);
-        pt.group.position.x = wide ? visW * 0.19 : 0;
-        pt.group.position.y = wide ? 0 : visH * 0.17;
-        pt.glow.scale.set(pw * 1.7, ph * 1.9, 1);
-        const R = Math.hypot(pw, ph) * 0.6;
-        pt.ring1.scale.setScalar(R);
-        pt.ring2.scale.setScalar(R * 1.28);
-        pt.group.rotation.y = wide ? -0.1 : 0;
+        pt.group.position.x = wide ? visW * 0.145 : 0;
+        pt.group.position.y = wide ? 0 : visH * 0.155;
+        pt.glow.scale.set(pw * 1.35, ph * 1.45, 1);
+        pt.group.rotation.y = wide ? -0.04 : 0;
       });
-      // En escritorio desplazamos suavemente el núcleo final hacia la izquierda para enmarcar "Hablemos."
-      end.position.x = wide ? -visW * 0.28 : 0;
-      end.position.y = wide ? 0 : visH * 0.26;
     }
     layout();
     window.addEventListener('resize', layout);
@@ -1286,13 +1301,11 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
       const s = current * (SECTIONS - 1);
 
       const z = cameraZ(s);
-      camera.position.set(mouse.x * 0.85, -mouse.y * 0.5, z);
-      camera.lookAt(mouse.x * 0.35, -mouse.y * 0.22, z - 20);
+      camera.position.set(mouse.x * 0.55, -mouse.y * 0.35, z);
+      camera.lookAt(mouse.x * 0.22, -mouse.y * 0.14, z - 20);
 
-      points.rotation.z = t * 0.012;
+      points.rotation.z = t * 0.008;
       portals.forEach((pt, i) => {
-        pt.ring1.rotation.z = t * 0.15 * (i % 2 ? -1 : 1);
-        pt.ring2.rotation.z = -t * 0.1;
         const dist = z - pt.group.position.z;
         const o = dist < 0 ? 0 : smooth((DWELL + 24 - dist) / 24);
         pt.group.visible = o > 0.01;
@@ -1300,25 +1313,15 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
           updatePortalCanvas(pt, i, t, nowSec);
         }
         (pt.plane.material as THREE.MeshBasicMaterial).opacity = o;
-        pt.glow.material.opacity = 0.55 * o;
-        (pt.ring1.material as THREE.MeshBasicMaterial).opacity = 0.9 * o;
-        (pt.ring2.material as THREE.MeshBasicMaterial).opacity = 0.35 * o;
+        pt.glow.material.opacity = 0.14 * o;
       });
-      wire.rotation.x = t * 0.2;
-      wire.rotation.y = t * 0.3;
-      pulses.forEach((r, i) => {
-        const k = (t * 0.35 + i / 3) % 1;
-        r.scale.setScalar(2 + k * 14);
-        (r.material as THREE.MeshBasicMaterial).opacity = (1 - k) * 0.42;
-      });
-      core.scale.setScalar(1 + Math.sin(t * 2.2) * 0.06);
 
       for (let k = 0; k < SECTIONS; k++) {
         const el = textRefs.current[k];
         if (!el) continue;
         const o = 1 - smooth((Math.abs(s - k) - 0.14) / 0.2);
         el.style.opacity = String(o);
-        el.style.transform = `translate3d(0, ${(1 - o) * 26 * (s > k ? -1 : 1)}px, 0)`;
+        el.style.transform = `translate3d(0, ${(1 - o) * 24 * (s > k ? -1 : 1)}px, 0)`;
         el.style.visibility = o < 0.01 ? 'hidden' : 'visible';
         el.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
       }
@@ -1379,7 +1382,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
 
       <div className={`transition-opacity duration-700 ${introDone ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
         {/* Navegación mínima */}
-        <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-5 md:px-10">
+        <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-5 py-5 md:px-10">
           <button type="button" onClick={() => goTo(0)} className="text-lg font-semibold tracking-tight" aria-label="Inicio">
             tuEndpoint<span className="text-[#38bdf8]">.</span>
           </button>
@@ -1390,7 +1393,7 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
             <button
               type="button"
               onClick={() => goTo(SECTIONS - 1)}
-              className="rounded-full border border-white/20 px-4 py-1.5 text-white transition-colors hover:bg-white hover:text-black"
+              className="border-b border-[#38bdf8]/70 pb-0.5 text-sm font-medium text-white transition-colors hover:border-[#38bdf8] hover:text-[#38bdf8]"
             >
               Hablemos
             </button>
@@ -1408,7 +1411,9 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
               className="group relative h-2.5 w-2.5"
             >
               <span
-                className={`absolute inset-0 rounded-full transition-all duration-300 ${active === k ? 'scale-125 bg-white' : 'bg-white/25 group-hover:bg-white/60'}`}
+                className={`absolute inset-0 rounded-full transition-all duration-300 ${
+                  active === k ? 'scale-125 bg-[#38bdf8]' : 'bg-white/20 group-hover:bg-white/55'
+                }`}
               />
             </button>
           ))}
@@ -1417,225 +1422,241 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
         {/* Hero */}
         <div
           ref={setRef(0)}
-          className="fixed inset-0 z-10 flex flex-col items-center justify-center px-6 text-center will-change-transform"
+          className="fixed inset-0 z-10 flex flex-col items-center justify-center px-5 text-center will-change-transform"
         >
-          <h1 className="flex flex-col items-center text-balance text-5xl font-semibold leading-[1.06] tracking-tight sm:text-7xl md:text-8xl">
-            <span className="text-white">Automatizamos.</span>
-            <span className="mt-1 flex min-h-[1.16em] items-center justify-center text-white/55">
+          <h1 className="flex flex-col items-center text-[2.15rem] font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-8xl">
+            <span className="whitespace-nowrap text-white">
+              Automatizamos<span className="text-[#38bdf8]">.</span>
+            </span>
+            <span className="mt-1.5 flex min-h-[1.2em] max-w-[92vw] items-center justify-center text-white/60">
               <TextMorph
                 words={['Creamos a medida.', 'Conectamos sistemas.', 'Productos propios.', 'Webs interactivas.']}
                 interval={2600}
+                dotClassName="text-[#38bdf8]"
               />
             </span>
           </h1>
-          <p className="mt-6 max-w-md text-lg text-white/55">Software propio y soluciones en producción.</p>
+          <p className="mt-6 max-w-sm text-base text-white/50 sm:max-w-md sm:text-lg">
+            Software propio y soluciones en producción.
+          </p>
           <button
             type="button"
             onClick={() => goTo(1)}
-            className="mt-14 flex flex-col items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/45 transition-colors hover:text-white"
+            className="mt-14 flex flex-col items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-white/40 transition-colors hover:text-white"
           >
             Desliza
-            <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-white/60 to-transparent" />
+            <span className="block h-10 w-px animate-pulse bg-gradient-to-b from-[#38bdf8]/80 via-white/30 to-transparent" />
           </button>
         </div>
 
-      {/* Productos */}
-      {PRODUCTS.map((p, i) => (
-        <div
-          key={p.id}
-          ref={setRef(i + 1)}
-          className="fixed inset-x-0 bottom-0 z-10 px-6 pb-[8vh] will-change-transform md:inset-y-0 md:flex md:items-center md:px-[6vw] md:pb-0"
-        >
-          <div className="max-w-md md:max-w-[26rem]">
-            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/50">
-              <span style={{ color: p.color }}>{String(i + 1).padStart(2, '0')}</span>
-              <span className="h-px w-8 bg-white/25" />
-              <span>{p.tag}</span>
-            </div>
-            <h2 className="mt-3 text-4xl font-semibold leading-none tracking-tight sm:text-5xl md:text-6xl">{p.name}</h2>
-            <p className="mt-3.5 text-base leading-snug text-white/65 sm:text-lg">{p.line}</p>
-
-            {/* Selector interactivo de pantallas */}
-            {p.screens.length > 1 && (
-              <div className="mt-4 flex flex-wrap gap-1.5" aria-label={`Vistas de ${p.name}`}>
-                {p.screens.map((sc, sIdx) => {
-                  const isCur = screenIdx[i] === sIdx;
-                  return (
-                    <button
-                      key={sc.label}
-                      type="button"
-                      onClick={() => selectScreen(i, sIdx)}
-                      className={`rounded-full border px-3 py-1 text-xs transition-all ${
-                        isCur
-                          ? 'border-white/50 bg-white/15 font-medium text-white'
-                          : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/30 hover:text-white'
-                      }`}
-                    >
-                      {sc.label}
-                    </button>
-                  );
-                })}
+        {/* Productos */}
+        {PRODUCTS.map((p, i) => (
+          <div
+            key={p.id}
+            ref={setRef(i + 1)}
+            className="fixed inset-x-0 bottom-0 z-10 px-5 pb-[6.5vh] will-change-transform md:inset-y-0 md:flex md:items-center md:px-[5.5vw] md:pb-0"
+          >
+            <div className="max-w-md md:max-w-[23.5rem]">
+              <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-white/45">
+                <span className="font-mono text-[#38bdf8]">{String(i + 1).padStart(2, '0')}</span>
+                <span className="h-px w-7 bg-white/20" />
+                <span>{p.tag}</span>
               </div>
-            )}
+              <h2 className="mt-2.5 text-3xl font-semibold leading-none tracking-tight sm:text-5xl md:text-6xl">
+                {p.name}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">{p.line}</p>
 
-            <a
-              href={p.href ?? wa(`Hola, quiero ver una demo de ${p.name}.`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-black transition-transform hover:scale-[1.03]"
-              style={{ backgroundColor: p.color }}
-            >
-              {p.cta}
-              <span aria-hidden>→</span>
-            </a>
-          </div>
-        </div>
-      ))}
-
-      {/* Cierre + Formulario de contacto */}
-      <div
-        ref={setRef(SECTIONS - 1)}
-        className="fixed inset-0 z-10 flex items-center justify-center px-6 py-16 will-change-transform md:px-[7vw]"
-      >
-        <div className="grid w-full max-w-5xl items-center gap-8 md:grid-cols-12 md:gap-12">
-          <div className="text-center md:col-span-5 md:text-left">
-            <h2 className="text-5xl font-semibold tracking-tight sm:text-7xl">Hablemos.</h2>
-            <p className="mt-4 text-base text-white/65 sm:text-lg">
-              Cuéntanos qué quieres automatizar o construir. Respondemos en el día.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 md:justify-start">
-              <a
-                href={wa(ctaMsg)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-black transition-transform hover:scale-[1.03] sm:text-sm"
-              >
-                Escribir por WhatsApp
-              </a>
-              <a
-                href={`mailto:${brand.email}`}
-                className="rounded-full border border-white/20 px-4 py-2.5 text-xs text-white/80 transition-colors hover:bg-white/10 sm:text-sm"
-              >
-                {brand.email}
-              </a>
-            </div>
-            <p className="mt-8 hidden text-xs text-white/35 md:block">
-              © {new Date().getFullYear()} tuEndpoint · {brand.address}
-            </p>
-          </div>
-
-          <div className="md:col-span-7">
-            <div className="rounded-2xl border border-white/15 bg-[#090d18]/85 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
-              {formState === 'sent' ? (
-                <div className="space-y-4 py-4 text-center">
-                  <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#34d399]/20 text-lg text-[#34d399]">
-                    ✓
-                  </div>
-                  <h3 className="text-xl font-semibold">Recibimos tu mensaje</h3>
-                  <p className="text-sm text-white/65">
-                    Te responderemos a la brevedad. Si quieres respuesta inmediata, envíanos una copia directa por WhatsApp:
-                  </p>
-                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                    <a
-                      href={wa(sentSummary)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-full bg-[#38bdf8] px-5 py-2.5 text-xs font-semibold text-[#05060b] transition-transform hover:scale-[1.03]"
-                    >
-                      Abrir en WhatsApp ahora →
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setFormState('idle')}
-                      className="rounded-full border border-white/15 px-4 py-2.5 text-xs text-white/70 hover:text-white"
-                    >
-                      Enviar otro mensaje
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={submitForm} className="space-y-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {TOPICS.map((tp) => (
+              {/* Selector minimalista de pantallas (solo texto + línea azul activa) */}
+              {p.screens.length > 1 && (
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2" aria-label={`Vistas de ${p.name}`}>
+                  {p.screens.map((sc, sIdx) => {
+                    const isCur = screenIdx[i] === sIdx;
+                    return (
                       <button
-                        key={tp}
+                        key={sc.label}
                         type="button"
-                        onClick={() => setTopic(tp)}
-                        className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                          topic === tp
-                            ? 'border-[#38bdf8] bg-[#38bdf8]/20 font-medium text-white'
-                            : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white'
+                        onClick={() => selectScreen(i, sIdx)}
+                        className={`relative pb-1.5 text-xs tracking-wide transition-colors sm:text-[13px] ${
+                          isCur
+                            ? 'font-medium text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[1.5px] after:bg-[#38bdf8]'
+                            : 'text-white/40 hover:text-white/80'
                         }`}
                       >
-                        {tp}
+                        {sc.label}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <input
-                      type="text"
-                      required
-                      minLength={2}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Tu nombre"
-                      aria-label="Tu nombre"
-                      className="w-full rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
-                    />
-                    <input
-                      type="text"
+              <a
+                href={p.href ?? wa(`Hola, quiero ver una demo de ${p.name}.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group mt-5 inline-flex items-center gap-2 border-b border-[#38bdf8]/75 pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:border-[#38bdf8] hover:text-sky-300"
+              >
+                <span>{p.cta}</span>
+                <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+                  →
+                </span>
+              </a>
+            </div>
+          </div>
+        ))}
+
+        {/* Cierre + Formulario de contacto */}
+        <div
+          ref={setRef(SECTIONS - 1)}
+          className="fixed inset-0 z-10 flex items-center justify-center px-5 py-16 will-change-transform md:px-[7vw]"
+        >
+          <div className="grid w-full max-w-5xl items-center gap-7 md:grid-cols-12 md:gap-12">
+            <div className="text-center md:col-span-5 md:text-left">
+              <h2 className="text-4xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
+                Hablemos<span className="text-[#38bdf8]">.</span>
+              </h2>
+              <p className="mt-3 text-sm text-white/60 sm:mt-4 sm:text-base">
+                Cuéntanos qué quieres automatizar o construir. Respondemos en el día.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:justify-start">
+                <a
+                  href={wa(ctaMsg)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 border-b border-[#38bdf8]/75 pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:border-[#38bdf8] hover:text-sky-300"
+                >
+                  <span>Escribir por WhatsApp</span>
+                  <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+                    →
+                  </span>
+                </a>
+                <a
+                  href={`mailto:${brand.email}`}
+                  className="border-b border-white/20 pb-1 text-sm text-white/70 transition-colors hover:border-white/50 hover:text-white"
+                >
+                  {brand.email}
+                </a>
+              </div>
+              <p className="mt-8 hidden text-xs text-white/35 md:block">
+                © {new Date().getFullYear()} tuEndpoint · {brand.address}
+              </p>
+            </div>
+
+            <div className="md:col-span-7">
+              <div className="border border-white/10 border-t-[#38bdf8]/70 bg-[#060912]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+                {formState === 'sent' ? (
+                  <div className="space-y-4 py-4 text-center md:text-left">
+                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#38bdf8]">MENSAJE RECIBIDO</div>
+                    <h3 className="text-xl font-semibold">Te responderemos a la brevedad</h3>
+                    <p className="text-sm text-white/60">
+                      Si necesitas respuesta inmediata, puedes enviarnos también una copia directa por WhatsApp:
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-6 pt-2 md:justify-start">
+                      <a
+                        href={wa(sentSummary)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 border-b border-[#38bdf8] pb-1 text-sm font-medium text-[#38bdf8] hover:text-sky-300"
+                      >
+                        <span>Abrir en WhatsApp ahora</span>
+                        <span aria-hidden className="transition-transform group-hover:translate-x-1">
+                          →
+                        </span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setFormState('idle')}
+                        className="border-b border-white/20 pb-1 text-xs text-white/65 hover:text-white"
+                      >
+                        Enviar otro mensaje
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={submitForm} className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-white/[0.08] pb-2">
+                      {TOPICS.map((tp) => (
+                        <button
+                          key={tp}
+                          type="button"
+                          onClick={() => setTopic(tp)}
+                          className={`relative pb-1.5 text-xs tracking-wide transition-colors ${
+                            topic === tp
+                              ? 'font-medium text-white after:absolute after:inset-x-0 after:bottom-0 after:h-[1.5px] after:bg-[#38bdf8]'
+                              : 'text-white/40 hover:text-white/80'
+                          }`}
+                        >
+                          {tp}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <input
+                        type="text"
+                        required
+                        minLength={2}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Tu nombre"
+                        aria-label="Tu nombre"
+                        className="w-full border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        required
+                        minLength={4}
+                        value={contact}
+                        onChange={(e) => setContact(e.target.value)}
+                        placeholder="Correo o WhatsApp"
+                        aria-label="Correo o WhatsApp"
+                        className="w-full border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
+                      />
+                    </div>
+
+                    <textarea
+                      rows={2}
                       required
                       minLength={4}
-                      value={contact}
-                      onChange={(e) => setContact(e.target.value)}
-                      placeholder="Correo o WhatsApp"
-                      aria-label="Correo o WhatsApp"
-                      className="w-full rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Cuéntanos en pocas palabras qué necesitas..."
+                      aria-label="Mensaje"
+                      className="w-full resize-none border-b border-white/15 bg-transparent py-2 text-sm text-white placeholder:text-white/30 focus:border-[#38bdf8] focus:outline-none"
                     />
-                  </div>
 
-                  <textarea
-                    rows={3}
-                    required
-                    minLength={4}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Cuéntanos en pocas palabras qué necesitas..."
-                    aria-label="Mensaje"
-                    className="w-full resize-none rounded-xl border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#38bdf8] focus:outline-none"
-                  />
-
-                  <div className="flex items-center justify-between gap-4 pt-1">
-                    <span className="text-xs text-white/40">Diagnóstico inicial sin costo.</span>
-                    <button
-                      type="submit"
-                      disabled={formState === 'sending'}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#38bdf8] px-6 py-2.5 text-sm font-semibold text-[#05060b] transition-transform hover:scale-[1.03] disabled:opacity-60"
-                    >
-                      {formState === 'sending' ? 'Enviando...' : 'Enviar mensaje'}
-                      <span aria-hidden>→</span>
-                    </button>
-                  </div>
-                </form>
-              )}
+                    <div className="flex items-center justify-between gap-4 pt-2">
+                      <span className="text-xs text-white/35">Diagnóstico sin costo.</span>
+                      <button
+                        type="submit"
+                        disabled={formState === 'sending'}
+                        className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b border-[#38bdf8] pb-1 text-sm font-medium text-[#38bdf8] transition-colors hover:text-sky-300 disabled:opacity-50"
+                      >
+                        <span>{formState === 'sending' ? 'Enviando...' : 'Enviar mensaje'}</span>
+                        <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+                          →
+                        </span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Asistente guiado paso a paso */}
-      <AssistantBot
-        productIndexById={productIndexById}
-        contactIndex={SECTIONS - 1}
-        onNavigate={goTo}
-        onPrefillContact={handlePrefillContact}
-      />
+        {/* Guía directa minimalista */}
+        <AssistantBot
+          productIndexById={productIndexById}
+          contactIndex={SECTIONS - 1}
+          onNavigate={goTo}
+          onPrefillContact={handlePrefillContact}
+        />
 
-      {/* Progreso */}
-      <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-white/5">
-        <div ref={barRef} className="h-full origin-left bg-white/70" style={{ transform: 'scaleX(0)' }} />
-      </div>
+        {/* Progreso */}
+        <div className="fixed inset-x-0 bottom-0 z-20 h-[2px] bg-white/5">
+          <div ref={barRef} className="h-full origin-left bg-[#38bdf8]/75" style={{ transform: 'scaleX(0)' }} />
+        </div>
       </div>
 
       {/* Espaciador de scroll */}

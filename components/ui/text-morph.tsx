@@ -8,6 +8,7 @@ export type TextMorphProps = {
   interval?: number;
   className?: string;
   charClassName?: string;
+  dotClassName?: string;
 };
 
 const defaultWords = ['engineer', 'developer', 'designer'];
@@ -17,6 +18,7 @@ export function TextMorph({
   interval = 2500,
   className,
   charClassName,
+  dotClassName,
 }: TextMorphProps) {
   const [index, setIndex] = useState(0);
 
@@ -30,8 +32,18 @@ export function TextMorph({
     return () => clearInterval(timer);
   }, [words, interval]);
 
-  const chars = useMemo(() => {
-    return Array.from(words[index] ?? '');
+  // Agrupamos por palabra para que en celular jamás se corte una palabra a la mitad
+  const wordTokens = useMemo(() => {
+    const phrase = words[index] ?? '';
+    let globalIdx = 0;
+    return phrase.split(' ').map((word) => {
+      const chars = Array.from(word).map((char) => {
+        const idx = globalIdx++;
+        return { char, idx };
+      });
+      globalIdx++; // cuenta el espacio para mantener el ritmo de aparición
+      return chars;
+    });
   }, [index, words]);
 
   if (!words.length) return null;
@@ -40,26 +52,33 @@ export function TextMorph({
     <AnimatePresence mode="popLayout">
       <motion.span
         key={index}
-        className={`inline-flex flex-wrap justify-center gap-[0.5px] overflow-hidden py-2 -my-2 ${className ?? ''}`}
+        className={`inline-flex flex-wrap items-baseline justify-center gap-x-[0.27em] gap-y-0.5 py-2 -my-2 ${className ?? ''}`}
         initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -5 }}
         transition={{ duration: 0.4 }}
       >
-        {chars.map((char, i) => (
-          <motion.span
-            key={i}
-            className={charClassName}
-            initial={{ opacity: 0, y: 5, filter: 'blur(5px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -5, filter: 'blur(5px)' }}
-            transition={{
-              delay: i * 0.03,
-              duration: 0.3,
-            }}
-          >
-            {char === ' ' ? '\u00A0' : char}
-          </motion.span>
+        {wordTokens.map((chars, wIdx) => (
+          <span key={wIdx} className="inline-flex whitespace-nowrap">
+            {chars.map(({ char, idx }) => {
+              const isDot = char === '.' && dotClassName;
+              return (
+                <motion.span
+                  key={idx}
+                  className={isDot ? dotClassName : charClassName}
+                  initial={{ opacity: 0, y: 5, filter: 'blur(5px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -5, filter: 'blur(5px)' }}
+                  transition={{
+                    delay: idx * 0.028,
+                    duration: 0.3,
+                  }}
+                >
+                  {char}
+                </motion.span>
+              );
+            })}
+          </span>
         ))}
       </motion.span>
     </AnimatePresence>

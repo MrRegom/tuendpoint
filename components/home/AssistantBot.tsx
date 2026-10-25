@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { MessageSquare, X } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 
 type ActionChip = {
@@ -11,11 +12,12 @@ type ActionChip = {
   draft?: string;
 };
 
-type Msg = {
-  id: number;
-  from: 'bot' | 'user';
-  text: string;
-  chips?: ActionChip[];
+type GuideState = {
+  id: string;
+  eyebrow?: string;
+  title: string;
+  detail?: string;
+  chips: ActionChip[];
 };
 
 interface AssistantBotProps {
@@ -25,35 +27,43 @@ interface AssistantBotProps {
   onPrefillContact: (topic: string, draft: string) => void;
 }
 
-const ROOT_CHIPS: ActionChip[] = [
-  { label: 'Ver productos listos', kind: 'step', value: 'productos' },
-  { label: 'Automatizar un proceso', kind: 'step', value: 'automatizar' },
-  { label: 'Software o web a medida', kind: 'step', value: 'medida' },
-  { label: 'Precios y plazos', kind: 'step', value: 'precios' },
-];
+const ROOT_STATE: GuideState = {
+  id: 'root',
+  eyebrow: 'NAVEGACIÓN DIRECTA',
+  title: '¿Qué necesitas resolver?',
+  chips: [
+    { label: 'Productos listos en operación', kind: 'step', value: 'productos' },
+    { label: 'Automatizar un proceso manual', kind: 'step', value: 'automatizar' },
+    { label: 'Software o web 3D a medida', kind: 'step', value: 'medida' },
+    { label: 'Plazos y modalidad de trabajo', kind: 'step', value: 'precios' },
+  ],
+};
 
-function replyToStep(key: string, label: string): { userText: string; botText: string; chips: ActionChip[] } {
+function resolveStep(key: string, label: string): GuideState {
   switch (key) {
     case 'productos':
       return {
-        userText: label,
-        botText: '¿En qué área operas?',
+        id: key,
+        eyebrow: 'PRODUCTOS PROPIOS',
+        title: '¿En qué sector operas?',
         chips: [
           { label: 'Salud o atención de público', kind: 'step', value: 'area_salud' },
-          { label: 'Colegio, bodega o inventario', kind: 'step', value: 'area_bodega' },
-          { label: 'Comercio, POS o catálogo', kind: 'step', value: 'area_comercio' },
+          { label: 'Educación, bodega o inventario', kind: 'step', value: 'area_bodega' },
+          { label: 'Comercio, POS o catálogo WhatsApp', kind: 'step', value: 'area_comercio' },
         ],
       };
     case 'area_salud':
       return {
-        userText: 'Salud o atención de público',
-        botText:
-          'Contamos con dos sistemas en operación hospitalaria: Gestor de Filas (tótem, TV de llamados con voz y métricas) y TICPanel (inventario TI con agente, tickets y actas).',
+        id: key,
+        eyebrow: 'SALUD · EN PRODUCCIÓN',
+        title: 'Sistemas operando en hospital',
+        detail:
+          'Gestor de Filas (tótem táctil, TV de llamados con voz y métricas) y TICPanel (inventario TI con agente, tickets y actas).',
         chips: [
-          { label: 'Ver Gestor de Filas', kind: 'portal', value: 'filas' },
-          { label: 'Ver TICPanel', kind: 'portal', value: 'ticpanel' },
+          { label: 'Ir a Gestor de Filas', kind: 'portal', value: 'filas' },
+          { label: 'Ir a TICPanel', kind: 'portal', value: 'ticpanel' },
           {
-            label: 'Pedir demo',
+            label: 'Solicitar una demo',
             kind: 'contact',
             value: 'Producto',
             draft: 'Hola, me interesa ver una demo de sus sistemas para atención de público / soporte TI.',
@@ -62,13 +72,15 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       };
     case 'area_bodega':
       return {
-        userText: 'Colegio, bodega o inventario',
-        botText:
-          'Operamos Logística TBA: solicitudes internas, órdenes de compra, bodega, activos fijos, bajas y auditoría.',
+        id: key,
+        eyebrow: 'LOGÍSTICA E INVENTARIO',
+        title: 'Logística TBA',
+        detail:
+          'Solicitudes internas, órdenes de compra, control de bodega, activos fijos, bajas y auditoría en una sola plataforma.',
         chips: [
-          { label: 'Ver Logística TBA', kind: 'portal', value: 'tba' },
+          { label: 'Ir a Logística TBA', kind: 'portal', value: 'tba' },
           {
-            label: 'Adaptarlo a mi institución',
+            label: 'Evaluar para mi institución',
             kind: 'contact',
             value: 'Producto',
             draft: 'Hola, quiero evaluar un sistema de bodega, compras e inventario tipo Logística TBA.',
@@ -77,14 +89,16 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       };
     case 'area_comercio':
       return {
-        userText: 'Comercio, POS o catálogo',
-        botText:
-          'Para punto de venta tenemos CajaYA (opera con o sin internet, stock, turnos y DTE SII). Para vender rápido por link está PaginaGo con pedidos a WhatsApp.',
+        id: key,
+        eyebrow: 'RETAIL Y VENTAS',
+        title: 'CajaYA y PaginaGo',
+        detail:
+          'CajaYA es punto de venta con o sin internet, stock, turnos y SII. PaginaGo arma tu catálogo online directo a WhatsApp.',
         chips: [
-          { label: 'Ver CajaYA', kind: 'portal', value: 'cajaya' },
-          { label: 'Ver PaginaGo', kind: 'portal', value: 'paginago' },
+          { label: 'Ir a CajaYA', kind: 'portal', value: 'cajaya' },
+          { label: 'Ir a PaginaGo', kind: 'portal', value: 'paginago' },
           {
-            label: 'Consultar por mi negocio',
+            label: 'Consultar para mi negocio',
             kind: 'contact',
             value: 'Producto',
             draft: 'Hola, me interesa implementar CajaYA / PaginaGo en mi negocio.',
@@ -93,8 +107,9 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
       };
     case 'automatizar':
       return {
-        userText: label,
-        botText: '¿Qué te quita más tiempo hoy?',
+        id: key,
+        eyebrow: 'AUTOMATIZACIONES',
+        title: '¿Dónde se pierde más tiempo hoy?',
         chips: [
           { label: 'Planillas Excel y doble digitación', kind: 'step', value: 'auto_excel' },
           { label: 'Facturación SII o conectar sistemas', kind: 'step', value: 'auto_sii' },
@@ -106,128 +121,154 @@ function replyToStep(key: string, label: string): { userText: string; botText: s
     case 'auto_reportes': {
       const detail =
         key === 'auto_excel'
-          ? 'Reemplazamos planillas sueltas por un flujo único que valida y registra sin volver a digitar.'
+          ? 'Reemplazamos planillas sueltas por un flujo único que valida y registra datos sin volver a digitar.'
           : key === 'auto_sii'
-            ? 'Conectamos tus ventas o sistema interno directo con SII, APIs y ERP de forma automática.'
-            : 'Programamos lectura de datos, envío de reportes y alertas cuando algo requiere atención.';
+            ? 'Conectamos tus ventas o sistema interno directo con SII, APIs y bodega de forma automática.'
+            : 'Programamos lectura de datos, generación de reportes y alertas en tiempo real.';
       return {
-        userText: label,
-        botText: `${detail} ¿Revisamos tu caso?`,
+        id: key,
+        eyebrow: 'SOLUCIÓN A MEDIDA',
+        title: label,
+        detail,
         chips: [
-          { label: 'Ver Automatizaciones', kind: 'portal', value: 'auto' },
+          { label: 'Ver consola de Automatizaciones', kind: 'portal', value: 'auto' },
           {
             label: 'Dejar mi caso en el formulario',
             kind: 'contact',
             value: 'Automatizar',
             draft: `Hola, busco automatizar: ${label.toLowerCase()}.`,
           },
-          { label: 'Hablar por WhatsApp', kind: 'wa', value: `Hola, quiero automatizar: ${label.toLowerCase()}.` },
+          { label: 'Conversar por WhatsApp', kind: 'wa', value: `Hola, quiero automatizar: ${label.toLowerCase()}.` },
         ],
       };
     }
     case 'medida':
       return {
-        userText: label,
-        botText: '¿Qué necesitas construir?',
+        id: key,
+        eyebrow: 'INGENIERÍA A MEDIDA',
+        title: '¿Qué buscas construir?',
         chips: [
-          { label: 'Sistema web a medida', kind: 'step', value: 'medida_sistema' },
-          { label: 'Web interactiva 3D (como esta)', kind: 'step', value: 'medida_web' },
-          { label: 'App para tótems o terreno', kind: 'step', value: 'medida_totem' },
+          { label: 'Plataforma o sistema interno', kind: 'step', value: 'medida_sistema' },
+          { label: 'Sitio web interactivo 3D (como este)', kind: 'step', value: 'medida_web' },
+          { label: 'Interfaz para tótems o pantallas TV', kind: 'step', value: 'medida_totem' },
         ],
       };
     case 'medida_sistema':
     case 'medida_web':
     case 'medida_totem': {
-      const msg =
+      const detail =
         key === 'medida_web'
-          ? 'Diseñamos sitios inmersivos 3D rápidos, limpios y orientados a conversión.'
+          ? 'Diseñamos sitios inmersivos 3D rápidos, limpios y pensados para diferenciar tu empresa.'
           : key === 'medida_totem'
-            ? 'Construimos interfaces táctiles para tótems, pantallas TV y apps que siguen operando aunque caiga internet.'
-            : 'Desarrollamos plataformas completas a la medida de tu operación, con entregas por etapas.';
+            ? 'Construimos interfaces táctiles para tótems, salas de espera y operación continua con o sin internet.'
+            : 'Desarrollamos software completo a la medida de tu operación, con entregas funcionales por etapas.';
       return {
-        userText: label,
-        botText: msg,
+        id: key,
+        eyebrow: 'DESARROLLO',
+        title: label,
+        detail,
         chips: [
           {
             label: 'Cotizar en formulario',
             kind: 'contact',
-            value: key === 'medida_web' ? 'Web 3D' : 'Software a medida',
+            value: key === 'medida_web' ? 'Web 3D' : 'A medida',
             draft: `Hola, me gustaría cotizar: ${label.toLowerCase()}.`,
           },
-          { label: 'Escribir por WhatsApp', kind: 'wa', value: `Hola, quiero conversar sobre ${label.toLowerCase()}.` },
+          { label: 'Hablar directo por WhatsApp', kind: 'wa', value: `Hola, quiero conversar sobre ${label.toLowerCase()}.` },
         ],
       };
     }
     case 'precios':
     default:
       return {
-        userText: label,
-        botText:
-          'PaginaGo parte en $6.990/mes. Para nuestros sistemas (Filas, TICPanel, TBA, CajaYA) o desarrollos a medida, la evaluación inicial es sin costo y cotizamos por alcance cerrado.',
+        id: 'precios',
+        eyebrow: 'ALCANCE Y TIEMPOS',
+        title: 'Evaluación inicial sin costo',
+        detail:
+          'PaginaGo parte en $6.990/mes. Para nuestros sistemas (Filas, TICPanel, TBA, CajaYA) o desarrollos a medida, cotizamos por alcance cerrado y entregas rápidas.',
         chips: [
           {
-            label: 'Pedir cotización',
+            label: 'Solicitar propuesta',
             kind: 'contact',
-            value: 'Software a medida',
-            draft: 'Hola, quiero evaluar costos y plazos para un proyecto.',
+            value: 'A medida',
+            draft: 'Hola, quiero evaluar alcance, costos y plazos para un proyecto.',
           },
-          { label: 'WhatsApp directo', kind: 'wa', value: 'Hola, quiero consultar valores y plazos con tuEndpoint.' },
-          { label: '← Volver', kind: 'step', value: 'inicio' },
+          { label: 'Consultar por WhatsApp', kind: 'wa', value: 'Hola, quiero consultar valores y plazos con tuEndpoint.' },
         ],
       };
   }
 }
 
-function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
+function answerFreeText(q: string): GuideState {
   const s = q.toLowerCase();
+  const shortQ = q.length > 34 ? `${q.slice(0, 34)}…` : q;
+
   if (/fila|turno|totem|tótem|llamad|pantalla|tv/.test(s)) {
     return {
-      text: 'Gestor de Filas incluye tótem táctil, pantalla TV de llamados con timbre y voz, atención por módulo y trazabilidad.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'Gestor de Filas',
+      detail: 'Incluye tótem táctil, pantalla TV de llamados con timbre y voz, atención por módulo y métricas en vivo.',
       chips: [
-        { label: 'Ver Gestor de Filas', kind: 'portal', value: 'filas' },
+        { label: 'Ir a Gestor de Filas', kind: 'portal', value: 'filas' },
         { label: 'Solicitar demo', kind: 'contact', value: 'Producto', draft: 'Hola, quiero ver una demo del Gestor de Filas.' },
       ],
     };
   }
   if (/caja|pos|sii|boleta|factura|dte|internet|offline|stock/.test(s)) {
     return {
-      text: 'CajaYA opera con o sin internet, controla turnos y stock, y se integra con catálogo de productos y emisión DTE ante el SII.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'CajaYA · POS + SII',
+      detail: 'Opera con o sin internet, controla turnos y stock, y emite boletas y facturas electrónicas ante el SII.',
       chips: [
-        { label: 'Ver CajaYA', kind: 'portal', value: 'cajaya' },
-        { label: 'Consultar por CajaYA', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa CajaYA para mi negocio.' },
+        { label: 'Ir a CajaYA', kind: 'portal', value: 'cajaya' },
+        { label: 'Consultar implementación', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa CajaYA para mi negocio.' },
       ],
     };
   }
   if (/ticpanel|hospital|equipo|soporte|ticket|acta/.test(s)) {
     return {
-      text: 'TICPanel gestiona casi 2.000 equipos en hospital: telemetría en vivo por agente, mesa de ayuda con SLA y actas firmadas.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'TICPanel',
+      detail: 'Gestiona casi 2.000 equipos en hospital: telemetría en vivo por agente, mesa de ayuda y actas firmadas.',
       chips: [
-        { label: 'Ver TICPanel', kind: 'portal', value: 'ticpanel' },
+        { label: 'Ir a TICPanel', kind: 'portal', value: 'ticpanel' },
         { label: 'Pedir demo', kind: 'contact', value: 'Producto', draft: 'Hola, quiero conocer TICPanel.' },
       ],
     };
   }
   if (/tba|colegio|bodega|compra|activo|inventario/.test(s)) {
     return {
-      text: 'Logística TBA administra solicitudes internas, bodega, órdenes de compra, activos fijos y auditoría institucional.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'Logística TBA',
+      detail: 'Administra solicitudes internas, bodega, órdenes de compra, activos fijos y auditoría institucional.',
       chips: [
-        { label: 'Ver Logística TBA', kind: 'portal', value: 'tba' },
-        { label: 'Consultar implementación', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa un sistema como Logística TBA.' },
+        { label: 'Ir a Logística TBA', kind: 'portal', value: 'tba' },
+        { label: 'Evaluar para mi organización', kind: 'contact', value: 'Producto', draft: 'Hola, me interesa un sistema como Logística TBA.' },
       ],
     };
   }
   if (/paginago|cat[aá]logo|tienda|whatsapp/.test(s)) {
     return {
-      text: 'Con PaginaGo creas tu catálogo online en minutos, compartes un único link y recibes los pedidos armados en tu WhatsApp.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'PaginaGo',
+      detail: 'Creas tu catálogo online en minutos, compartes un link y recibes los pedidos listos en tu WhatsApp.',
       chips: [
-        { label: 'Ver PaginaGo', kind: 'portal', value: 'paginago' },
-        { label: 'Ir al formulario', kind: 'contact', value: 'Producto', draft: 'Hola, quiero consultar por PaginaGo.' },
+        { label: 'Ir a PaginaGo', kind: 'portal', value: 'paginago' },
+        { label: 'Consultar en formulario', kind: 'contact', value: 'Producto', draft: 'Hola, quiero consultar por PaginaGo.' },
       ],
     };
   }
   if (/web|3d|p[aá]gina|sitio|dise[ñn]o/.test(s)) {
     return {
-      text: 'Creamos sitios web interactivos y experiencias 3D limpias como esta, pensadas para destacar tu marca.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'Webs interactivas 3D',
+      detail: 'Diseñamos sitios limpios, rápidos y distintos a cualquier plantilla para posicionar tu empresa.',
       chips: [
         { label: 'Cotizar mi sitio web', kind: 'contact', value: 'Web 3D', draft: 'Hola, quiero cotizar una página web moderna para mi empresa.' },
         { label: 'Hablar por WhatsApp', kind: 'wa', value: 'Hola, quiero cotizar una página web interactiva con tuEndpoint.' },
@@ -236,7 +277,10 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/precio|valor|cu[aá]nto|costo|cotiz|plazo|tiempo|demora/.test(s)) {
     return {
-      text: 'Evaluamos tu idea sin costo. Sobre nuestros productos base toma pocos días; un desarrollo nuevo se entrega por etapas funcionales.',
+      id: `q-${Date.now()}`,
+      eyebrow: `CONSULTA · ${shortQ}`,
+      title: 'Diagnóstico sin costo',
+      detail: 'Sobre nuestros productos base implementamos en pocos días; un desarrollo nuevo se entrega por etapas cerradas.',
       chips: [
         { label: 'Dejar datos para cotizar', kind: 'contact', value: 'Software a medida', draft: `Hola, mi consulta: ${q}` },
         { label: 'WhatsApp directo', kind: 'wa', value: `Hola, tengo esta consulta: ${q}` },
@@ -245,7 +289,10 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
   }
   if (/ubic|d[oó]nde|vi[ñn]a|chile|correo|tel[eé]fono|contacto|humano/.test(s)) {
     return {
-      text: `Estamos en ${brand.address} y trabajamos con empresas en todo Chile. Escríbenos a ${brand.email} o por el formulario.`,
+      id: `q-${Date.now()}`,
+      eyebrow: 'CONTACTO DIRECTO',
+      title: brand.address,
+      detail: `Trabajamos con empresas en todo Chile. Escríbenos a ${brand.email} o conversemos directo.`,
       chips: [
         { label: 'Ir al formulario', kind: 'contact', value: 'Software a medida', draft: '' },
         { label: 'Abrir WhatsApp', kind: 'wa', value: 'Hola, quiero conversar con el equipo de tuEndpoint.' },
@@ -253,11 +300,13 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
     };
   }
   return {
-    text: 'Podemos resolverlo automatizando ese flujo o creándolo a medida. ¿Prefieres dejarnos el detalle en el formulario o conversar por WhatsApp?',
+    id: `q-${Date.now()}`,
+    eyebrow: `CONSULTA · ${shortQ}`,
+    title: 'Lo revisamos contigo',
+    detail: 'Podemos automatizar ese flujo o construirlo a medida. Elige cómo prefieres continuar:',
     chips: [
-      { label: 'Usar formulario', kind: 'contact', value: 'Software a medida', draft: q },
-      { label: 'WhatsApp', kind: 'wa', value: `Hola tuEndpoint, quería consultar: ${q}` },
-      { label: 'Opciones', kind: 'step', value: 'inicio' },
+      { label: 'Enviar detalle en formulario', kind: 'contact', value: 'Software a medida', draft: q },
+      { label: 'Conversar por WhatsApp', kind: 'wa', value: `Hola tuEndpoint, quería consultar: ${q}` },
     ],
   };
 }
@@ -265,46 +314,33 @@ function answerFreeText(q: string): { text: string; chips: ActionChip[] } {
 export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPrefillContact }: AssistantBotProps) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [msgs, setMsgs] = useState<Msg[]>([
-    {
-      id: 1,
-      from: 'bot',
-      text: '¿Qué estás buscando? Elige una opción o escríbenos tu consulta.',
-      chips: ROOT_CHIPS,
-    },
-  ]);
-  const listRef = useRef<HTMLDivElement>(null);
-  const nextId = useRef(2);
+  const [history, setHistory] = useState<GuideState[]>([]);
+  const [current, setCurrent] = useState<GuideState>(ROOT_STATE);
 
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [msgs, open]);
+  const goBack = () => {
+    setHistory((prev) => {
+      if (!prev.length) return prev;
+      const next = [...prev];
+      const last = next.pop()!;
+      setCurrent(last);
+      return next;
+    });
+  };
 
-  const resetFlow = () => {
-    setMsgs([
-      {
-        id: nextId.current++,
-        from: 'bot',
-        text: '¿Qué estás buscando? Elige una opción o escríbenos tu consulta.',
-        chips: ROOT_CHIPS,
-      },
-    ]);
+  const resetRoot = () => {
+    setHistory([]);
+    setCurrent(ROOT_STATE);
   };
 
   const handleChip = (c: ActionChip) => {
     if (c.kind === 'step') {
       if (c.value === 'inicio') {
-        resetFlow();
+        resetRoot();
         return;
       }
-      const r = replyToStep(c.value, c.label);
-      setMsgs((m) => [
-        ...m,
-        { id: nextId.current++, from: 'user', text: r.userText },
-        { id: nextId.current++, from: 'bot', text: r.botText, chips: r.chips },
-      ]);
+      const next = resolveStep(c.value, c.label);
+      setHistory((h) => [...h, current]);
+      setCurrent(next);
       return;
     }
     if (c.kind === 'portal') {
@@ -330,95 +366,152 @@ export function AssistantBot({ productIndexById, contactIndex, onNavigate, onPre
     const q = input.trim();
     if (!q) return;
     setInput('');
-    const r = answerFreeText(q);
-    setMsgs((m) => [
-      ...m,
-      { id: nextId.current++, from: 'user', text: q },
-      { id: nextId.current++, from: 'bot', text: r.text, chips: r.chips },
-    ]);
+    const next = answerFreeText(q);
+    setHistory((h) => [...h, current]);
+    setCurrent(next);
   };
 
   return (
     <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end">
-      {open && (
-        <div
-          role="dialog"
-          aria-label="Consultas rápidas"
-          className="mb-3 flex max-h-[70vh] w-[min(90vw,340px)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[#080b14]/95 text-white shadow-2xl backdrop-blur-xl"
-        >
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <span className="text-xs font-medium tracking-wide text-white/80">tuEndpoint</span>
-            <div className="flex items-center gap-3 text-xs text-white/45">
-              <button type="button" onClick={resetFlow} className="transition-colors hover:text-white">
-                Inicio
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Cerrar"
-                className="transition-colors hover:text-white"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-
-          <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3.5 text-sm">
-            {msgs.map((m) => (
-              <div key={m.id} className={m.from === 'user' ? 'flex justify-end' : 'space-y-2'}>
-                <div
-                  className={
-                    m.from === 'user'
-                      ? 'max-w-[82%] rounded-2xl rounded-br-sm bg-white px-3.5 py-2 text-xs font-medium text-[#05060b]'
-                      : 'max-w-[92%] rounded-2xl rounded-bl-sm bg-white/[0.06] px-3.5 py-2.5 text-[13px] leading-relaxed text-white/85'
-                  }
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="concierge-sheet"
+            role="dialog"
+            aria-label="Índice interactivo tuEndpoint"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-3 w-[min(92vw,356px)] border border-white/10 border-t-[#38bdf8]/75 bg-[#05070e]/95 px-5 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.85)] backdrop-blur-2xl"
+          >
+            {/* Cabecera editorial mínima */}
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              {history.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="inline-flex items-center gap-1.5 text-xs text-white/55 transition-colors hover:text-[#38bdf8]"
                 >
-                  {m.text}
-                </div>
-                {m.chips && m.chips.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {m.chips.map((c) => (
-                      <button
-                        key={c.label}
-                        type="button"
-                        onClick={() => handleChip(c)}
-                        className="rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 text-left text-xs text-white/75 transition-colors hover:border-white/35 hover:bg-white/10 hover:text-white"
-                      >
-                        {c.label}
-                      </button>
-                    ))}
+                  <span aria-hidden>←</span>
+                  <span>Volver</span>
+                </button>
+              ) : (
+                <span className="text-xs font-medium tracking-tight text-white/85">
+                  tuEndpoint<span className="text-[#38bdf8]">.</span>
+                </span>
+              )}
+
+              <div className="flex items-center gap-3">
+                {history.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={resetRoot}
+                    className="text-[11px] uppercase tracking-[0.16em] text-white/35 transition-colors hover:text-white"
+                  >
+                    Inicio
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Cerrar"
+                  className="text-white/45 transition-colors hover:text-white"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={1.75} />
+                </button>
+              </div>
+            </div>
+
+            {/* Vista activa en el mismo plano (sin burbujas ni tarjetas de chat IA) */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18 }}
+                className="pt-4"
+              >
+                {current.eyebrow && (
+                  <div className="truncate font-mono text-[10px] uppercase tracking-[0.2em] text-[#38bdf8]">
+                    {current.eyebrow}
                   </div>
                 )}
-              </div>
-            ))}
-          </div>
+                <h3 className="mt-1.5 text-lg font-medium leading-snug tracking-tight text-white">
+                  {current.title}
+                </h3>
+                {current.detail && (
+                  <p className="mt-2 text-[13px] leading-relaxed text-white/60">
+                    {current.detail}
+                  </p>
+                )}
 
-          <form onSubmit={onSubmit} className="flex items-center gap-2 border-t border-white/10 p-2.5">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe tu consulta..."
-              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-white/35 focus:outline-none"
-            />
-            <button
-              type="submit"
-              aria-label="Enviar"
-              className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#05060b] transition-opacity hover:opacity-90"
+                {/* Filas editoriales numeradas con línea inferior */}
+                <div className="mt-3.5 divide-y divide-white/[0.08] border-t border-white/[0.08]">
+                  {current.chips.map((c, idx) => (
+                    <button
+                      key={c.label}
+                      type="button"
+                      onClick={() => handleChip(c)}
+                      className="group relative flex w-full items-center justify-between gap-3 py-2.5 text-left transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-[1px] after:origin-left after:scale-x-0 after:bg-[#38bdf8] after:transition-transform after:duration-200 hover:after:scale-x-100"
+                    >
+                      <span className="flex min-w-0 items-baseline gap-3">
+                        <span className="font-mono text-[11px] text-white/30 transition-colors group-hover:text-[#38bdf8]">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="truncate text-[13px] text-white/75 transition-colors group-hover:text-white">
+                          {c.label}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden
+                        className="shrink-0 text-xs text-white/35 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#38bdf8]"
+                      >
+                        {c.kind === 'wa' ? '↗' : '→'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Línea de consulta directa minimalista (sin caja redondeada) */}
+            <form
+              onSubmit={onSubmit}
+              className="mt-4 flex items-center gap-2 border-b border-white/15 pb-1.5 transition-colors focus-within:border-[#38bdf8]"
             >
-              →
-            </button>
-          </form>
-        </div>
-      )}
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="O escribe tu consulta aquí..."
+                aria-label="Escribe tu consulta"
+                className="min-w-0 flex-1 bg-transparent text-xs text-white placeholder:text-white/30 focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="Consultar"
+                className="text-xs font-medium text-[#38bdf8] transition-transform hover:translate-x-0.5"
+              >
+                →
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Cerrar consultas' : 'Abrir consultas'}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/70 backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/10 hover:text-white"
+        aria-label={open ? 'Cerrar guía' : 'Abrir guía'}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#05070e]/80 text-white/70 backdrop-blur-md transition-all hover:border-[#38bdf8]/60 hover:text-white"
       >
-        {open ? <X className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <MessageCircle className="h-[18px] w-[18px]" strokeWidth={1.75} />}
+        {open ? (
+          <X className="h-[17px] w-[17px]" strokeWidth={1.6} />
+        ) : (
+          <MessageSquare className="h-[16px] w-[16px]" strokeWidth={1.6} />
+        )}
       </button>
     </div>
   );

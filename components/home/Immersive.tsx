@@ -15,14 +15,15 @@ import {
   Send,
   Monitor,
   Printer,
-  X,
   Server,
   Cpu,
-  CheckCircle2,
-  Maximize2,
-  FileText,
+  Layers,
+  Terminal,
   Activity,
+  CheckCircle2,
+  HardDrive,
   Laptop,
+  ChevronRight,
 } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { TUENDPOINT_COMPANY } from '@/lib/cotizador/catalog';
@@ -30,13 +31,13 @@ import { AssistantBot } from '@/components/home/AssistantBot';
 import { Typewriter } from '@/components/ui/typewriter';
 
 /* ------------------------------------------------------------------ */
-/* Modelos de Datos                                                   */
+/* Datos Oficiales de Productos y Pantallas                           */
 /* ------------------------------------------------------------------ */
 
 interface ScreenTab {
   id: string;
   label: string;
-  type: 'img' | 'filas-tv' | 'filas-totem' | 'auto-monitor';
+  type: 'img' | 'filas-tv' | 'filas-totem' | 'ticpanel-agents' | 'auto-monitor';
   src?: string;
   badge?: string;
   click?: [number, number];
@@ -47,15 +48,11 @@ interface ProductShowcase {
   id: string;
   name: string;
   shortName: string;
+  tagline: string;
   category: string;
   badge: string;
-  tagline: string;
-  shortSummary: string;
-  architectureSummary: {
-    title: string;
-    description: string;
-    items: { label: string; detail: string }[];
-  };
+  oneLiner: string;
+  techSpecs: string[];
   screens: ScreenTab[];
   externalUrl?: string;
   ctaText: string;
@@ -65,22 +62,17 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'filas',
     name: 'Gestor de Filas Hospitalario',
-    shortName: 'Gestor de Filas',
+    shortName: 'Filas Hospital',
     category: 'Salud Pública',
-    badge: 'Ley 20.584 · Hospitales Públicos',
+    badge: 'Ley 20.584 · En Producción',
     tagline: 'Llamado por voz sintetizada en TV y tótems de autoatención con RUT.',
-    shortSummary:
-      'Erradica las aglomeraciones caóticas en salas de espera y farmacias con prioridad garantizada bajo Ley 20.584 y métricas de atención minuto a minuto.',
-    architectureSummary: {
-      title: 'Flujo Asistencial Integrado',
-      description: 'Conexión bidireccional en tiempo real entre tótems táctiles, pantallas de sala y ventanillas.',
-      items: [
-        { label: 'Tótem Táctil 21.5"', detail: 'Autoatención con ingreso de RUT y corte térmico automático de ticket.' },
-        { label: 'Audio Vocal Chileno', detail: 'Pronunciación natural fonética que indica paciente y módulo por voz.' },
-        { label: 'Prioridad Ley 20.584', detail: 'Priorización estricta para adultos mayores y movilidad reducida.' },
-        { label: 'Tiempos de Espera', detail: 'Panel de métricas en vivo para auditorías y jefaturas médicas.' },
-      ],
-    },
+    oneLiner:
+      'Erradica el desorden en salas de espera y farmacias con llamado audiovisual en vivo, atención preferente garantizada y métricas de espera en tiempo real.',
+    techSpecs: [
+      'Prioridad estricta para adultos mayores y personas con movilidad reducida (Ley 20.584).',
+      'Voz fonética chilena natural que indica paciente y módulo por audio.',
+      'Tótem táctil 21.5" con corte automático de ticket e ingreso por cédula de identidad.',
+    ],
     screens: [
       {
         id: 'tv',
@@ -95,7 +87,7 @@ const PRODUCTS: ProductShowcase[] = [
         type: 'filas-totem',
         badge: 'Autoatención con RUT',
         click: [0.5, 0.46],
-        actionText: 'Emitiendo ticket Farmacia Ambulatoria...',
+        actionText: 'Emitiendo ticket para Farmacia Ambulatoria...',
       },
       {
         id: 'envivo',
@@ -125,36 +117,29 @@ const PRODUCTS: ProductShowcase[] = [
         actionText: 'Exportando informe oficial ministerial...',
       },
     ],
-    ctaText: 'Solicitar Demostración',
+    ctaText: 'Pedir Demo de Filas',
   },
   {
     id: 'ticpanel',
-    name: 'TICPanel — Mesa de Ayuda & Actas TI',
+    name: 'TICPanel — Mesa de Ayuda & TI',
     shortName: 'TICPanel',
     category: 'Infraestructura TI',
-    badge: 'Agente en Endpoints · Sector Salud',
+    badge: 'Agentes Silenciosos en Endpoints',
     tagline: 'Agentes instalados en cada equipo que reportan hardware y telemetría en tiempo real.',
-    shortSummary:
-      'Instalación de agente silencioso en cada computador que recolecta números de serie, componentes y estado en vivo, integrado a tickets con SLA y actas con firma digital.',
-    architectureSummary: {
-      title: 'Arquitectura de Agentes en Endpoints',
-      description: 'Monitoreo continuo y silencioso sin interrumpir al usuario.',
-      items: [
-        { label: 'Agente Ligero en PCs', detail: 'Servicio en segundo plano (Windows/Linux) que detecta cambios de hardware y seriales.' },
-        { label: 'Telemetría en Vivo', detail: 'Envío de especificaciones, disco, memoria, IP y periféricos al servidor central.' },
-        { label: 'Mesa de Tickets SLA', detail: 'Derivación inteligente por urgencia con tiempos máximos de respuesta.' },
-        { label: 'Actas con Firma Digital', detail: 'Emisión de actas oficiales de entrega y recepción válidas para auditorías.' },
-      ],
-    },
+    oneLiner:
+      'Control total del parque informático. Un agente ligero en segundo plano reporta CPU, RAM, discos, seriales y estado sin intervención del usuario, integrado a tickets con SLA y actas con firma digital.',
+    techSpecs: [
+      'Agente silencioso (Windows / Linux) que transmite telemetría y periféricos al servidor central.',
+      'Detección automática de números de serie, direcciones MAC y hardware para control patrimonial.',
+      'Mesa de tickets con derivación inteligente por criticidad y actas oficiales con firma digital.',
+    ],
     screens: [
       {
-        id: 'panel',
-        label: 'Dashboard General',
-        type: 'img',
-        src: '/shots/ticpanel-1.jpg',
-        badge: '142 Agentes Activos',
-        click: [0.015, 0.22],
-        actionText: 'Agentes reportando equipos en línea...',
+        id: 'agents',
+        label: 'Agentes en Endpoints',
+        type: 'ticpanel-agents',
+        badge: 'Telemetría en Vivo',
+        actionText: 'Agentes reportando telemetría de 142 equipos...',
       },
       {
         id: 'tickets',
@@ -163,7 +148,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/ticpanel-2.jpg',
         badge: 'SLA Hospitalario',
         click: [0.015, 0.27],
-        actionText: 'Asignando especialista técnico según SLA...',
+        actionText: 'Asignando especialista según SLA...',
       },
       {
         id: 'actas',
@@ -181,30 +166,34 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/ticpanel-4.jpg',
         badge: 'Inventario TI',
         click: [0.015, 0.12],
-        actionText: 'Agente detectó nuevo monitor asignado...',
+        actionText: 'Escaneando código de barras de equipo...',
+      },
+      {
+        id: 'panel',
+        label: 'Dashboard General',
+        type: 'img',
+        src: '/shots/ticpanel-1.jpg',
+        badge: 'Mesa de Control',
+        click: [0.015, 0.22],
+        actionText: 'Revisando estado general de infraestructura...',
       },
     ],
-    ctaText: 'Solicitar Demostración',
+    ctaText: 'Pedir Demo de TICPanel',
   },
   {
     id: 'tba',
     name: 'Logística TBA — Solicitudes y Bodega',
     shortName: 'Logística TBA',
     category: 'Logística & Compras',
-    badge: 'Producción Activa en logisticatba.cloud',
+    badge: 'Producción en logisticatba.cloud',
     tagline: 'Kardex digital y flujo de solicitudes internas sin planillas Excel.',
-    shortSummary:
-      'Control total de inventario en tiempo real, vinculación con órdenes de compra y aprobaciones jerárquicas desde cualquier navegador.',
-    architectureSummary: {
-      title: 'Control de Almacén y Adquisiciones',
-      description: 'Plataforma en la nube con perfiles diferenciados para solicitantes y bodegueros.',
-      items: [
-        { label: 'Pedidos Internos Digitales', detail: 'Flujo jerárquico de aprobaciones departamentales sin papeleo.' },
-        { label: 'Kardex Automatizado', detail: 'Existencias en tiempo real con alertas de stock mínimo y lotes.' },
-        { label: 'Órdenes de Compra', detail: 'Trazabilidad con proveedores, facturas y recepciones de bodega.' },
-        { label: 'Acceso Cloud Seguro', detail: 'Disponible desde cualquier equipo con perfiles de seguridad.' },
-      ],
-    },
+    oneLiner:
+      'Centraliza pedidos internos con aprobaciones jerárquicas por departamento, control de existencias en tiempo real y vinculación directa con órdenes de compra y facturas.',
+    techSpecs: [
+      'Portal de pedidos con flujo jerárquico de aprobaciones por departamento o centro de costo.',
+      'Kardex de bodega en tiempo real con alertas de stock mínimo, control de lotes y valorización.',
+      'Trazabilidad completa con órdenes de compra, proveedores y recepciones conformes de almacén.',
+    ],
     screens: [
       {
         id: 'dash',
@@ -253,18 +242,13 @@ const PRODUCTS: ProductShowcase[] = [
     category: 'Retail & Comercio',
     badge: '100% Offline + DTE Electrónico SII',
     tagline: 'Punto de venta ultra rápido que cobra sin internet y sincroniza con el SII.',
-    shortSummary:
-      'Continúa cobrando, abriendo turnos e imprimiendo comprobantes ante caídas totales de red, y sincroniza automáticamente las boletas al volver la señal.',
-    architectureSummary: {
-      title: 'Motor de Persistencia Local Offline',
-      description: 'Arquitectura diseñada para continuidad operativa sin depender de internet.',
-      items: [
-        { label: 'Operación 100% Offline', detail: 'Cobra e imprime comprobantes sin cortes ante caídas de enlace.' },
-        { label: 'Integración Directa SII', detail: 'Timbraje y emisión inmediata de boletas y facturas electrónicas.' },
-        { label: 'Arqueo Ciego & Reporte Z', detail: 'Cuadratura de caja transparente con control estricto de mermas.' },
-        { label: 'Atención en 3 Segundos', detail: 'Búsqueda por código de barras y botones táctiles optimizados.' },
-      ],
-    },
+    oneLiner:
+      'Construido para locales de alta concurrencia. Sigue vendiendo, cobrando e imprimiendo comprobantes ante caídas de internet y sincroniza las boletas electrónicas al volver la señal.',
+    techSpecs: [
+      'Operación 100% offline garantizada: nunca detengas la venta ante cortes de red o luz.',
+      'Integración nativa con el SII para timbraje y emisión inmediata de boletas y facturas electrónicas.',
+      'Arqueo ciego con cuadratura automática de turnos, control estricto de caja y reporte Z al instante.',
+    ],
     screens: [
       {
         id: 'pos',
@@ -330,19 +314,14 @@ const PRODUCTS: ProductShowcase[] = [
     shortName: 'PaginaGo',
     category: 'Comercio Digital',
     badge: 'A la Venta en paginago.com',
-    tagline: 'Tu catálogo online en un enlace para recibir pedidos directos sin comisiones.',
-    shortSummary:
-      '0% comisiones por venta. El cliente navega tu catálogo desde el celular y envía el pedido estructurado con total y datos de despacho directo a tu WhatsApp.',
-    architectureSummary: {
-      title: 'Plataforma Móvil sin Intermediarios',
-      description: 'El 100% de la recaudación ingresa directo a la cuenta bancaria del negocio.',
-      items: [
-        { label: '0% Comisiones por Venta', detail: 'Sin retenciones ni comisiones abusivas por transacción.' },
-        { label: 'Carrito a WhatsApp', detail: 'Mensaje estructurado con lista de compra, total calculado y dirección.' },
-        { label: 'Autogestión Móvil', detail: 'Carga productos y modifica precios en segundos desde el celular.' },
-        { label: 'Enlace Exclusivo de Marca', detail: 'Listo para compartir en Instagram, TikTok o volantes.' },
-      ],
-    },
+    tagline: 'Tu tienda online en un enlace para recibir pedidos directos sin comisiones.',
+    oneLiner:
+      'La vía más rápida de vender por internet. El cliente arma su carrito en el celular y te envía la orden lista con lista, dirección y total calculado directamente a tu WhatsApp.',
+    techSpecs: [
+      '0% comisiones por venta: el 100% del dinero ingresa directo a tu cuenta bancaria.',
+      'Carrito de compras integrado que genera el mensaje estructurado con datos de despacho.',
+      'Panel autogestionable desde el celular para cargar productos, pausar stock y modificar precios.',
+    ],
     screens: [
       {
         id: 'tienda',
@@ -387,22 +366,17 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'auto',
     name: 'Automatizaciones & Bots RPA',
-    shortName: 'Automatizaciones RPA',
+    shortName: 'Automatizaciones',
     category: 'Integración de Sistemas',
-    badge: 'Desarrollo Especializado tuEndpoint',
+    badge: 'Desarrollo Especializado',
     tagline: 'Robots de software que conectan sistemas y eliminan tareas repetitivas.',
-    shortSummary:
-      'Extracción, validación y carga automática de facturas y registros entre ERPs, sistemas tributarios y portales web sin intervención humana.',
-    architectureSummary: {
-      title: 'Robots de Software y Webhooks',
-      description: 'Ahorro directo de horas-hombre con retorno de inversión visible desde el primer mes.',
-      items: [
-        { label: 'Robots RPA a Medida', detail: 'Automatización de digitación y transferencias masivas de datos.' },
-        { label: 'Conexión de APIs Legacy', detail: 'Puentes seguros entre servidores heredados y la nube.' },
-        { label: 'Monitor de Ejecución', detail: 'Registro de logs en tiempo real con alertas inmediatas ante fallos.' },
-        { label: 'Retorno Inmediato', detail: 'Elimina errores humanos y reduce costos de procesamiento.' },
-      ],
-    },
+    oneLiner:
+      'Desarrollamos bots RPA y conectores API que extraen, concilian y cargan datos automáticamente entre ERPs, sistemas tributarios y planillas sin errores humanos.',
+    techSpecs: [
+      'Robots RPA a medida para extracción y carga automática de facturas y órdenes de compra.',
+      'Conectores seguros entre bases de datos heredadas y plataformas cloud modernas.',
+      'Monitor de ejecución en tiempo real con alertas inmediatas a Telegram o WhatsApp ante fallos.',
+    ],
     screens: [
       {
         id: 'monitor',
@@ -417,188 +391,71 @@ const PRODUCTS: ProductShowcase[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Modal de Presentación Estilo iMac (Visual, Limpio y Sin Ruido)    */
+/* Simulador de Telemetría de Agentes TICPanel (Pura Ingeniería)      */
 /* ------------------------------------------------------------------ */
 
-function IMacPresentationModal({
-  product,
-  onClose,
-  waUrl,
-}: {
-  product: ProductShowcase;
-  onClose: () => void;
-  waUrl: (msg: string) => string;
-}) {
-  const [activeTab, setActiveTab] = useState<'screens' | 'architecture'>('screens');
-  const [selectedScreenId, setSelectedScreenId] = useState(product.screens[0].id);
+function TICPanelAgentsSimulator() {
+  const [agents, setAgents] = useState([
+    { id: 'PC-FARMACIA-01', os: 'Win 11', cpu: '14%', ram: '8GB / 16GB', ip: '10.12.4.18', status: 'ONLINE', ping: '12ms' },
+    { id: 'PC-URGENCIAS-03', os: 'Win 10', cpu: '28%', ram: '12GB / 16GB', ip: '10.12.4.45', status: 'ONLINE', ping: '8ms' },
+    { id: 'PC-SOME-02', os: 'Linux', cpu: '6%', ram: '4GB / 8GB', ip: '10.12.5.10', status: 'ONLINE', ping: '15ms' },
+    { id: 'PC-DIRECCION-01', os: 'Win 11', cpu: '19%', ram: '14GB / 32GB', ip: '10.12.1.2', status: 'ONLINE', ping: '9ms' },
+  ]);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose]);
-
-  const currentScreen = product.screens.find((s) => s.id === selectedScreenId) || product.screens[0];
+    const interval = setInterval(() => {
+      setAgents((prev) =>
+        prev.map((a) => ({
+          ...a,
+          cpu: `${Math.floor(Math.random() * 25 + 8)}%`,
+          ping: `${Math.floor(Math.random() * 12 + 6)}ms`,
+        }))
+      );
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div
-        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden text-slate-900"
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Cabecera Minimalista Estilo iMac */}
-        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={onClose}
-                className="h-3 w-3 rounded-full bg-rose-400 hover:opacity-80 transition cursor-pointer"
-                title="Cerrar"
-              />
-              <span className="h-3 w-3 rounded-full bg-amber-400" />
-              <span className="h-3 w-3 rounded-full bg-emerald-400" />
-            </div>
-            <div className="ml-2">
-              <h3 className="text-sm font-bold text-slate-900">{product.name}</h3>
-              <p className="text-[11px] text-slate-500">{product.tagline}</p>
-            </div>
+    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-3 sm:p-5 rounded-2xl text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
+      <div>
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-bold text-white text-xs">Agente Silencioso tuEndpoint · Telemetría en Vivo</span>
           </div>
-
-          {/* Segmented Control tipo macOS */}
-          <div className="flex items-center bg-slate-200/70 p-0.5 rounded-lg text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setActiveTab('screens')}
-              className={`px-3 py-1 rounded-md transition ${
-                activeTab === 'screens'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Pantallas en Vivo
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('architecture')}
-              className={`px-3 py-1 rounded-md transition ${
-                activeTab === 'architecture'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Arquitectura
-            </button>
-          </div>
-        </div>
-
-        {/* Cuerpo del Modal: 90% Visual */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
-          {activeTab === 'screens' ? (
-            <div className="space-y-4">
-              {/* Pantalla principal en marco iMac */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-100 p-2 sm:p-3 overflow-hidden shadow-inner">
-                {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
-                {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
-                {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
-                {currentScreen.type === 'img' && currentScreen.src && (
-                  <div className="w-full aspect-[16/10] rounded-xl overflow-hidden border border-slate-200 bg-white">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={currentScreen.src}
-                      alt={`${product.name} — ${currentScreen.label}`}
-                      className="w-full h-full object-cover object-top block"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Tira de miniaturas estilo carrete para alternar pantallas */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
-                {product.screens.map((scr) => (
-                  <button
-                    key={scr.id}
-                    type="button"
-                    onClick={() => setSelectedScreenId(scr.id)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shrink-0 ${
-                      currentScreen.id === scr.id
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {scr.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            /* Vista de Arquitectura & Agentes (Limpia, Sin Cuadrados) */
-            <div className="space-y-6 py-2">
-              <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-2">
-                <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider block">
-                  {product.architectureSummary.title}
-                </span>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  {product.architectureSummary.description}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {product.architectureSummary.items.map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
-                    <span className="text-xs font-bold text-slate-900 block flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#0284c7]" />
-                      {item.label}
-                    </span>
-                    <p className="text-xs text-slate-600 leading-relaxed">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Pie de Acciones Minimalista */}
-        <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
-          <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-            Desarrollado y soportado en Chile por tuEndpoint.
+          <span className="text-[10px] text-sky-400 font-semibold bg-sky-950/80 px-2 py-0.5 rounded border border-sky-800/80">
+            142 Endpoints Conectados
           </span>
-
-          <div className="flex items-center gap-2.5 ml-auto">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100 transition"
-            >
-              Cerrar
-            </button>
-
-            {product.externalUrl ? (
-              <a
-                href={product.externalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-[#0284c7] transition"
-              >
-                <span>{product.ctaText}</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            ) : (
-              <a
-                href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo asistida de ${product.name}.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-[#0284c7] transition"
-              >
-                <MessageSquare className="h-3.5 w-3.5 text-sky-400" />
-                <span>Pedir Demo con un Ingeniero</span>
-              </a>
-            )}
-          </div>
         </div>
+
+        <div className="mt-3 space-y-2">
+          {agents.map((ag) => (
+            <div
+              key={ag.id}
+              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px]"
+            >
+              <div className="flex items-center gap-2.5">
+                <Laptop className="h-3.5 w-3.5 text-sky-400" />
+                <span className="font-bold text-slate-100">{ag.id}</span>
+                <span className="text-[10px] text-slate-400 hidden sm:inline">({ag.os})</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 hidden md:inline">IP: {ag.ip}</span>
+                <span className="text-slate-300">CPU: <strong className="text-emerald-400">{ag.cpu}</strong></span>
+                <span className="text-slate-400 hidden sm:inline">RAM: {ag.ram}</span>
+                <span className="rounded bg-emerald-950 px-2 py-0.5 text-[9px] font-bold text-emerald-400 border border-emerald-800">
+                  {ag.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-[10px] text-slate-500">
+        <span>Agente desplegado como servicio en segundo plano (0% uso de pantalla)</span>
+        <span className="text-emerald-400">● Cifrado TLS 1.3 Activo</span>
       </div>
     </div>
   );
@@ -647,13 +504,11 @@ function FilasTVSimulator() {
       ctx.fillStyle = OSCURO;
       ctx.fillRect(0, 0, W, H);
 
-      // Cabecera institucional
       ctx.fillStyle = OSCURO;
       ctx.fillRect(0, 0, W, 72);
       ctx.fillStyle = ACENTO;
       ctx.fillRect(0, 68, W, 4);
 
-      // Cruz
       ctx.fillStyle = ACENTO;
       ctx.beginPath();
       ctx.roundRect(24, 16, 40, 40, 10);
@@ -678,7 +533,6 @@ function FilasTVSimulator() {
       ctx.fillText('Sistema por Voz Activo', W - 24, 60);
       ctx.textAlign = 'left';
 
-      // Panel principal izquierdo
       const ew = W * 0.62;
       const eh = H - 96;
       ctx.fillStyle = OSCURO2;
@@ -722,7 +576,6 @@ function FilasTVSimulator() {
       ctx.font = '500 13px Inter, sans-serif';
       ctx.fillText(cur.serv, 40, 344);
 
-      // Panel derecho
       const rx = ew + 32;
       const rw = W - rx - 20;
       ctx.fillStyle = OSCURO2;
@@ -778,7 +631,7 @@ function FilasTVSimulator() {
   };
 
   return (
-    <div className="relative w-full aspect-[16/10] bg-[#002A54] rounded-xl overflow-hidden border border-slate-700 shadow-inner">
+    <div className="relative w-full aspect-[16/10] bg-[#002A54] rounded-2xl overflow-hidden border border-slate-700 shadow-inner">
       <canvas ref={canvasRef} width={640} height={400} className="w-full h-full block" />
       <div className="absolute bottom-2 right-2 flex items-center gap-2">
         <button
@@ -787,7 +640,7 @@ function FilasTVSimulator() {
             setSoundEnabled(!soundEnabled);
             playChime();
           }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 hover:bg-black/80 text-[10px] font-bold text-white backdrop-blur border border-white/20 transition cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 text-[10px] font-bold text-white backdrop-blur border border-white/20 transition cursor-pointer"
         >
           {soundEnabled ? <Volume2 className="h-3 w-3 text-amber-400" /> : <VolumeX className="h-3 w-3 text-slate-400" />}
           <span>{soundEnabled ? 'Timbre Activo' : 'Probar Timbre'}</span>
@@ -820,11 +673,9 @@ function FilasTotemSimulator() {
   };
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#0F172A] p-4 rounded-xl text-white flex flex-col justify-between border border-slate-800 shadow-inner">
+    <div className="w-full aspect-[16/10] bg-[#0F172A] p-4 rounded-2xl text-white flex flex-col justify-between border border-slate-800 shadow-inner">
       <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white">Tótem Autoatención Hospitalario 21&quot;</span>
-        </div>
+        <span className="text-xs font-bold text-white">Tótem Autoatención Hospitalario 21&quot;</span>
         <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-emerald-400">
           ● ONLINE · IMPRESORA OK
         </span>
@@ -839,7 +690,7 @@ function FilasTotemSimulator() {
                 key={s.id}
                 type="button"
                 onClick={() => handleSelect(s)}
-                className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
                   selectedService === s.id
                     ? 'border-amber-400 bg-amber-400/20'
                     : 'border-slate-800 bg-slate-900/90 hover:border-slate-700'
@@ -915,7 +766,7 @@ function AutoMonitorSimulator() {
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-4 rounded-xl text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
+    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-4 rounded-2xl text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
       <div>
         <div className="flex items-center justify-between border-b border-slate-800 pb-2">
           <div className="flex items-center gap-2">
@@ -929,7 +780,7 @@ function AutoMonitorSimulator() {
           {logs.map((l) => (
             <div
               key={l.id}
-              className="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-[11px]"
+              className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px]"
             >
               <div className="flex items-center gap-2">
                 <span className="text-slate-500">{l.time}</span>
@@ -955,19 +806,17 @@ function AutoMonitorSimulator() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ventana de Aplicación Estilo iMac (Visual con Simulación de Clic)   */
+/* Ventana iMac Studio Display (Sin Modals Clumsy, 100% Visual)       */
 /* ------------------------------------------------------------------ */
 
-function IMacAppWindow({
+function IMacDisplayStage({
   product,
   activeScreenId,
   onSelectScreen,
-  onOpenModal,
 }: {
   product: ProductShowcase;
   activeScreenId: string;
   onSelectScreen: (screenId: string) => void;
-  onOpenModal: () => void;
 }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
@@ -1024,9 +873,9 @@ function IMacAppWindow({
   }, [isPlaying, currentScreenIndex, currentScreen, screens, onSelectScreen]);
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-xl overflow-hidden transition-all group">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-2xl overflow-hidden transition-all">
       {/* Barra de Título iMac Minimalista */}
-      <div className="px-4 py-3 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+      <div className="px-4 py-3 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded-full bg-rose-400" />
@@ -1045,9 +894,9 @@ function IMacAppWindow({
               key={scr.id}
               type="button"
               onClick={() => onSelectScreen(scr.id)}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition shrink-0 cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition shrink-0 cursor-pointer ${
                 currentScreen.id === scr.id
-                  ? 'bg-slate-900 text-white shadow-2xs'
+                  ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
@@ -1056,30 +905,21 @@ function IMacAppWindow({
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenModal}
-            className="flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md border border-slate-200 transition cursor-pointer"
-          >
-            <Maximize2 className="h-3 w-3" />
-            <span className="hidden sm:inline">Ver</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="p-1 text-slate-500 hover:text-slate-900 rounded hover:bg-slate-200 transition cursor-pointer"
-          >
-            {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setIsPlaying(!isPlaying)}
+          className="p-1 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition cursor-pointer"
+          title={isPlaying ? 'Pausar simulación' : 'Reanudar'}
+        >
+          {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+        </button>
       </div>
 
-      {/* Pantalla del Software */}
+      {/* Pantalla del Software en Alta Definición */}
       <div className="relative bg-slate-100 p-2 sm:p-4 overflow-hidden select-none">
         {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
         {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
+        {currentScreen.type === 'ticpanel-agents' && <TICPanelAgentsSimulator />}
         {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
 
         {currentScreen.type === 'img' && currentScreen.src && (
@@ -1141,7 +981,7 @@ function IMacAppWindow({
 }
 
 /* ------------------------------------------------------------------ */
-/* Componente Principal Home: Minimalista Estilo iMac                 */
+/* Componente Principal Home: Minimalista, Inteligente y Wow          */
 /* ------------------------------------------------------------------ */
 
 export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {}) {
@@ -1153,8 +993,6 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
     return init;
   });
 
-  const [modalProduct, setModalProduct] = useState<ProductShowcase | null>(null);
-
   const setProductScreen = (productId: string, screenId: string) => {
     setActiveScreens((prev) => ({ ...prev, [productId]: screenId }));
   };
@@ -1164,15 +1002,6 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
 
   return (
     <div className="immersive-root min-h-screen bg-white text-[#0F172A] selection:bg-[#0284c7] selection:text-white">
-      {/* Modal iMac si está abierto */}
-      {modalProduct && (
-        <IMacPresentationModal
-          product={modalProduct}
-          onClose={() => setModalProduct(null)}
-          waUrl={waUrl}
-        />
-      )}
-
       {/* =================================================================== */}
       {/* 1. NAVEGACIÓN SUPERIOR MINIMALISTA                                  */}
       {/* =================================================================== */}
@@ -1208,10 +1037,10 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
       </header>
 
       {/* =================================================================== */}
-      {/* 2. HERO: ATMÓSFERA STUDIO IMAC (SIN CUADRADOS DE IA) + TYPEWRITER   */}
+      {/* 2. HERO: ILUMINACIÓN STUDIO APPLE (CERO CUADRADOS DE IA)            */}
       {/* =================================================================== */}
       <section className="relative overflow-hidden pt-20 pb-20 sm:pt-28 sm:pb-28 border-b border-slate-100 bg-white">
-        {/* Iluminación de estudio suave (Gradiente radial Apple, CERO cuadrados) */}
+        {/* Iluminación de estudio suave sin cuadrados */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-sky-100/50 via-sky-50/20 to-transparent blur-3xl opacity-80" />
         </div>
@@ -1267,7 +1096,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
       </section>
 
       {/* =================================================================== */}
-      {/* 3. SHOWCASE: MENOS TEXTO, MENSAJE VISUAL Y DOS BOTONES LIMPIOS      */}
+      {/* 3. SHOWCASE IMAC: VISUAL, PRECISO Y SIN MODALS APILADOS             */}
       {/* =================================================================== */}
       <section className="py-20 sm:py-28 space-y-24 sm:space-y-36">
         {PRODUCTS.map((prod, index) => {
@@ -1286,7 +1115,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 }`}
               >
                 {/* ---------------------------------------------------- */}
-                {/* COLUMNA DE TEXTOS: CORTA, PRECISA Y DIRECTA AL GRANO */}
+                {/* COLUMNA DE TEXTOS: CORTA, PRECISA Y DIRECTA          */}
                 {/* ---------------------------------------------------- */}
                 <div className={`space-y-4 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
                   <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
@@ -1305,39 +1134,40 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                   </div>
 
                   <p className="text-sm text-slate-500 leading-relaxed">
-                    {prod.shortSummary}
+                    {prod.oneLiner}
                   </p>
 
-                  {/* DOS BOTONES: VER (MODAL) Y PEDIR DEMO */}
-                  <div className="pt-3 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setModalProduct(prod)}
-                      className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
-                    >
-                      <Maximize2 className="h-3.5 w-3.5 text-sky-400" />
-                      <span>Ver Presentación</span>
-                    </button>
+                  {/* 3 Puntos Técnicos Rápidos */}
+                  <div className="pt-2 space-y-2 text-xs text-slate-600">
+                    {prod.techSpecs.map((spec, sIdx) => (
+                      <div key={sIdx} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="leading-snug">{spec}</span>
+                      </div>
+                    ))}
+                  </div>
 
+                  {/* BOTÓN ÚNICO Y DIRECTO: PEDIR DEMO */}
+                  <div className="pt-4 flex flex-wrap items-center gap-3">
                     {prod.externalUrl ? (
                       <a
                         href={prod.externalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                        className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
                       >
                         <span>{prod.ctaText}</span>
-                        <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
+                        <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     ) : (
                       <a
-                        href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo asistida de ${prod.name}.`)}
+                        href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo en vivo de ${prod.name}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                        className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
                       >
-                        <MessageSquare className="h-3.5 w-3.5 text-[#0284c7]" />
-                        <span>Pedir Demo</span>
+                        <MessageSquare className="h-3.5 w-3.5 text-sky-400" />
+                        <span>Pedir Demostración en Vivo</span>
                       </a>
                     )}
                   </div>
@@ -1347,11 +1177,10 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 {/* COLUMNA VISUAL: PANTALLA IMAC EN VIVO                */}
                 {/* ---------------------------------------------------- */}
                 <div className={`lg:col-span-7 ${isReversed ? 'lg:order-1' : 'lg:order-2'}`}>
-                  <IMacAppWindow
+                  <IMacDisplayStage
                     product={prod}
                     activeScreenId={currentScreenId}
                     onSelectScreen={(sId) => setProductScreen(prod.id, sId)}
-                    onOpenModal={() => setModalProduct(prod)}
                   />
                 </div>
               </div>
@@ -1459,7 +1288,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
 
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
                 >
                   <Send className="h-3.5 w-3.5" />
                   <span>Enviar Consulta</span>

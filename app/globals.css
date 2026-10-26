@@ -288,10 +288,13 @@ body:has(.cotizador-root) { background: #f8fafc; color: #0f172a; }
   header,
   nav,
   footer,
+  aside,
   button,
   .skip-link {
     display: none !important;
   }
+  main,
+  main.hidden,
   .print-only-document {
     display: block !important;
     width: 100% !important;

@@ -90,11 +90,12 @@ export function CotizadorClient() {
   // Estado de descarga PDF y feedback
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
+  const [lastPdfUrl, setLastPdfUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const notify = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 3200);
+    setTimeout(() => setToast(null), 4500);
   };
 
   // Cálculos financieros
@@ -176,13 +177,16 @@ export function CotizadorClient() {
   const handleDownloadPdf = async () => {
     try {
       setIsGenerating(true);
-      setPdfProgress(20);
+      setPdfProgress(15);
       const filename = `Cotizacion_${TUENDPOINT_COMPANY.razonSocial.replace(/\s+/g, '_')}_${folio}`;
-      await downloadQuotationPdf({
+      const res = await downloadQuotationPdf({
         elementId: docId,
         filename,
         onProgress: (p) => setPdfProgress(p),
       });
+      if (res && res.blobUrl) {
+        setLastPdfUrl(res.blobUrl);
+      }
       notify('PDF oficial exportado con éxito');
     } catch (err) {
       console.error(err);
@@ -223,8 +227,19 @@ export function CotizadorClient() {
       {/* Toast flotante */}
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xl transition-all">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
           <span>{toast}</span>
+          {lastPdfUrl && (
+            <a
+              href={lastPdfUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-2 inline-flex items-center gap-1 rounded bg-sky-600 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-sky-500 transition"
+            >
+              <span>Abrir PDF</span>
+              <ChevronRight className="h-3 w-3" />
+            </a>
+          )}
         </div>
       )}
 
@@ -289,10 +304,12 @@ export function CotizadorClient() {
             <button
               type="button"
               onClick={printQuotation}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              title="Imprimir o Guardar como PDF oficial"
             >
               <Printer className="h-3.5 w-3.5 text-slate-500" />
-              <span>Imprimir</span>
+              <span className="hidden sm:inline">Imprimir / PDF</span>
+              <span className="sm:hidden">Imprimir</span>
             </button>
 
             <a
@@ -721,6 +738,33 @@ export function CotizadorClient() {
               viewMode === 'split' ? 'lg:col-span-7' : 'lg:col-span-12'
             } ${mobileTab === 'preview' ? 'block' : 'hidden lg:block'}`}
           >
+            {/* Barra rápida de acciones móvil */}
+            <div className="mb-3 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2 text-xs lg:hidden no-print shadow-xs">
+              <span className="font-bold text-slate-700 text-[11px] uppercase tracking-wide">
+                Documento Oficial A4
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={printQuotation}
+                  className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100 transition"
+                  title="Imprimir o Guardar como PDF"
+                >
+                  <Printer className="h-3 w-3 text-slate-500" />
+                  <span>Imprimir</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={isGenerating}
+                  className="inline-flex items-center gap-1 rounded bg-[#0284c7] px-2.5 py-1 text-[11px] font-bold text-white hover:bg-[#0369a1] transition disabled:opacity-50 shadow-xs"
+                >
+                  <Download className="h-3 w-3" />
+                  <span>{isGenerating ? `Generando ${pdfProgress}%` : 'Descargar PDF'}</span>
+                </button>
+              </div>
+            </div>
+
             {/* DOCUMENTO OFICIAL A4 PARA EXPORTACIÓN E IMPRESIÓN */}
             <div
               id={docId}
@@ -915,22 +959,7 @@ export function CotizadorClient() {
                 </div>
               </div>
 
-              {/* 6. CONDICIONES Y CUENTA BANCARIA */}
-              <div className="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-600 space-y-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Datos para Emisión de Orden de Compra y Transferencia
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 font-mono text-[11px] text-slate-700">
-                  <div>Razón Social: {TUENDPOINT_COMPANY.banco.titular}</div>
-                  <div>RUT: {TUENDPOINT_COMPANY.banco.rut}</div>
-                  <div>Banco: {TUENDPOINT_COMPANY.banco.banco}</div>
-                  <div>Tipo: {TUENDPOINT_COMPANY.banco.tipoCuenta}</div>
-                  <div>Facturación: Factura Electrónica DTE (SII)</div>
-                  <div>Email de Pago: {TUENDPOINT_COMPANY.banco.email}</div>
-                </div>
-              </div>
-
-              {/* 7. FIRMA Y TIMBRE INSTITUCIONAL */}
+              {/* 6. FIRMA Y TIMBRE INSTITUCIONAL */}
               <div className="mt-8 border-t border-slate-200 pt-4 flex items-end justify-between">
                 <div className="text-[10px] text-slate-400 max-w-sm leading-relaxed">
                   Documento formal emitido electrónicamente por Soluciones tuEndpoint SpA. Conforme a Ley 19.886 de Bases

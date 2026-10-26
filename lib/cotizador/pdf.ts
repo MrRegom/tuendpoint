@@ -5,41 +5,79 @@ export interface GeneratePdfOptions {
   elementId: string;
   filename: string;
   onProgress?: (progress: number) => void;
+  openInNewTab?: boolean;
+}
+
+export interface GeneratePdfResult {
+  blob: Blob;
+  blobUrl: string;
+  filename: string;
 }
 
 /**
- * Genera y descarga un PDF de alta fidelidad para cotizaciones/licitaciones
- * utilizando clonación en sandbox offscreen para asegurar tipografía nítida
- * y evitar artefactos de inputs y botones interactivos.
+ * Genera y descarga un PDF oficial de alta fidelidad para cotizaciones y licitaciones
+ * utilizando un contenedor clonado offscreen con ancho A4 estricto (794px).
+ * Esto garantiza que el PDF siempre tenga proporciones A4 de escritorio impecables,
+ * sin importar si el usuario está en un celular, tablet o si el contenedor original
+ * está temporalmente oculto.
  */
 export async function downloadQuotationPdf({
   elementId,
   filename,
   onProgress,
-}: GeneratePdfOptions): Promise<void> {
+  openInNewTab = false,
+}: GeneratePdfOptions): Promise<GeneratePdfResult> {
   const sourceEl = document.getElementById(elementId);
   if (!sourceEl) {
-    throw new Error(`Elemento con ID #${elementId} no encontrado.`);
+    throw new Error(`Elemento con ID #${elementId} no encontrado en el documento.`);
   }
 
-  onProgress?.(20);
+  onProgress?.(15);
 
-  // Guardar estado temporal si tiene overflow o transform
-  const prevTransform = sourceEl.style.transform;
-  sourceEl.style.transform = 'none';
+  // Crear un clon fuera de pantalla con ancho A4 estricto (794px = 210mm a 96 DPI)
+  const clone = sourceEl.cloneNode(true) as HTMLElement;
+  clone.id = `${elementId}-print-clone`;
+  Object.assign(clone.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '794px',
+    minWidth: '794px',
+    maxWidth: '794px',
+    zIndex: '-99999',
+    display: 'block',
+    visibility: 'visible',
+    opacity: '1',
+    backgroundColor: '#ffffff',
+    margin: '0',
+    padding: '36px',
+    boxSizing: 'border-box',
+    boxShadow: 'none',
+    transform: 'none',
+  });
+
+  // Remover elementos con clase no-print del clon
+  clone.querySelectorAll('.no-print').forEach((el) => el.remove());
+
+  document.body.appendChild(clone);
 
   try {
-    const canvas = await html2canvas(sourceEl, {
-      scale: 2.2, // Resolución retina nítida para impresión y visualización ejecutiva
+    onProgress?.(35);
+    // Pausa breve para renderizado de fuentes y estilos computados
+    await new Promise((resolve) => setTimeout(resolve, 80));
+
+    const canvas = await html2canvas(clone, {
+      scale: 2, // 2x retina para ultra nitidez sin sobrecargar memoria
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
-      ignoreElements: (element) => element.classList.contains('no-print'),
+      windowWidth: 1200,
+      width: 794,
     });
 
-    onProgress?.(65);
+    onProgress?.(70);
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -59,7 +97,7 @@ export async function downloadQuotationPdf({
     pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
     heightLeft -= pdfHeight;
 
-    // Páginas subsiguientes si la cotización excede A4
+    // Páginas subsiguientes si la cotización excede 1 página A4
     while (heightLeft > 5) {
       position = heightLeft - imgHeight;
       pdf.addPage();
@@ -67,16 +105,39 @@ export async function downloadQuotationPdf({
       heightLeft -= pdfHeight;
     }
 
-    onProgress?.(90);
+    onProgress?.(85);
 
     const safeName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+    const blob = pdf.output('blob');
+    const blobUrl = URL.createObjectURL(blob);
 
-    // Disparar descarga nativa del PDF
-    pdf.save(safeName);
+    // 1. Disparar descarga directa mediante elemento <a>
+    try {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = safeName;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (link.parentNode) link.parentNode.removeChild(link);
+      }, 500);
+    } catch (e) {
+      console.warn('Descarga por enlace falló, ejecutando pdf.save():', e);
+      pdf.save(safeName);
+    }
+
+    // 2. Si se solicitó abrir en nueva pestaña (ideal para previsualización o móviles):
+    if (openInNewTab) {
+      window.open(blobUrl, '_blank');
+    }
 
     onProgress?.(100);
+    return { blob, blobUrl, filename: safeName };
   } finally {
-    sourceEl.style.transform = prevTransform;
+    if (clone.parentNode) {
+      clone.parentNode.removeChild(clone);
+    }
   }
 }
 
@@ -84,6 +145,7 @@ export async function downloadQuotationPdf({
  * Dispara el diálogo de impresión nativo del navegador con reglas de CSS vectoriales
  */
 export function printQuotation(): void {
+  // Dispara el diálogo del sistema (permite 'Guardar como PDF' con texto vectorial 100% nítido)
   window.print();
 }
 

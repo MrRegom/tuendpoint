@@ -2,40 +2,35 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
-  ShieldCheck,
-  CheckCircle2,
-  ChevronRight,
   ExternalLink,
-  FileText,
-  Monitor,
-  Printer,
-  Sparkles,
+  MessageSquare,
   ArrowRight,
+  Play,
+  Pause,
   Tv,
   Smartphone,
-  Layers,
-  Database,
-  Users,
-  Check,
-  Send,
-  MessageSquare,
-  Building2,
-  Zap,
-  ShoppingBag,
-  Clock,
   Volume2,
   VolumeX,
+  Send,
+  Sparkles,
+  Layers,
+  Monitor,
+  Printer,
+  ChevronRight,
 } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { TUENDPOINT_COMPANY } from '@/lib/cotizador/catalog';
 import { AssistantBot } from '@/components/home/AssistantBot';
-import { TextMorph } from '@/components/ui/text-morph';
 
 /* ------------------------------------------------------------------ */
-/* Datos oficiales de productos y pantallas                           */
+/* Tipos y Especificaciones de Producto                               */
 /* ------------------------------------------------------------------ */
+
+interface ProductHighlight {
+  title: string;
+  desc: string;
+}
 
 interface ScreenTab {
   id: string;
@@ -43,7 +38,8 @@ interface ScreenTab {
   type: 'img' | 'filas-tv' | 'filas-totem' | 'auto-monitor';
   src?: string;
   badge?: string;
-  description?: string;
+  click?: [number, number]; // coordenadas normalizadas [x, y] de 0 a 1
+  actionText?: string;
 }
 
 interface ProductShowcase {
@@ -53,140 +49,369 @@ interface ProductShowcase {
   badge: string;
   tagline: string;
   description: string;
-  features: string[];
+  highlights: ProductHighlight[];
   screens: ScreenTab[];
   externalUrl?: string;
   ctaText: string;
-  ctaAction?: 'demo' | 'cotizador' | 'external';
-  accentColor: string;
 }
 
 const PRODUCTS: ProductShowcase[] = [
   {
     id: 'filas',
     name: 'Gestor de Filas Hospitalario',
-    category: 'Salud Pública & Atención Presencial',
-    badge: 'Ley 20.584 · En Producción en Hospitales',
-    tagline: 'Llamado por voz sintetizada en pantallas TV y tótems táctiles de autoatención',
+    category: 'Salud Pública & Red Asistencial',
+    badge: 'Producción en Hospitales Públicos',
+    tagline: 'Llamado audiovisual por voz sintetizada en pantallas TV y tótems táctiles de autoatención',
     description:
-      'Plataforma integral diseñada para erradicar las salas de espera caóticas. Combina pantallas informativas de alta visibilidad con audio de voz chilena, tótems táctiles de autoatención con lector de cédula (RUT) y un panel de ventanilla que entrega trazabilidad y tiempos de espera en tiempo real.',
-    features: [
-      'Pantalla TV de llamado audiovisual con voz sintetizada natural e indicación clara de módulo.',
-      'Tótems táctiles 21.5" antivandálicos con corte automático de ticket e ingreso por cédula de identidad.',
-      'Prioridad garantizada por Ley 20.584 (adulto mayor, embarazadas y personas con movilidad reducida).',
-      'Panel de control de ventanillas en vivo con métricas de tiempos de espera para jefaturas y dirección médica.',
+      'Sistema integral de gestión de esperas diseñado para erradicar las aglomeraciones caóticas en salas de atención médica y farmacias. Integra pantallas informativas de alta visibilidad con audio de voz chilena, tótems de autoatención con lector de cédula y panel de ventanilla en tiempo real.',
+    highlights: [
+      {
+        title: 'Prioridad Ley 20.584',
+        desc: 'Cumplimiento normativo estricto con atención preferente para adultos mayores, personas embarazadas y con movilidad reducida.',
+      },
+      {
+        title: 'Audio por Voz Sintetizada',
+        desc: 'Llamado audiovisual claro con pronunciación chilena natural, indicando paciente y módulo asignado sin errores.',
+      },
+      {
+        title: 'Tótems Táctiles 21.5"',
+        desc: 'Terminales antivandálicos con corte automático de ticket, lector de cédula (RUT) y derivación inteligente por servicio.',
+      },
+      {
+        title: 'Métricas de Espera Minuto a Minuto',
+        desc: 'Control en vivo de tiempos de espera por ventanilla y módulo para jefaturas, auditorías y dirección asistencial.',
+      },
     ],
     screens: [
-      { id: 'tv', label: 'TV Sala de Espera', type: 'filas-tv', badge: 'Llamados en Vivo' },
-      { id: 'totem', label: 'Tótem Táctil 21.5"', type: 'filas-totem', badge: 'Autoatención' },
-      { id: 'envivo', label: 'Panel en Vivo', type: 'img', src: '/shots/filas-1.jpg', badge: 'Panel Módulos' },
-      { id: 'resumen', label: 'Resumen Diario', type: 'img', src: '/shots/filas-2.jpg', badge: 'Métricas' },
-      { id: 'trazabilidad', label: 'Trazabilidad', type: 'img', src: '/shots/filas-3.jpg', badge: 'Auditoría' },
+      {
+        id: 'tv',
+        label: 'TV Sala de Espera',
+        type: 'filas-tv',
+        badge: 'Llamado Audiovisual en Vivo',
+        actionText: 'Llamando paciente a Módulo 3 por voz...',
+      },
+      {
+        id: 'totem',
+        label: 'Tótem Táctil 21.5"',
+        type: 'filas-totem',
+        badge: 'Autoatención con RUT',
+        click: [0.5, 0.46],
+        actionText: 'Emitiendo ticket para Farmacia Ambulatoria...',
+      },
+      {
+        id: 'envivo',
+        label: 'Panel de Módulos',
+        type: 'img',
+        src: '/shots/filas-1.jpg',
+        badge: 'Panel en Ventanilla',
+        click: [0.055, 0.078],
+        actionText: 'Operador llamando al siguiente paciente...',
+      },
+      {
+        id: 'resumen',
+        label: 'Tiempos de Espera',
+        type: 'img',
+        src: '/shots/filas-2.jpg',
+        badge: 'Métricas Diarias',
+        click: [0.055, 0.184],
+        actionText: 'Consultando promedio de atención por módulo...',
+      },
+      {
+        id: 'trazabilidad',
+        label: 'Auditoría Ley 20.584',
+        type: 'img',
+        src: '/shots/filas-3.jpg',
+        badge: 'Trazabilidad',
+        click: [0.93, 0.115],
+        actionText: 'Exportando reporte oficial de tiempos y cumplimiento...',
+      },
     ],
-    ctaText: 'Pedir Demo de Filas',
-    ctaAction: 'demo',
-    accentColor: '#0284c7',
+    ctaText: 'Solicitar Demostración de Filas',
   },
   {
     id: 'ticpanel',
     name: 'TICPanel — Mesa de Ayuda & Actas TI',
-    category: 'Infraestructura Tecnológica Institucional',
-    badge: 'Validado en Redes de Salud Pública',
+    category: 'Infraestructura Tecnológica',
+    badge: 'Validado en Hospitales y Servicios de Salud',
     tagline: 'Gestión unificada de incidentes técnicos, inventario de hardware y actas con firma digital',
     description:
       'Control total sobre todo el parque informático de tu institución. Permite a los funcionarios ingresar solicitudes técnicas con derivación inmediata según criticidad, registrar la hoja de vida completa de cada computador o impresora y emitir actas oficiales de entrega y devolución válidas para auditorías.',
-    features: [
-      'Mesa de tickets multicanal con derivación inteligente por especialidad, urgencia y tiempos de respuesta (SLA).',
-      'Inventario detallado con lectura de código de barras, ubicación física, especificaciones y responsable.',
-      'Generación y almacenamiento de actas de recepción y entrega de equipamiento con firma digital.',
-      'Diseñado conforme a exigencias de auditoría interna y estándares de seguridad para el sector público.',
+    highlights: [
+      {
+        title: 'Mesa de Tickets con SLA',
+        desc: 'Derivación inteligente por especialidad, criticidad y plazos de respuesta estrictos conforme a estándares de servicio.',
+      },
+      {
+        title: 'Actas con Firma Digital',
+        desc: 'Generación y archivo centralizado de actas de entrega, recepción y devolución de equipamiento con firma electrónica.',
+      },
+      {
+        title: 'Hoja de Vida de Hardware',
+        desc: 'Inventario detallado con código de barras, especificaciones técnicas, ubicación física y funcionario responsable.',
+      },
+      {
+        title: 'Conforme a Normativas de Auditoría',
+        desc: 'Diseñado bajo requerimientos de auditoría interna y estándares de seguridad exigidos en el sector público.',
+      },
     ],
     screens: [
-      { id: 'panel', label: 'Panel General', type: 'img', src: '/shots/ticpanel-1.jpg', badge: 'Dashboard' },
-      { id: 'tickets', label: 'Mesa de Tickets', type: 'img', src: '/shots/ticpanel-2.jpg', badge: 'SLA & Gestión' },
-      { id: 'actas', label: 'Actas Digitales', type: 'img', src: '/shots/ticpanel-3.jpg', badge: 'Firmas' },
-      { id: 'equipos', label: 'Control de Hardware', type: 'img', src: '/shots/ticpanel-4.jpg', badge: 'Inventario' },
+      {
+        id: 'panel',
+        label: 'Dashboard General',
+        type: 'img',
+        src: '/shots/ticpanel-1.jpg',
+        badge: 'Mesa de Control',
+        click: [0.015, 0.22],
+        actionText: 'Filtrando tickets por nivel de urgencia...',
+      },
+      {
+        id: 'tickets',
+        label: 'Mesa de Tickets',
+        type: 'img',
+        src: '/shots/ticpanel-2.jpg',
+        badge: 'SLA & Gestión',
+        click: [0.015, 0.27],
+        actionText: 'Asignando especialista técnico según SLA...',
+      },
+      {
+        id: 'actas',
+        label: 'Actas con Firma',
+        type: 'img',
+        src: '/shots/ticpanel-3.jpg',
+        badge: 'Firma Digital',
+        click: [0.58, 0.56],
+        actionText: 'Registrando firma digital de entrega de equipo...',
+      },
+      {
+        id: 'equipos',
+        label: 'Control de Hardware',
+        type: 'img',
+        src: '/shots/ticpanel-4.jpg',
+        badge: 'Inventario TI',
+        click: [0.015, 0.12],
+        actionText: 'Escaneando código de barras de computador asignado...',
+      },
     ],
     ctaText: 'Solicitar Demostración TICPanel',
-    ctaAction: 'demo',
-    accentColor: '#0284c7',
   },
   {
     id: 'tba',
     name: 'Logística TBA — Solicitudes y Bodega',
-    category: 'Educación & Logística Institucional',
-    badge: 'En Producción Activa · logisticatba.cloud',
+    category: 'Logística Institucional & Adquisiciones',
+    badge: 'Producción Activa en logisticatba.cloud',
     tagline: 'Centralización de pedidos internos, control de existencias, órdenes de compra y activos fijos',
     description:
       'La solución que conecta a los solicitantes con los departamentos de adquisiciones y almacén central. Digitaliza el flujo completo de compras, recepciones conformes y entregas, eliminando planillas Excel dispersas y garantizando que ningún insumo crítico quede sin control.',
-    features: [
-      'Portal de solicitudes internas con flujo jerárquico de aprobaciones por departamento o centro de costo.',
-      'Kardex de bodega automatizado con control de lotes, existencias en tiempo real y alertas de stock mínimo.',
-      'Trazabilidad directa con vinculación a órdenes de compra, proveedores y facturas comerciales.',
-      'Acceso en la nube seguro con perfiles diferenciados para funcionarios, jefaturas y bodegueros.',
+    highlights: [
+      {
+        title: 'Solicitudes Internas Digitales',
+        desc: 'Portal de pedidos internos con flujo jerárquico de aprobaciones por departamento o centro de costo.',
+      },
+      {
+        title: 'Kardex Automatizado',
+        desc: 'Control de inventario en tiempo real con alertas de stock mínimo, trazabilidad de lotes y valorización contable.',
+      },
+      {
+        title: 'Órdenes de Compra y Recepción',
+        desc: 'Vinculación directa entre adquisiciones, proveedores, recepciones de bodega y facturas comerciales.',
+      },
+      {
+        title: 'Acceso Cloud Seguro',
+        desc: 'Plataforma en la nube con perfiles diferenciados para funcionarios, jefaturas, adquisiciones y bodegueros.',
+      },
     ],
     screens: [
-      { id: 'dash', label: 'Dashboard Operativo', type: 'img', src: '/shots/tba-1.jpg', badge: 'Métricas Bodega' },
-      { id: 'bodega', label: 'Control de Almacén', type: 'img', src: '/shots/tba-2.jpg', badge: 'Kardex Digital' },
-      { id: 'reportes', label: 'Reportes & Auditoría', type: 'img', src: '/shots/tba-3.jpg', badge: 'Exportación' },
-      { id: 'modulos', label: 'Módulos Institucionales', type: 'img', src: '/shots/tba-4.jpg', badge: 'Configuración' },
+      {
+        id: 'dash',
+        label: 'Dashboard Bodega',
+        type: 'img',
+        src: '/shots/tba-1.jpg',
+        badge: 'Métricas de Existencias',
+        click: [0.06, 0.25],
+        actionText: 'Revisando alertas de stock crítico en bodega...',
+      },
+      {
+        id: 'bodega',
+        label: 'Control de Almacén',
+        type: 'img',
+        src: '/shots/tba-2.jpg',
+        badge: 'Kardex Digital',
+        click: [0.06, 0.21],
+        actionText: 'Aprobando solicitud interna de materiales...',
+      },
+      {
+        id: 'reportes',
+        label: 'Reportes & Auditoría',
+        type: 'img',
+        src: '/shots/tba-3.jpg',
+        badge: 'Balances',
+        click: [0.06, 0.128],
+        actionText: 'Generando balance valorizado de inventario...',
+      },
+      {
+        id: 'modulos',
+        label: 'Centros de Costo',
+        type: 'img',
+        src: '/shots/tba-4.jpg',
+        badge: 'Configuración',
+        click: [0.06, 0.17],
+        actionText: 'Asignando presupuesto por centro de costo...',
+      },
     ],
     externalUrl: 'https://logisticatba.cloud',
-    ctaText: 'Ir a logisticatba.cloud',
-    ctaAction: 'external',
-    accentColor: '#0284c7',
+    ctaText: 'Visitar logisticatba.cloud',
   },
   {
     id: 'cajaya',
     name: 'CajaYA — POS Offline + Boleta SII',
     category: 'Retail & Comercio de Alta Demanda',
-    badge: 'Resiliente a Caídas de Internet + DTE SII',
+    badge: '100% Offline + DTE Electrónico SII',
     tagline: 'Punto de venta ultra veloz que nunca se detiene, incluso sin conexión a internet',
     description:
       'Construido para locales comerciales y puntos de cobro donde detener la venta no es una opción. Si se corta la red o falla el proveedor de internet, CajaYA sigue operando con total normalidad, cobrando e imprimiendo comprobantes, y sincroniza automáticamente las boletas electrónicas con el SII al reanudarse la señal.',
-    features: [
-      'Operación 100% offline garantizada: sigue vendiendo sin interrupción ante cortes de luz o de internet.',
-      'Integración nativa con el SII para timbraje y emisión inmediata de boletas y facturas electrónicas.',
-      'Control de turnos y cajeros con arqueo ciego, cuadratura de caja y reporte Z al instante.',
-      'Catálogo con búsqueda predictiva por código de barras o pantalla táctil optimizada para velocidad.',
+    highlights: [
+      {
+        title: 'Operación 100% Offline Garantizada',
+        desc: 'Sigue vendiendo y emitiendo comprobantes sin interrupción ante caídas de enlace o cortes de luz.',
+      },
+      {
+        title: 'Boleta y Factura Electrónica SII',
+        desc: 'Timbraje y emisión inmediata de documentos tributarios con sincronización automática en segundo plano.',
+      },
+      {
+        title: 'Arqueo Ciego y Reporte Z',
+        desc: 'Cuadratura de turnos transparente, control estricto de efectivo, tarjetas y reporte Z al instante.',
+      },
+      {
+        title: 'Búsqueda Táctil y Código de Barras',
+        desc: 'Interfaz optimizada para velocidad de atención en cajas con alta concurrencia de público.',
+      },
     ],
     screens: [
-      { id: 'pos', label: 'Punto de Venta', type: 'img', src: '/shots/cajaya-1.jpg', badge: 'Pantalla Cobro' },
-      { id: 'inicio', label: 'Vista Inicio', type: 'img', src: '/shots/cajaya-2.jpg', badge: 'Turno Activo' },
-      { id: 'miturno', label: 'Arqueo de Turno', type: 'img', src: '/shots/cajaya-3.jpg', badge: 'Cuadratura' },
-      { id: 'turnos', label: 'Historial Turnos', type: 'img', src: '/shots/cajaya-4.jpg', badge: 'Cierres Z' },
-      { id: 'stock', label: 'Control de Stock', type: 'img', src: '/shots/cajaya-5.jpg', badge: 'Inventario' },
-      { id: 'ventas', label: 'Registro de Ventas', type: 'img', src: '/shots/cajaya-6.jpg', badge: 'DTE SII' },
+      {
+        id: 'pos',
+        label: 'Punto de Venta',
+        type: 'img',
+        src: '/shots/cajaya-1.jpg',
+        badge: 'Cobro Ultra Rápido',
+        click: [0.235, 0.34],
+        actionText: 'Cobrando venta y emitiendo boleta electrónica SII...',
+      },
+      {
+        id: 'inicio',
+        label: 'Apertura de Turno',
+        type: 'img',
+        src: '/shots/cajaya-2.jpg',
+        badge: 'Turno Activo',
+        click: [0.045, 0.29],
+        actionText: 'Iniciando turno de cajero sin conexión a internet...',
+      },
+      {
+        id: 'miturno',
+        label: 'Arqueo de Turno',
+        type: 'img',
+        src: '/shots/cajaya-3.jpg',
+        badge: 'Cuadratura Ciega',
+        click: [0.72, 0.31],
+        actionText: 'Verificando cuadratura automática de caja...',
+      },
+      {
+        id: 'turnos',
+        label: 'Cierres Z',
+        type: 'img',
+        src: '/shots/cajaya-4.jpg',
+        badge: 'Historial Turnos',
+        click: [0.045, 0.34],
+        actionText: 'Generando reporte Z diario para contabilidad...',
+      },
+      {
+        id: 'stock',
+        label: 'Control de Stock',
+        type: 'img',
+        src: '/shots/cajaya-5.jpg',
+        badge: 'Inventario',
+        click: [0.045, 0.23],
+        actionText: 'Descontando existencias por código de barras...',
+      },
+      {
+        id: 'ventas',
+        label: 'Registro DTE SII',
+        type: 'img',
+        src: '/shots/cajaya-6.jpg',
+        badge: 'DTE SII',
+        click: [0.045, 0.17],
+        actionText: 'Sincronizando folios tributarios con el SII...',
+      },
     ],
     externalUrl: 'https://cajaya.cl',
     ctaText: 'Conocer cajaya.cl',
-    ctaAction: 'external',
-    accentColor: '#0284c7',
   },
   {
     id: 'paginago',
     name: 'PaginaGo — Catálogo & Ventas WhatsApp',
-    category: 'Comercio Digital & Emprendimientos',
-    badge: 'Producto a la Venta · paginago.com',
+    category: 'Comercio Digital Directo',
+    badge: 'A la Venta en paginago.com',
     tagline: 'Tu tienda online en un link para recibir pedidos listos y calculados en tu WhatsApp',
     description:
       'La forma más rápida y económica de vender por internet sin comisiones por transacción ni configuraciones engorrosas. Crea tu catálogo con fotos, precios y variantes, comparte tu link exclusivo (paginago.com/tutienda) y recibe los pedidos organizados con lista, dirección y total en tu WhatsApp.',
-    features: [
-      'Sin comisiones por venta: el 100% de la recaudación es para tu negocio.',
-      'Carrito de compras integrado que envía el pedido estructurado con datos de entrega directo a WhatsApp.',
-      'Panel autogestionable desde el celular para cargar productos, pausar stock y modificar precios en segundos.',
-      'Plataforma activa y comercializada con soporte directo en [paginago.com](https://paginago.com).',
+    highlights: [
+      {
+        title: '0% Comisiones por Venta',
+        desc: 'El 100% de la recaudación va directo a tu cuenta bancaria sin retenciones ni comisiones porcentuales.',
+      },
+      {
+        title: 'Pedido Estructurado a WhatsApp',
+        desc: 'Carrito de compras integrado que envía la lista de productos, datos de entrega y total calculado en un mensaje.',
+      },
+      {
+        title: 'Panel Móvil Autogestionable',
+        desc: 'Carga productos, actualiza precios y pausa stock en segundos directamente desde tu teléfono.',
+      },
+      {
+        title: 'Enlace Único de Marca',
+        desc: 'Tu tienda con link exclusivo lista para colocar en el perfil de Instagram, TikTok o catálogos impresos.',
+      },
     ],
     screens: [
-      { id: 'tienda', label: 'Tienda Virtual', type: 'img', src: '/shots/paginago-1.jpg', badge: 'Catálogo Móvil' },
-      { id: 'como', label: 'Flujo de Compra', type: 'img', src: '/shots/paginago-2.jpg', badge: 'A WhatsApp' },
-      { id: 'ejemplos', label: 'Tiendas Reales', type: 'img', src: '/shots/paginago-3.jpg', badge: 'Casos Éxito' },
-      { id: 'planes', label: 'Planes & Precios', type: 'img', src: '/shots/paginago-4.jpg', badge: 'Suscripción' },
+      {
+        id: 'tienda',
+        label: 'Tienda Virtual',
+        type: 'img',
+        src: '/shots/paginago-1.jpg',
+        badge: 'Catálogo Móvil',
+        click: [0.79, 0.035],
+        actionText: 'Explorando catálogo interactivo en celular...',
+      },
+      {
+        id: 'como',
+        label: 'Flujo a WhatsApp',
+        type: 'img',
+        src: '/shots/paginago-2.jpg',
+        badge: 'Carrito a WhatsApp',
+        click: [0.68, 0.78],
+        actionText: 'Calculando pedido y transfiriendo directo a WhatsApp...',
+      },
+      {
+        id: 'ejemplos',
+        label: 'Tiendas Activas',
+        type: 'img',
+        src: '/shots/paginago-3.jpg',
+        badge: 'Casos Reales',
+        click: [0.51, 0.035],
+        actionText: 'Viendo comercios vendiendo en vivo sin intermediarios...',
+      },
+      {
+        id: 'planes',
+        label: 'Planes & Precios',
+        type: 'img',
+        src: '/shots/paginago-4.jpg',
+        badge: 'Suscripción Plana',
+        click: [0.5, 0.78],
+        actionText: 'Activando catálogo con dominio propio...',
+      },
     ],
     externalUrl: 'https://paginago.com',
     ctaText: 'Ir a paginago.com',
-    ctaAction: 'external',
-    accentColor: '#0284c7',
   },
   {
     id: 'auto',
@@ -196,18 +421,34 @@ const PRODUCTS: ProductShowcase[] = [
     tagline: 'Conectamos sistemas desconectados y eliminamos tareas manuales repetitivas',
     description:
       'Desarrollamos robots de software (RPA) y conectores API dedicados que transfieren datos automáticamente entre ERPs, sistemas tributarios, plataformas web institucionales y planillas. Reduce horas de digitación manual, elimina errores humanos y acelera tus procesos operativos.',
-    features: [
-      'Bots RPA para extracción y carga automática de facturas, órdenes de compra y registros en portales web.',
-      'Desarrollo de APIs e integraciones seguras entre bases de datos heredadas (legacy) y sistemas cloud.',
-      'Panel de monitoreo de ejecuciones con alertas automáticas ante fallos o discrepancias de datos.',
-      'Retorno de inversión medible desde el primer mes mediante ahorro directo en horas-hombre.',
+    highlights: [
+      {
+        title: 'Robots de Software a Medida',
+        desc: 'Extracción, validación y carga automática de facturas, órdenes de compra y registros en portales web.',
+      },
+      {
+        title: 'Integración de APIs y Sistemas Legacy',
+        desc: 'Conexión segura entre bases de datos heredadas, plataformas cloud y servidores institucionales.',
+      },
+      {
+        title: 'Monitor de Ejecuciones en Tiempo Real',
+        desc: 'Panel de control con registro de tareas, trazabilidad de logs y alertas automáticas ante fallos.',
+      },
+      {
+        title: 'Retorno de Inversión Inmediato',
+        desc: 'Ahorro directo y cuantificable en horas-hombre desde las primeras semanas de implementación.',
+      },
     ],
     screens: [
-      { id: 'monitor', label: 'Monitor de Ejecuciones', type: 'auto-monitor', badge: 'Procesos en Vivo' },
+      {
+        id: 'monitor',
+        label: 'Monitor de Ejecuciones',
+        type: 'auto-monitor',
+        badge: 'Procesos en Vivo',
+        actionText: 'Ejecutando robot RPA para conciliación automática...',
+      },
     ],
-    ctaText: 'Cuéntanos tu Proceso',
-    ctaAction: 'demo',
-    accentColor: '#0284c7',
+    ctaText: 'Consultar Automatización',
   },
 ];
 
@@ -226,7 +467,7 @@ function FilasTVSimulator() {
     if (!ctx) return;
 
     let animId: number;
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const CALL_SEQ = [
       { cod: 'A-042', mod: 'Módulo 3', serv: 'Farmacia Ambulatoria', pref: false },
@@ -288,7 +529,7 @@ function FilasTVSimulator() {
       ctx.fillText('Sistema por Voz Activo', W - 24, 60);
       ctx.textAlign = 'left';
 
-      // Panel principal izquierdo
+      // Panel principal izquierdo (Llamado actual)
       const ew = W * 0.62;
       const eh = H - 96;
       ctx.fillStyle = OSCURO2;
@@ -298,104 +539,67 @@ function FilasTVSimulator() {
 
       ctx.fillStyle = ACENTO;
       ctx.font = '700 12px Inter, sans-serif';
-      ctx.fillText('ATENCIÓN A USUARIOS', 40, 116);
+      ctx.fillText('NÚMERO LLAMADO EN VOZ', 40, 114);
+
+      // Flash del llamado
+      const isCalling = local < 0.28;
+      if (isCalling) {
+        ctx.strokeStyle = ACENTO;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(22, 86, ew - 4, eh - 4);
+      }
+
       ctx.fillStyle = '#ffffff';
-      ctx.font = '700 32px Inter, sans-serif';
-      ctx.fillText('Bienvenido', 40, 156);
-      ctx.fillStyle = '#B9CCE6';
-      ctx.font = '400 15px Inter, sans-serif';
-      ctx.fillText('Retire su número en el tótem y espere su llamado en pantalla.', 40, 186);
+      ctx.font = '900 84px monospace';
+      ctx.fillText(cur.cod, 40, 204);
 
-      // Módulos en vivo
-      const mods = [
-        { m: 'Módulo 1', c: cur.mod === 'Módulo 1' ? cur.cod : prev1.cod, st: cur.mod === 'Módulo 1' ? 'Llamando' : 'Atendiendo' },
-        { m: 'Módulo 2', c: cur.mod === 'Módulo 2' ? cur.cod : prev2.cod, st: cur.mod === 'Módulo 2' ? 'Llamando' : 'Atendiendo' },
-      ];
-      mods.forEach((md, idx) => {
-        const mx = 40 + idx * (ew * 0.46);
-        const my = 220;
-        const mw = ew * 0.43;
-        const mh = 110;
-        const isCalling = md.st === 'Llamando';
-
-        ctx.fillStyle = isCalling ? 'rgba(250,175,64,0.18)' : 'rgba(255,255,255,0.06)';
-        ctx.strokeStyle = isCalling ? ACENTO : 'rgba(255,255,255,0.12)';
-        ctx.lineWidth = 1.5;
+      if (cur.pref) {
+        ctx.fillStyle = ACENTO;
         ctx.beginPath();
-        ctx.roundRect(mx, my, mw, mh, 10);
+        ctx.roundRect(40, 222, 230, 24, 6);
         ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = isCalling ? ACENTO : '#34d399';
-        ctx.beginPath();
-        ctx.arc(mx + 16, my + 20, 4, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = OSCURO;
         ctx.font = '700 11px Inter, sans-serif';
-        ctx.fillText(md.st.toUpperCase(), mx + 26, my + 24);
+        ctx.fillText('★ ATENCIÓN PREFERENTE LEY 20.584', 48, 238);
+      }
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '700 28px monospace';
-        ctx.fillText(md.c, mx + 16, my + 68);
-        ctx.fillStyle = '#B9CCE6';
-        ctx.font = '600 14px Inter, sans-serif';
-        ctx.fillText(md.m, mx + 16, my + 94);
-      });
-
-      // Onda de audio voz
-      ctx.fillStyle = 'rgba(255,255,255,0.07)';
-      ctx.beginPath();
-      ctx.roundRect(40, 350, ew - 60, 80, 10);
-      ctx.fill();
+      // Destino / Módulo
       ctx.fillStyle = '#B9CCE6';
-      ctx.font = '600 11px Inter, sans-serif';
-      ctx.fillText('AVISO POR VOZ SINTETIZADA', 56, 376);
+      ctx.font = '600 13px Inter, sans-serif';
+      ctx.fillText('DIRÍJASE A:', 40, 276);
       ctx.fillStyle = '#ffffff';
-      ctx.font = '600 15px Inter, sans-serif';
-      ctx.fillText(`"Turno ${cur.cod}, dirigirse a ${cur.mod}"`, 56, 404);
+      ctx.font = '800 36px Inter, sans-serif';
+      ctx.fillText(cur.mod, 40, 318);
 
-      // Panel derecho (Turno actual destacado)
+      ctx.fillStyle = '#B9CCE6';
+      ctx.font = '500 13px Inter, sans-serif';
+      ctx.fillText(cur.serv, 40, 344);
+
+      // Panel derecho (Historial reciente)
       const rx = ew + 32;
       const rw = W - rx - 20;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = OSCURO2;
       ctx.beginPath();
       ctx.roundRect(rx, 84, rw, eh, 12);
       ctx.fill();
 
-      // Recuadro del llamado
       ctx.fillStyle = ACENTO;
-      ctx.beginPath();
-      ctx.roundRect(rx + 16, 104, rw - 32, 180, 10);
-      ctx.fill();
+      ctx.font = '700 12px Inter, sans-serif';
+      ctx.fillText('ÚLTIMOS LLAMADOS', rx + 16, 114);
 
-      ctx.fillStyle = OSCURO;
-      ctx.font = '700 13px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(cur.pref ? '★ ATENCIÓN PREFERENTE' : 'TURNO LLAMADO', rx + rw / 2, 136);
+      [prev1, prev2].forEach((item, idx) => {
+        const iy = 144 + idx * 96;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 34px monospace';
+        ctx.fillText(item.cod, rx + 16, iy);
 
-      ctx.font = '900 54px monospace';
-      ctx.fillText(cur.cod, rx + rw / 2, 206);
+        ctx.fillStyle = ACENTO;
+        ctx.font = '700 14px Inter, sans-serif';
+        ctx.fillText(item.mod, rx + 16, iy + 24);
 
-      ctx.font = '700 20px Inter, sans-serif';
-      ctx.fillText(cur.mod, rx + rw / 2, 252);
-
-      // Turnos anteriores
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#64748b';
-      ctx.font = '700 11px Inter, sans-serif';
-      ctx.fillText('TURNOS ANTERIORES', rx + 20, 320);
-
-      [prev1, prev2].forEach((p, i) => {
-        const py = 345 + i * 44;
-        ctx.fillStyle = '#f8fafc';
-        ctx.beginPath();
-        ctx.roundRect(rx + 16, py, rw - 32, 36, 6);
-        ctx.fill();
-        ctx.fillStyle = '#0f172a';
-        ctx.font = '700 14px monospace';
-        ctx.fillText(p.cod, rx + 28, py + 23);
-        ctx.fillStyle = '#64748b';
-        ctx.font = '500 12px Inter, sans-serif';
-        ctx.fillText(p.mod, rx + 100, py + 23);
+        ctx.fillStyle = '#B9CCE6';
+        ctx.font = '400 11px Inter, sans-serif';
+        ctx.fillText(item.serv, rx + 16, iy + 42);
       });
 
       animId = requestAnimationFrame(render);
@@ -405,19 +609,49 @@ function FilasTVSimulator() {
     return () => cancelAnimationFrame(animId);
   }, []);
 
+  const playChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18); // A5
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.55);
+    } catch {
+      // Audio no permitido
+    }
+  };
+
   return (
-    <div className="relative w-full aspect-[16/10] bg-[#002A54] rounded-lg overflow-hidden shadow-inner border border-slate-700">
-      <canvas ref={canvasRef} width={800} height={500} className="w-full h-full object-cover" />
-      <div className="absolute bottom-2 right-2 flex items-center gap-2 bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 rounded text-[10px] text-white font-mono">
-        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span>SIMULACIÓN EN VIVO</span>
+    <div className="relative w-full aspect-[16/10] bg-[#002A54] rounded-lg overflow-hidden border border-slate-700 shadow-inner">
+      <canvas ref={canvasRef} width={640} height={400} className="w-full h-full block" />
+      <div className="absolute bottom-2 right-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setSoundEnabled(!soundEnabled);
+            playChime();
+          }}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 hover:bg-black/80 text-[10px] font-bold text-white backdrop-blur border border-white/20 transition"
+        >
+          {soundEnabled ? <Volume2 className="h-3 w-3 text-amber-400" /> : <VolumeX className="h-3 w-3 text-slate-400" />}
+          <span>{soundEnabled ? 'Timbre Activo' : 'Probar Timbre Hospital'}</span>
+        </button>
       </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Simulador Tótem Táctil 21.5" con corte de ticket                   */
+/* Simulador Tótem Táctil Hospitalario 21.5"                          */
 /* ------------------------------------------------------------------ */
 
 function FilasTotemSimulator() {
@@ -425,32 +659,29 @@ function FilasTotemSimulator() {
   const [ticketPrinted, setTicketPrinted] = useState<{ cod: string; serv: string } | null>(null);
 
   const services = [
-    { id: 'farmacia', name: 'Farmacia CAE', icon: '💊', wait: '3 personas en espera', prefix: 'A' },
-    { id: 'preferente', name: 'Atención Preferente', icon: '★', wait: 'Ley 20.584 · Prioridad', prefix: 'P' },
-    { id: 'recetas', name: 'Entrega de Recetas', icon: '📋', wait: '1 persona en espera', prefix: 'F' },
-    { id: 'informaciones', name: 'Orientación & OIRS', icon: 'ℹ️', wait: 'Sin espera', prefix: 'O' },
+    { id: 'farmacia', name: 'Farmacia Ambulatoria', cod: 'A-044', wait: '3 personas en espera', icon: '💊' },
+    { id: 'preferente', name: 'Atención Preferente (Ley 20.584)', cod: 'P-020', wait: '1 persona en espera', icon: '⭐' },
+    { id: 'recetas', name: 'Entrega de Recetas', cod: 'F-106', wait: '4 personas en espera', icon: '📋' },
+    { id: 'informaciones', name: 'Informaciones & SOME', cod: 'I-012', wait: 'Sin espera', icon: 'ℹ️' },
   ];
 
-  const handleSelect = (serv: (typeof services)[0]) => {
-    setSelectedService(serv.id);
-    const num = Math.floor(Math.random() * 50) + 10;
-    const cod = `${serv.prefix}-${num}`;
+  const handleSelect = (s: (typeof services)[0]) => {
+    setSelectedService(s.id);
     setTimeout(() => {
-      setTicketPrinted({ cod, serv: serv.name });
+      setTicketPrinted({ cod: s.cod, serv: s.name });
     }, 400);
   };
 
   return (
-    <div className="w-full aspect-[16/10] bg-slate-950 p-4 sm:p-6 rounded-lg text-white flex flex-col justify-between border border-slate-800 relative overflow-hidden">
-      {/* Header del Tótem */}
-      <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
+    <div className="w-full aspect-[16/10] bg-[#0F172A] p-4 sm:p-5 rounded-lg text-white flex flex-col justify-between border border-slate-800 shadow-inner">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded bg-[#FAAF40] text-slate-950 font-black text-xs flex items-center justify-center">
-            +
+          <div className="h-6 w-6 rounded bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+            21&quot;
           </div>
           <div>
             <span className="text-xs font-bold text-white block">Tótem Autoatención Hospitalario</span>
-            <span className="text-[10px] text-slate-400">Toque la pantalla para retirar su turno</span>
+            <span className="text-[10px] text-slate-400">Toque la pantalla o ingrese su RUT</span>
           </div>
         </div>
         <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-emerald-400">
@@ -458,38 +689,36 @@ function FilasTotemSimulator() {
         </span>
       </div>
 
-      {/* Pantalla interactiva del Tótem */}
       {!ticketPrinted ? (
-        <div className="py-3 space-y-3">
-          <p className="text-xs font-bold text-slate-300">Seleccione el servicio al que se dirige:</p>
-          <div className="grid grid-cols-2 gap-2.5">
+        <div className="py-2 space-y-2.5">
+          <p className="text-xs font-semibold text-slate-300">Seleccione el servicio al que se dirige:</p>
+          <div className="grid grid-cols-2 gap-2">
             {services.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => handleSelect(s)}
-                className={`p-3 rounded-lg border text-left transition flex flex-col justify-between ${
+                className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${
                   selectedService === s.id
                     ? 'border-amber-400 bg-amber-400/20'
                     : 'border-slate-800 bg-slate-900/90 hover:border-slate-700 hover:bg-slate-900'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-base">{s.icon}</span>
-                  <span className="text-xs font-bold text-white">{s.name}</span>
+                  <span className="text-sm">{s.icon}</span>
+                  <span className="text-xs font-bold text-white leading-tight">{s.name}</span>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-2 block">{s.wait}</span>
+                <span className="text-[10px] text-slate-400 mt-1 block">{s.wait}</span>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        /* Ticket impreso */
-        <div className="py-4 flex flex-col items-center justify-center space-y-3 animate-in fade-in zoom-in-95 duration-200">
-          <div className="bg-white text-slate-950 p-4 rounded shadow-2xl w-48 text-center font-mono border-t-4 border-dashed border-slate-300">
-            <span className="text-[9px] font-bold text-slate-500 uppercase block">Hospital de Red</span>
+        <div className="py-3 flex flex-col items-center justify-center space-y-2.5">
+          <div className="bg-white text-slate-950 p-3.5 rounded shadow-xl w-48 text-center font-mono border-t-4 border-dashed border-slate-300">
+            <span className="text-[9px] font-bold text-slate-500 uppercase block">Hospital de Red Pública</span>
             <span className="text-xs font-bold text-slate-800 block mt-0.5">{ticketPrinted.serv}</span>
-            <div className="my-2 border-y border-dashed border-slate-300 py-2">
+            <div className="my-1.5 border-y border-dashed border-slate-300 py-1.5">
               <span className="text-3xl font-black text-slate-950 block">{ticketPrinted.cod}</span>
               <span className="text-[9px] text-slate-500">SU NÚMERO DE ATENCIÓN</span>
             </div>
@@ -501,14 +730,13 @@ function FilasTotemSimulator() {
               setTicketPrinted(null);
               setSelectedService(null);
             }}
-            className="text-[11px] font-bold text-amber-400 hover:underline"
+            className="text-[11px] font-bold text-sky-400 hover:underline"
           >
             ← Imprimir otro turno
           </button>
         </div>
       )}
 
-      {/* Footer del Tótem */}
       <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-[10px] text-slate-500">
         <span>Lector de Cédula de Identidad (RUT) Habilitado</span>
         <span>tuEndpoint. Hardware</span>
@@ -542,33 +770,33 @@ function AutoMonitorSimulator() {
         { id: Date.now(), time: now, job: pick.job, status: 'OK', records: pick.records },
         ...prev.slice(0, 3),
       ]);
-    }, 4000);
+    }, 3800);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-5 rounded-lg text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
+    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-4 sm:p-5 rounded-lg text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
       <div>
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-bold text-white text-xs">Monitor de Procesos RPA & Webhooks</span>
           </div>
           <span className="text-[10px] text-slate-400">0 Errores · 99.98% Uptime</span>
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-3 space-y-2">
           {logs.map((l) => (
             <div
               key={l.id}
               className="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-[11px]"
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <span className="text-slate-500">{l.time}</span>
                 <span className="text-slate-200 font-semibold">{l.job}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-slate-400">{l.records}</span>
+                <span className="text-slate-400 hidden sm:inline">{l.records}</span>
                 <span className="rounded bg-emerald-950 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-800">
                   {l.status}
                 </span>
@@ -578,179 +806,345 @@ function AutoMonitorSimulator() {
         </div>
       </div>
 
-      <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-        <span>Conectores API REST · Webhooks · Bots Puppeteer · Cronjobs</span>
-        <span className="text-emerald-400 font-bold">Activo 24/7</span>
+      <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-[10px] text-slate-500">
+        <span>Conectores API Activos: SII · Mercado Público · Webhooks</span>
+        <span>tuEndpoint. RPA Engine</span>
       </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* COMPONENTE PRINCIPAL: WEB MINIMALISTA Y MODERNA                    */
+/* Ventana de Aplicación con Animación de Uso Real (Cursor + Clic)    */
 /* ------------------------------------------------------------------ */
 
-export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
-  // Estado de pantalla activa por cada producto
-  const [activeScreens, setActiveScreens] = useState<Record<string, string>>({
-    filas: 'tv',
-    ticpanel: 'panel',
-    tba: 'dash',
-    cajaya: 'pos',
-    paginago: 'tienda',
-    auto: 'monitor',
+function AnimatedAppWindow({
+  product,
+  activeScreenId,
+  onSelectScreen,
+}: {
+  product: ProductShowcase;
+  activeScreenId: string;
+  onSelectScreen: (screenId: string) => void;
+}) {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
+  const [isClicking, setIsClicking] = useState(false);
+  const [showRipple, setShowRipple] = useState(false);
+  const [actionTooltip, setActionTooltip] = useState<string | null>(null);
+
+  const screens = product.screens;
+  const currentScreenIndex = Math.max(
+    0,
+    screens.findIndex((s) => s.id === activeScreenId)
+  );
+  const currentScreen = screens[currentScreenIndex] || screens[0];
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    let timeoutMove: NodeJS.Timeout;
+    let timeoutClick: NodeJS.Timeout;
+    let timeoutNext: NodeJS.Timeout;
+
+    // Destino del cursor en esta pantalla
+    const target = currentScreen.click || [0.5, 0.45];
+    const targetX = target[0] * 100;
+    const targetY = target[1] * 100;
+
+    // Limpiar estados iniciales
+    setIsClicking(false);
+    setShowRipple(false);
+    setActionTooltip(null);
+
+    // 1. Mover cursor suavemente hacia el botón/acción y mostrar tooltip de lo que está haciendo
+    timeoutMove = setTimeout(() => {
+      setCursorPos({ x: targetX, y: targetY });
+      if (currentScreen.actionText) {
+        setActionTooltip(currentScreen.actionText);
+      }
+    }, 600);
+
+    // 2. Simular clic con onda expansiva (ripple)
+    timeoutClick = setTimeout(() => {
+      setIsClicking(true);
+      setShowRipple(true);
+      setTimeout(() => setShowRipple(false), 600);
+      setTimeout(() => setIsClicking(false), 260);
+    }, 2100);
+
+    // 3. Pasar a la siguiente pantalla del flujo del sistema
+    timeoutNext = setTimeout(() => {
+      const nextIndex = (currentScreenIndex + 1) % screens.length;
+      onSelectScreen(screens[nextIndex].id);
+    }, 4400);
+
+    return () => {
+      clearTimeout(timeoutMove);
+      clearTimeout(timeoutClick);
+      clearTimeout(timeoutNext);
+    };
+  }, [isPlaying, currentScreenIndex, currentScreen, screens, onSelectScreen]);
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden transition-all">
+      {/* Barra de Título Estilo macOS */}
+      <div className="px-4 py-3 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2">
+          {/* Botones de ventana */}
+          <div className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-full bg-rose-400" />
+            <span className="h-3 w-3 rounded-full bg-amber-400" />
+            <span className="h-3 w-3 rounded-full bg-emerald-400" />
+          </div>
+          <span className="ml-2 font-mono text-[11px] text-slate-500 hidden sm:inline">
+            tuendpoint.cl/{product.id}
+          </span>
+        </div>
+
+        {/* Pestañas de pantallas con selector manual */}
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          {screens.map((scr) => (
+            <button
+              key={scr.id}
+              type="button"
+              onClick={() => {
+                onSelectScreen(scr.id);
+                // Pausar brevemente o cambiar inmediatamente
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition shrink-0 ${
+                currentScreen.id === scr.id
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              {scr.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Control de Reproducción / Pausa de la simulación */}
+        <button
+          type="button"
+          onClick={() => setIsPlaying(!isPlaying)}
+          title={isPlaying ? 'Pausar simulación automática' : 'Reanudar simulación de uso'}
+          className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-900 px-2 py-0.5 rounded hover:bg-slate-200/50 transition"
+        >
+          {isPlaying ? (
+            <>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="hidden md:inline">En uso</span>
+              <Pause className="h-3 w-3" />
+            </>
+          ) : (
+            <>
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span className="hidden md:inline">Pausado</span>
+              <Play className="h-3 w-3" />
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Área Útil de la Pantalla */}
+      <div className="relative bg-slate-100 p-2 sm:p-4 overflow-hidden select-none">
+        {/* Render del tipo de pantalla */}
+        {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
+
+        {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
+
+        {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
+
+        {currentScreen.type === 'img' && currentScreen.src && (
+          <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-white shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentScreen.src}
+              alt={`${product.name} — ${currentScreen.label}`}
+              className="w-full h-full object-cover object-top block"
+              loading="eager"
+            />
+          </div>
+        )}
+
+        {/* Cursor animado simulando uso humano del software */}
+        {isPlaying && currentScreen.type === 'img' && (
+          <div
+            className="pointer-events-none absolute z-30 transition-all duration-700 ease-out"
+            style={{
+              left: `${cursorPos.x}%`,
+              top: `${cursorPos.y}%`,
+              transform: `translate(-3px, -3px) scale(${isClicking ? 0.86 : 1})`,
+            }}
+          >
+            {/* Onda expansiva de clic (Ripple) */}
+            {showRipple && (
+              <span className="absolute -left-3 -top-3 h-10 w-10 rounded-full border-2 border-sky-400 bg-sky-400/30 animate-ping pointer-events-none" />
+            )}
+
+            {/* Puntero de ratón */}
+            <svg
+              className="w-6 h-6 filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)] text-slate-900"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="#ffffff"
+              strokeWidth="1.8"
+            >
+              <path d="M3 3l7 18 3-7 7-3L3 3z" />
+            </svg>
+
+            {/* Tooltip de la acción que se está ejecutando */}
+            {actionTooltip && (
+              <div className="absolute left-6 top-1 whitespace-nowrap rounded-md bg-slate-900/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-white shadow-xl border border-slate-700/80 flex items-center gap-1.5 animate-in fade-in duration-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{actionTooltip}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Barra de Estado inferior de la ventana */}
+      <div className="px-4 py-2.5 bg-white border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="font-semibold text-slate-800">{currentScreen.badge || currentScreen.label}</span>
+        </div>
+        <span className="font-mono text-[10px] text-slate-400">Captura Real en Producción</span>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Componente Principal Home: Moderno, Minimalista y Sin Ruido        */
+/* ------------------------------------------------------------------ */
+
+export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {}) {
+  const [activeScreens, setActiveScreens] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    PRODUCTS.forEach((p) => {
+      init[p.id] = p.screens[0].id;
+    });
+    return init;
   });
 
   const setProductScreen = (productId: string, screenId: string) => {
     setActiveScreens((prev) => ({ ...prev, [productId]: screenId }));
   };
 
-  // WhatsApp click handler
-  const waUrl = (msg: string) =>
-    `https://wa.me/${brand.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+  const waUrl = (text: string) =>
+    `https://wa.me/5694925337?text=${encodeURIComponent(text)}`;
 
   return (
-    <div className="immersive-root min-h-screen bg-white text-[#0F172A] font-sans antialiased selection:bg-[#0284c7] selection:text-white">
+    <div className="immersive-root min-h-screen bg-white text-[#0F172A] selection:bg-[#0284c7] selection:text-white">
       {/* =================================================================== */}
-      {/* 1. NAVEGACIÓN PRINCIPAL STICKY                                      */}
+      {/* 1. NAVEGACIÓN SUPERIOR: MINIMALISTA Y ELEGANTE                      */}
       {/* =================================================================== */}
-      <header className="modern-site-header sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-          {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="text-xl font-extrabold tracking-tight text-[#0F172A] group-hover:text-[#0284c7] transition-colors">
+      <header className="modern-site-header sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-slate-100 transition-all">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
+          {/* Logotipo tuEndpoint */}
+          <Link href="/es" className="flex items-center gap-2 group">
+            <span className="text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0284c7] transition">
               tuEndpoint<span className="text-[#0284c7]">.</span>
             </span>
           </Link>
 
-          {/* Enlaces de Productos */}
-          <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold text-slate-600">
-            <a href="#filas" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+          {/* Menú de Soluciones */}
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
+            <a href="#filas" className="hover:text-slate-900 transition">
               Gestor de Filas
             </a>
-            <a href="#ticpanel" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+            <a href="#ticpanel" className="hover:text-slate-900 transition">
               TICPanel
             </a>
-            <a href="#tba" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+            <a href="#tba" className="hover:text-slate-900 transition">
               Logística TBA
             </a>
-            <a href="#cajaya" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+            <a href="#cajaya" className="hover:text-slate-900 transition">
               CajaYA POS
             </a>
-            <a href="#paginago" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+            <a href="#paginago" className="hover:text-slate-900 transition">
               PaginaGo
             </a>
-            <a href="#auto" className="px-3 py-1.5 rounded-md hover:text-[#0F172A] hover:bg-slate-50 transition">
+            <a href="#auto" className="hover:text-slate-900 transition">
               Automatizaciones
             </a>
           </nav>
 
-          {/* Acciones Rápidas */}
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/es/cotizador"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50/80 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition shadow-2xs"
-            >
-              <FileText className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Cotizador PDF</span>
-            </Link>
-
+          {/* Contacto Directo */}
+          <div className="flex items-center gap-3">
             <a
               href={waUrl('Hola tuEndpoint, me gustaría consultar por sus soluciones de software.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#0284c7] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
             >
               <MessageSquare className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Hablemos</span>
+              <span>Hablemos</span>
             </a>
           </div>
         </div>
       </header>
 
       {/* =================================================================== */}
-      {/* 2. HERO PRINCIPAL: MINIMALISTA, ELEGANTE Y DIRECTO                  */}
+      {/* 2. HERO PRINCIPAL: LIMPIO, CONFIDENTE Y SIN CARDS TIPO IA           */}
       {/* =================================================================== */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-slate-100 bg-gradient-to-b from-[#F8FAFC] to-white">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 text-center space-y-6">
-          {/* Badge de acreditación */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 shadow-2xs">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            <span>PROVEEDOR DEL ESTADO HÁBIL · MERCADO PÚBLICO / CHILECOMPRA</span>
+      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 border-b border-slate-100 bg-gradient-to-b from-[#F8FAFC] to-white">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6">
+          {/* Tag de Categoría */}
+          <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#0284c7]">
+            <span>SOFTWARE FACTORY & PLATAFORMAS EN PRODUCCIÓN</span>
           </div>
 
           {/* Titular Principal */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F172A] leading-[1.12]">
-            Software enterprise y plataformas críticas que resuelven{' '}
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#0F172A] leading-[1.1]">
+            Software enterprise que resuelve{' '}
             <span className="text-[#0284c7]">operaciones reales.</span>
           </h1>
 
-          {/* Subtítulo dinámico y beneficio directo */}
+          {/* Subtítulo Claro y Directo */}
           <p className="mx-auto max-w-2xl text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
             Desarrollamos soluciones tecnológicas estables para{' '}
-            <span className="font-semibold text-slate-800">hospitales, educación, retail y empresas</span> en Chile.
-            Sistemas probados en terreno, con soporte técnico local y facturación electrónica inmediata.
+            <span className="font-semibold text-slate-800">salud pública, logística, retail y comercio</span> en Chile.
+            Sistemas probados en terreno con soporte local directo y código de producción.
           </p>
 
-          {/* Botones de Acción de Portada */}
+          {/* Acciones de Portada */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <a
               href="#filas"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0F172A] px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition shadow-sm"
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-[#0284c7] transition shadow-sm"
             >
-              <span>Ver Soluciones en Uso</span>
+              <span>Explorar Soluciones en Uso</span>
               <ArrowRight className="h-4 w-4" />
             </a>
 
-            <Link
-              href="/es/cotizador"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 hover:bg-slate-50 transition shadow-2xs"
-            >
-              <FileText className="h-4 w-4 text-[#0284c7]" />
-              <span>Cotizador de Licitaciones (PDF)</span>
-            </Link>
-
             <a
-              href={waUrl('Hola tuEndpoint, necesito información para implementar software en mi institución.')}
+              href={waUrl('Hola tuEndpoint, me gustaría conversar con un ingeniero sobre un proyecto de software.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 hover:bg-emerald-100 transition shadow-2xs"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 hover:bg-slate-50 transition shadow-2xs"
             >
-              <MessageSquare className="h-4 w-4 text-emerald-600" />
-              <span>+56 9 492 5337</span>
+              <MessageSquare className="h-4 w-4 text-[#0284c7]" />
+              <span>Hablar con un Ingeniero</span>
             </a>
           </div>
 
-          {/* Barra de Acreditaciones y Respaldo Institucional */}
-          <div className="pt-8 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-2xs">
-              <span className="text-[11px] font-bold text-slate-400 block uppercase">Soluciones Propias</span>
-              <span className="text-sm font-black text-slate-900 mt-0.5 block">6 Plataformas Activas</span>
-            </div>
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-2xs">
-              <span className="text-[11px] font-bold text-slate-400 block uppercase">Mercado Público</span>
-              <span className="text-sm font-black text-emerald-700 mt-0.5 block">Habilitado Ley 19.886</span>
-            </div>
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-2xs">
-              <span className="text-[11px] font-bold text-slate-400 block uppercase">Facturación SII</span>
-              <span className="text-sm font-black text-slate-900 mt-0.5 block">RUT: 78.411.033-8</span>
-            </div>
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-2xs">
-              <span className="text-[11px] font-bold text-slate-400 block uppercase">Casa Matriz</span>
-              <span className="text-sm font-black text-slate-900 mt-0.5 block">Viña del Mar, Chile</span>
-            </div>
-          </div>
+          {/* Frase sutil de respaldo */}
+          <p className="pt-6 text-xs text-slate-400 font-medium">
+            Plataformas activas en hospitales de red pública, almacenes logísticos y comercio digital en todo Chile.
+          </p>
         </div>
       </section>
 
       {/* =================================================================== */}
-      {/* 3. SHOWCASE DE PRODUCTOS: CADA UNO SE LUCE CON SU TEXTO Y CAPTURA    */}
+      {/* 3. SHOWCASE DE PRODUCTOS: CADA UNO SE LUCE CON SU TEXTO Y SU DEMO   */}
       {/* =================================================================== */}
-      <section className="py-16 sm:py-24 space-y-20 sm:space-y-32">
+      <section className="py-20 sm:py-28 space-y-24 sm:space-y-36">
         {PRODUCTS.map((prod, index) => {
           const isReversed = index % 2 === 1;
           const currentScreenId = activeScreens[prod.id] || prod.screens[0].id;
-          const currentScreen = prod.screens.find((s) => s.id === currentScreenId) || prod.screens[0];
 
           return (
             <div
@@ -759,30 +1153,29 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
               className="scroll-mt-24 mx-auto max-w-7xl px-4 sm:px-6"
             >
               <div
-                className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center ${
+                className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center ${
                   isReversed ? 'lg:flex-row-reverse' : ''
                 }`}
               >
                 {/* ---------------------------------------------------- */}
-                {/* COLUMNA DE TEXTOS Y BENEFICIOS                       */}
+                {/* COLUMNA DE TEXTOS: EDITORIAL, ELEGANTE Y DIRECTA     */}
                 {/* ---------------------------------------------------- */}
-                <div className={`space-y-5 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
-                  {/* Categoría y Badge */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-800 border border-sky-200">
-                      {prod.category}
-                    </span>
-                    <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
-                      {prod.badge}
-                    </span>
+                <div className={`space-y-6 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
+                  {/* Número de sección y categoría */}
+                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
+                    <span className="font-bold text-[#0284c7]">0{index + 1}</span>
+                    <span>/</span>
+                    <span className="text-slate-600 font-semibold">{prod.category}</span>
+                    <span>·</span>
+                    <span className="text-emerald-700 font-medium">{prod.badge}</span>
                   </div>
 
                   {/* Nombre y Título del Producto */}
-                  <div>
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">
+                  <div className="space-y-2">
+                    <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
                       {prod.name}
                     </h2>
-                    <p className="mt-1.5 text-base sm:text-lg font-bold text-[#0284c7] leading-snug">
+                    <p className="text-base sm:text-lg font-medium text-slate-700 leading-snug">
                       {prod.tagline}
                     </p>
                   </div>
@@ -792,26 +1185,24 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
                     {prod.description}
                   </p>
 
-                  {/* Lista de Capacidades Técnicas */}
-                  <div className="space-y-2.5 pt-1">
-                    {prod.features.map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-start gap-2.5 text-xs text-slate-700">
-                        <div className="mt-0.5 rounded-full bg-emerald-100 text-emerald-700 p-0.5 shrink-0">
-                          <Check className="h-3 w-3 stroke-[3]" />
-                        </div>
-                        <span className="leading-snug">{feat}</span>
+                  {/* Especificaciones Técnicas Clave (Grid Editorial Limpio) */}
+                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100">
+                    {prod.highlights.map((h, hIdx) => (
+                      <div key={hIdx} className="space-y-1">
+                        <span className="text-xs font-bold text-slate-900 block">{h.title}</span>
+                        <span className="text-xs text-slate-500 leading-relaxed block">{h.desc}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Botones de Acción Específicos */}
-                  <div className="pt-4 flex flex-wrap items-center gap-3">
+                  {/* Botón de Acción Específico */}
+                  <div className="pt-3 flex items-center gap-3">
                     {prod.externalUrl ? (
                       <a
                         href={prod.externalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#0284c7] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
                       >
                         <span>{prod.ctaText}</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -821,90 +1212,24 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
                         href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo de ${prod.name}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#0284c7] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
                         <span>{prod.ctaText}</span>
                       </a>
                     )}
-
-                    <Link
-                      href="/es/cotizador"
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
-                    >
-                      <FileText className="h-3.5 w-3.5 text-slate-500" />
-                      <span>Cotizar Sistema</span>
-                    </Link>
                   </div>
                 </div>
 
                 {/* ---------------------------------------------------- */}
-                {/* COLUMNA DE VENTANA DE LA APLICACIÓN / CAPTURA REAL    */}
+                {/* COLUMNA DE VENTANA CON SIMULACIÓN DE USO REAL        */}
                 {/* ---------------------------------------------------- */}
                 <div className={`lg:col-span-7 ${isReversed ? 'lg:order-1' : 'lg:order-2'}`}>
-                  <div className="rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden transition-all">
-                    {/* Barra de Título Estilo macOS / App Browser */}
-                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
-                      {/* Botones ventana */}
-                      <div className="flex items-center gap-1.5">
-                        <span className="h-3 w-3 rounded-full bg-rose-400" />
-                        <span className="h-3 w-3 rounded-full bg-amber-400" />
-                        <span className="h-3 w-3 rounded-full bg-emerald-400" />
-                        <span className="ml-2 font-mono text-[11px] text-slate-500 hidden sm:inline">
-                          tuendpoint.cl/{prod.id}
-                        </span>
-                      </div>
-
-                      {/* Selector de Pantallas / Pestañas de la App */}
-                      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                        {prod.screens.map((scr) => (
-                          <button
-                            key={scr.id}
-                            type="button"
-                            onClick={() => setProductScreen(prod.id, scr.id)}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition shrink-0 ${
-                              currentScreen.id === scr.id
-                                ? 'bg-slate-900 text-white shadow-2xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                            }`}
-                          >
-                            {scr.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Contenedor de la Pantalla / Captura */}
-                    <div className="bg-slate-100 p-2 sm:p-4">
-                      {/* Render según tipo de pantalla */}
-                      {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
-
-                      {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
-
-                      {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
-
-                      {currentScreen.type === 'img' && currentScreen.src && (
-                        <div className="w-full aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-white shadow-xs">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={currentScreen.src}
-                            alt={`${prod.name} — ${currentScreen.label}`}
-                            className="w-full h-full object-cover object-top block"
-                            loading="eager"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Barra de Estado inferior de la ventana */}
-                    <div className="px-4 py-2 bg-white border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                      <div className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        <span className="font-semibold text-slate-700">{currentScreen.badge || currentScreen.label}</span>
-                      </div>
-                      <span className="font-mono text-[10px] text-slate-400">Captura Real en Producción</span>
-                    </div>
-                  </div>
+                  <AnimatedAppWindow
+                    product={prod}
+                    activeScreenId={currentScreenId}
+                    onSelectScreen={(sId) => setProductScreen(prod.id, sId)}
+                  />
                 </div>
               </div>
             </div>
@@ -913,58 +1238,15 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
       </section>
 
       {/* =================================================================== */}
-      {/* 4. BLOQUE INSTITUCIONAL MERCADO PÚBLICO & CHILECOMPRA               */}
+      {/* 4. FORMULARIO DE CONTACTO / HABLEMOS                                */}
       {/* =================================================================== */}
-      <section className="py-16 bg-[#001E3D] text-white border-y border-slate-800">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            <div className="md:col-span-8 space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/40">
-                <ShieldCheck className="h-4 w-4" />
-                <span>CHILECOMPRA · PROVEEDOR DEL ESTADO HÁBIL</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Contratación directa y licitaciones bajo Ley 19.886
-              </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                <strong>SOLUCIONES TUENDPOINT SPA</strong> (RUT <strong>78.411.033-8</strong>) se encuentra plenamente
-                habilitada para contratar con hospitales, municipalidades, servicios de salud, universidades y ministerios
-                en todo Chile. Emisión de propuestas técnicas formales con IVA 19% y montos legales en palabras.
-              </p>
-            </div>
-
-            <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-3">
-              <Link
-                href="/es/cotizador"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 text-xs font-bold text-slate-950 transition shadow-sm text-center"
-              >
-                <FileText className="h-4 w-4" />
-                <span>Generar Cotización en PDF</span>
-              </Link>
-              <a
-                href={waUrl('Estimados, necesito cotización formal de Soluciones tuEndpoint SpA para licitación.')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-900 px-5 py-3 text-xs font-semibold text-white transition text-center"
-              >
-                <MessageSquare className="h-4 w-4 text-emerald-400" />
-                <span>Consultar por WhatsApp</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =================================================================== */}
-      {/* 5. FORMULARIO DE CONTACTO / HABLEMOS                                */}
-      {/* =================================================================== */}
-      <section id="contacto" className="py-16 sm:py-24 bg-white">
+      <section id="contacto" className="py-20 sm:py-28 bg-[#F8FAFC] border-t border-slate-200">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <div className="rounded-2xl border border-slate-200 bg-[#F8FAFC] p-6 sm:p-10 shadow-xs space-y-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-xs space-y-8">
             <div className="text-center space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0284c7]">Hablemos de tu proyecto</span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">
-                ¿Tienes una necesidad técnica o licitación en curso?
+                ¿Tienes una necesidad técnica o proceso a implementar?
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
                 Escríbenos directamente o contáctanos por WhatsApp. Respondemos en minutos con propuestas claras y
@@ -1032,7 +1314,7 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
                   <option value="cajaya">CajaYA POS Offline</option>
                   <option value="paginago">PaginaGo Catálogo</option>
                   <option value="auto">Automatizaciones RPA</option>
-                  <option value="licitacion">Licitación Mercado Público</option>
+                  <option value="licitacion">Desarrollo Especializado</option>
                 </select>
               </div>
 
@@ -1042,7 +1324,7 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
                   name="mensaje"
                   rows={3}
                   required
-                  placeholder="Describe brevemente el flujo, número de usuarios o requerimiento de licitación..."
+                  placeholder="Describe brevemente el flujo, número de usuarios o requerimiento técnico..."
                   className="w-full rounded-lg border border-slate-200 bg-white p-2.5 text-slate-800 focus:border-[#0284c7] focus:outline-none"
                 />
               </div>
@@ -1055,7 +1337,7 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
 
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#0284c7] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
                 >
                   <Send className="h-3.5 w-3.5" />
                   <span>Enviar Consulta</span>
@@ -1067,7 +1349,7 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
       </section>
 
       {/* =================================================================== */}
-      {/* 6. PIE DE PÁGINA CORPORATIVO                                        */}
+      {/* 5. PIE DE PÁGINA CORPORATIVO                                        */}
       {/* =================================================================== */}
       <footer className="modern-site-footer border-t border-slate-200 bg-white py-12 text-xs text-slate-600">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -1103,10 +1385,10 @@ export function Immersive({ introDone: _introDone }: { introDone: boolean }) {
             <div className="space-y-2">
               <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Portales & Servicios</span>
               <ul className="space-y-1.5 text-[11px]">
-                <li><Link href="/es/cotizador" className="hover:text-slate-900 font-semibold text-[#0284c7]">Cotizador Enterprise (PDF)</Link></li>
                 <li><a href="https://logisticatba.cloud" target="_blank" rel="noreferrer" className="hover:text-slate-900">logisticatba.cloud</a></li>
                 <li><a href="https://cajaya.cl" target="_blank" rel="noreferrer" className="hover:text-slate-900">cajaya.cl</a></li>
                 <li><a href="https://paginago.com" target="_blank" rel="noreferrer" className="hover:text-slate-900">paginago.com</a></li>
+                <li><Link href="/es/cotizador" className="hover:text-slate-900 text-slate-500">Cotizador Enterprise (PDF)</Link></li>
               </ul>
             </div>
 

@@ -60,14 +60,10 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
           role="img"
           aria-label="tuEndpoint"
         >
-          {/* Malla sutil de fondo de ingeniería */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-20"
-            style={{
-              backgroundImage: 'radial-gradient(#0284c7 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
-              backgroundSize: '32px 32px, 64px 64px, 64px 64px',
-            }}
-          />
+          {/* Resplandor de estudio suave sin cuadrados */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-sky-500/15 blur-[100px] rounded-full" />
+          </div>
 
           <div
             aria-hidden

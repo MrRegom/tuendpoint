@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import * as THREE from 'three';
 import { brand } from '@/lib/config/brand';
 import { AssistantBot } from '@/components/home/AssistantBot';
@@ -1400,6 +1401,13 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
               <span>PaginaGo</span>
               <span className="text-xs" aria-hidden>↗</span>
             </a>
+            <Link
+              href="/cotizador"
+              className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50/80 px-2.5 py-1 text-xs font-semibold text-sky-800 transition hover:border-sky-400 hover:bg-sky-100"
+            >
+              <span>Cotizador</span>
+              <span className="rounded bg-sky-600 px-1 py-0.2 text-[9px] font-bold text-white uppercase">PDF</span>
+            </Link>
             <button
               type="button"
               onClick={() => goTo(SECTIONS - 1)}
@@ -1568,6 +1576,10 @@ export function Immersive({ introDone = true }: { introDone?: boolean }) {
                   <a href="https://paginago.com" target="_blank" rel="noopener noreferrer" className="text-[#0284c7] underline hover:text-[#0369a1]">
                     paginago.com
                   </a>
+                  {' · '}
+                  <Link href="/cotizador" className="text-slate-700 underline hover:text-[#0284c7]">
+                    Cotizador Licitaciones (PDF)
+                  </Link>
                 </p>
               </div>
             </div>

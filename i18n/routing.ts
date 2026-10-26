@@ -12,6 +12,7 @@ export const routing = defineRouting({
     '/proceso': '/proceso',
     '/nosotros': '/nosotros',
     '/contacto': '/contacto',
+    '/cotizador': '/cotizador',
     '/legal/privacidad': '/legal/privacidad',
     '/legal/terminos': '/legal/terminos',
   },

@@ -33,6 +33,7 @@ const ROOT_STATE: GuideState = {
   title: '¿Qué necesitas resolver?',
   chips: [
     { label: 'Productos listos en operación', kind: 'step', value: 'productos' },
+    { label: 'Cotizador Licitaciones (Generar PDF) 📋', kind: 'link', value: '/es/cotizador' },
     { label: 'Catálogos online (PaginaGo ya a la venta)', kind: 'link', value: 'https://paginago.com' },
     { label: 'Automatizar un proceso manual', kind: 'step', value: 'automatizar' },
     { label: 'Software o web 3D a medida', kind: 'step', value: 'medida' },
@@ -206,6 +207,25 @@ function answerFreeText(q: string): GuideState {
   const s = q.toLowerCase();
   const shortQ = q.length > 34 ? `${q.slice(0, 34)}…` : q;
 
+  if (/licita|mercado\s*p[uú]blico|chilecompra|h[aá]bil|cotizador|adjudica|bases/.test(s)) {
+    return {
+      id: `q-${Date.now()}`,
+      eyebrow: `MERCADO PÚBLICO · CHILECOMPRA`,
+      title: 'Cotizador Oficial para Licitaciones',
+      detail:
+        'Soluciones tuEndpoint SpA (RUT 78.411.033-8) es Proveedor del Estado HÁBIL en Mercado Público. Puedes estructurar tu propuesta técnica, calcular IVA (19%) y descargar el PDF formal.',
+      chips: [
+        { label: 'Abrir Cotizador Oficial (PDF) ↗', kind: 'link', value: '/es/cotizador' },
+        {
+          label: 'Cotizar con un ejecutivo',
+          kind: 'contact',
+          value: 'Producto',
+          draft: 'Hola, tengo una licitación en curso y requiero cotizar formalmente con tuEndpoint.',
+        },
+        { label: 'Consultar por WhatsApp', kind: 'wa', value: 'Hola, quiero cotizar para una licitación de Mercado Público.' },
+      ],
+    };
+  }
   if (/paginago|cat[aá]logo|tienda|whatsapp/.test(s)) {
     return {
       id: `q-${Date.now()}`,

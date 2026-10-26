@@ -258,11 +258,47 @@
   }
 }
 
-/* ===== Home inmersiva: oculta el header/footer clásicos y el botón flotante ===== */
+/* ===== Home inmersiva y Cotizador: ocultan el header/footer clásicos y el botón flotante ===== */
 body:has(.immersive-root) header,
 body:has(.immersive-root) footer,
 body:has(.immersive-root) .skip-link,
-body:has(.immersive-root) a[aria-label="Contactar por WhatsApp"] {
+body:has(.immersive-root) a[aria-label="Contactar por WhatsApp"],
+body:has(.cotizador-root) header,
+body:has(.cotizador-root) footer,
+body:has(.cotizador-root) .skip-link,
+body:has(.cotizador-root) a[aria-label="Contactar por WhatsApp"] {
   display: none !important;
 }
 body:has(.immersive-root) { background: #f8fafc; color: #0f172a; }
+body:has(.cotizador-root) { background: #f8fafc; color: #0f172a; }
+
+/* ===== Reglas de impresión y guardado PDF en alta resolución ===== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 10mm 10mm;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .no-print,
+  header,
+  nav,
+  footer,
+  button,
+  .skip-link {
+    display: none !important;
+  }
+  .print-only-document {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

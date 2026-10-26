@@ -17,6 +17,7 @@ import {
   Sparkles,
   Maximize2,
   Minimize2,
+  ExternalLink,
 } from 'lucide-react';
 import {
   TUENDPOINT_COMPANY,
@@ -171,6 +172,68 @@ export function CotizadorClient() {
       return;
     }
     setItems((prev) => prev.filter((it) => it.id !== id));
+  };
+
+  // Abrir y previsualizar PDF oficial en una pestaña nueva
+  const handleOpenPdf = async () => {
+    // Abrir la pestaña sincrónicamente para evitar restricciones de popups del navegador
+    const newWindow = typeof window !== 'undefined' ? window.open('about:blank', '_blank') : null;
+    if (newWindow) {
+      try {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Generando PDF Oficial — tuEndpoint</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #f8fafc; }
+                .card { text-align: center; padding: 2.5rem 2rem; border-radius: 12px; background: #1e293b; border: 1px solid #334155; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+                .spinner { width: 40px; height: 40px; border: 3px solid #334155; border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+              </style>
+            </head>
+            <body>
+              <div class="card">
+                <div class="spinner"></div>
+                <div style="font-weight: 700; font-size: 16px;">Generando PDF Oficial tuEndpoint...</div>
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 8px;">Compilando propuesta A4 en alta resolución</div>
+              </div>
+            </body>
+          </html>
+        `);
+      } catch (e) {
+        console.warn('No se pudo escribir en la pestaña previa', e);
+      }
+    }
+
+    try {
+      setIsGenerating(true);
+      setPdfProgress(15);
+      const filename = `Cotizacion_${TUENDPOINT_COMPANY.razonSocial.replace(/\s+/g, '_')}_${folio}.pdf`;
+      const res = await downloadQuotationPdf({
+        elementId: docId,
+        filename,
+        onProgress: (p) => setPdfProgress(p),
+      });
+
+      if (res?.blobUrl) {
+        setLastPdfUrl(res.blobUrl);
+        if (newWindow && !newWindow.closed) {
+          newWindow.location.href = res.blobUrl;
+        } else {
+          window.open(res.blobUrl, '_blank');
+        }
+        notify('PDF oficial abierto con éxito');
+      }
+    } catch (err) {
+      console.error(err);
+      if (newWindow && !newWindow.closed) newWindow.close();
+      notify('No se pudo abrir el PDF directo. Usa el botón Imprimir / PDF.');
+    } finally {
+      setIsGenerating(false);
+      setPdfProgress(0);
+    }
   };
 
   // Descargar PDF oficial
@@ -337,15 +400,27 @@ export function CotizadorClient() {
               {viewMode === 'split' ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
             </button>
 
-            {/* Botón Principal Exportar PDF */}
+            {/* Botón Abrir PDF */}
+            <button
+              type="button"
+              onClick={handleOpenPdf}
+              disabled={isGenerating}
+              className="inline-flex items-center gap-1.5 rounded-md border border-sky-300 bg-sky-50 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-sky-800 hover:bg-sky-100 transition shadow-xs disabled:opacity-50"
+              title="Abrir y previsualizar PDF oficial en una nueva pestaña"
+            >
+              <ExternalLink className="h-3.5 w-3.5 text-sky-600" />
+              <span>Abrir PDF</span>
+            </button>
+
+            {/* Botón Descargar PDF */}
             <button
               type="button"
               onClick={handleDownloadPdf}
               disabled={isGenerating}
-              className="inline-flex items-center gap-2 rounded-md bg-[#0284c7] px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#0369a1] transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-md bg-[#0284c7] px-3 sm:px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#0369a1] transition disabled:opacity-50"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>{isGenerating ? `Exportando ${pdfProgress}%` : 'Exportar PDF'}</span>
+              <span>{isGenerating ? `Exportando ${pdfProgress}%` : 'Descargar PDF'}</span>
             </button>
           </div>
         </div>
@@ -746,6 +821,15 @@ export function CotizadorClient() {
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
+                  onClick={handleOpenPdf}
+                  disabled={isGenerating}
+                  className="inline-flex items-center gap-1 rounded border border-sky-300 bg-sky-50 px-2 py-1 text-[11px] font-bold text-sky-800 hover:bg-sky-100 transition shadow-xs"
+                >
+                  <ExternalLink className="h-3 w-3 text-sky-600" />
+                  <span>Abrir PDF</span>
+                </button>
+                <button
+                  type="button"
                   onClick={printQuotation}
                   className="inline-flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100 transition"
                   title="Imprimir o Guardar como PDF"
@@ -979,9 +1063,86 @@ export function CotizadorClient() {
                 </div>
               </div>
             </div>
+
+            {/* BARRA DE ACCIONES POST-DOCUMENTO */}
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm no-print">
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <FileText className="h-4 w-4 text-[#0284c7]" />
+                <span className="font-bold text-slate-800">
+                  Propuesta Formal Lista ({folio})
+                </span>
+                <span className="text-slate-300">·</span>
+                <span>Válida por {validezDias} días</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenPdf}
+                  disabled={isGenerating}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-3.5 py-2 text-xs font-bold text-sky-800 hover:bg-sky-100 transition shadow-xs"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 text-sky-600" />
+                  <span>Abrir PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={isGenerating}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#0284c7] px-4 py-2 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Descargar PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={printQuotation}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-xs"
+                >
+                  <Printer className="h-3.5 w-3.5 text-slate-500" />
+                  <span>Imprimir / PDF</span>
+                </button>
+              </div>
+            </div>
           </main>
         </div>
       </div>
+
+      {/* BARRA FLOTANTE FIJA INFERIOR - ACCIONES RÁPIDAS PERMANENTES */}
+      <aside
+        aria-label="Acciones rápidas de cotización"
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 rounded-full border border-slate-800/80 bg-slate-900/95 px-4 py-2 shadow-2xl backdrop-blur-md no-print text-white"
+      >
+        <span className="text-[11px] font-mono text-slate-300 hidden sm:inline border-r border-slate-700 pr-3">
+          {folio}
+        </span>
+        <button
+          type="button"
+          onClick={handleOpenPdf}
+          disabled={isGenerating}
+          className="inline-flex items-center gap-1.5 rounded-full bg-sky-950/80 border border-sky-500/40 px-3.5 py-1.5 text-xs font-bold text-sky-300 hover:bg-sky-900 hover:text-white transition shadow-sm"
+        >
+          <ExternalLink className="h-3.5 w-3.5 text-sky-400" />
+          <span>Abrir PDF</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleDownloadPdf}
+          disabled={isGenerating}
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#0284c7] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-sm"
+        >
+          <Download className="h-3.5 w-3.5" />
+          <span>{isGenerating ? `${pdfProgress}%` : 'Descargar PDF'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={printQuotation}
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition"
+          title="Imprimir o Guardar como PDF"
+        >
+          <Printer className="h-3.5 w-3.5 text-slate-400" />
+          <span>Imprimir</span>
+        </button>
+      </aside>
     </div>
   );
 }

@@ -18,10 +18,20 @@ import {
   Monitor,
   Printer,
   ChevronRight,
+  X,
+  Shield,
+  Server,
+  Cpu,
+  CheckCircle,
+  Maximize2,
+  FileText,
+  Activity,
+  Terminal,
 } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { TUENDPOINT_COMPANY } from '@/lib/cotizador/catalog';
 import { AssistantBot } from '@/components/home/AssistantBot';
+import { Typewriter } from '@/components/ui/typewriter';
 
 /* ------------------------------------------------------------------ */
 /* Tipos y Especificaciones de Producto                               */
@@ -45,10 +55,17 @@ interface ScreenTab {
 interface ProductShowcase {
   id: string;
   name: string;
+  shortName: string;
   category: string;
   badge: string;
   tagline: string;
-  description: string;
+  shortDescription: string;
+  fullDescription: string;
+  architectureDetails: {
+    title: string;
+    description: string;
+    points: string[];
+  };
   highlights: ProductHighlight[];
   screens: ScreenTab[];
   externalUrl?: string;
@@ -59,27 +76,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'filas',
     name: 'Gestor de Filas Hospitalario',
-    category: 'Salud Pública & Red Asistencial',
-    badge: 'Producción en Hospitales Públicos',
-    tagline: 'Llamado audiovisual por voz sintetizada en pantallas TV y tótems táctiles de autoatención',
-    description:
-      'Sistema integral de gestión de esperas diseñado para erradicar las aglomeraciones caóticas en salas de atención médica y farmacias. Integra pantallas informativas de alta visibilidad con audio de voz chilena, tótems de autoatención con lector de cédula y panel de ventanilla en tiempo real.',
+    shortName: 'Gestor de Filas',
+    category: 'Salud Pública & Atención Presencial',
+    badge: 'Ley 20.584 · Producción en Hospitales',
+    tagline: 'Llamado por voz sintetizada en pantallas TV y tótems táctiles de autoatención con RUT',
+    shortDescription:
+      'Erradica las aglomeraciones caóticas en salas de espera y farmacias mediante pantallas informativas con audio de voz chilena y tótems táctiles de autoatención.',
+    fullDescription:
+      'Plataforma integral diseñada para erradicar las salas de espera caóticas en hospitales de alta demanda, centros de diagnóstico y farmacias ambulatorias. Integra pantallas informativas de alta visibilidad con audio sintetizado de acento chileno, tótems de autoatención con lector de cédula (RUT) y un panel de ventanilla que entrega tiempos de espera y trazabilidad en tiempo real.',
+    architectureDetails: {
+      title: 'Arquitectura de Sala y Despliegue Asistencial',
+      description:
+        'El sistema opera bajo un servidor central con sincronización instantánea vía WebSockets entre ventanillas, pantallas de llamado y tótems táctiles.',
+      points: [
+        'Prioridad garantizada por Ley 20.584 para adultos mayores, personas embarazadas y movilidad reducida.',
+        'Sintetizador vocal en español chileno que vocaliza el turno y módulo sin requerir periféricos de audio complejos.',
+        'Tótems 21.5" antivandálicos con corte térmico automático de ticket e interfaz simplificada para el paciente.',
+        'Panel de control de ventanillas en vivo con métricas de tiempos de espera para auditorías y jefaturas médicas.',
+      ],
+    },
     highlights: [
       {
         title: 'Prioridad Ley 20.584',
-        desc: 'Cumplimiento normativo estricto con atención preferente para adultos mayores, personas embarazadas y con movilidad reducida.',
+        desc: 'Atención preferente estricta para adultos mayores, embarazadas y pacientes con movilidad reducida.',
       },
       {
-        title: 'Audio por Voz Sintetizada',
-        desc: 'Llamado audiovisual claro con pronunciación chilena natural, indicando paciente y módulo asignado sin errores.',
+        title: 'Audio Vocal Chileno',
+        desc: 'Llamado audiovisual claro con pronunciación fonética chilena natural que indica paciente y módulo.',
       },
       {
         title: 'Tótems Táctiles 21.5"',
-        desc: 'Terminales antivandálicos con corte automático de ticket, lector de cédula (RUT) y derivación inteligente por servicio.',
+        desc: 'Terminales de autoatención con lector de cédula (RUT) y corte automático de ticket térmico.',
       },
       {
-        title: 'Métricas de Espera Minuto a Minuto',
-        desc: 'Control en vivo de tiempos de espera por ventanilla y módulo para jefaturas, auditorías y dirección asistencial.',
+        title: 'Métricas en Tiempo Real',
+        desc: 'Trazabilidad y cálculo de tiempos de atención y espera por módulo para auditorías ministeriales.',
       },
     ],
     screens: [
@@ -87,7 +118,7 @@ const PRODUCTS: ProductShowcase[] = [
         id: 'tv',
         label: 'TV Sala de Espera',
         type: 'filas-tv',
-        badge: 'Llamado Audiovisual en Vivo',
+        badge: 'Llamado en Vivo con Voz',
         actionText: 'Llamando paciente a Módulo 3 por voz...',
       },
       {
@@ -103,7 +134,7 @@ const PRODUCTS: ProductShowcase[] = [
         label: 'Panel de Módulos',
         type: 'img',
         src: '/shots/filas-1.jpg',
-        badge: 'Panel en Ventanilla',
+        badge: 'Panel Ventanillas',
         click: [0.055, 0.078],
         actionText: 'Operador llamando al siguiente paciente...',
       },
@@ -114,7 +145,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/filas-2.jpg',
         badge: 'Métricas Diarias',
         click: [0.055, 0.184],
-        actionText: 'Consultando promedio de atención por módulo...',
+        actionText: 'Calculando tiempo promedio de atención por módulo...',
       },
       {
         id: 'trazabilidad',
@@ -123,7 +154,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/filas-3.jpg',
         badge: 'Trazabilidad',
         click: [0.93, 0.115],
-        actionText: 'Exportando reporte oficial de tiempos y cumplimiento...',
+        actionText: 'Exportando informe de cumplimiento Ley 20.584...',
       },
     ],
     ctaText: 'Solicitar Demostración de Filas',
@@ -131,27 +162,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'ticpanel',
     name: 'TICPanel — Mesa de Ayuda & Actas TI',
-    category: 'Infraestructura Tecnológica',
-    badge: 'Validado en Hospitales y Servicios de Salud',
-    tagline: 'Gestión unificada de incidentes técnicos, inventario de hardware y actas con firma digital',
-    description:
-      'Control total sobre todo el parque informático de tu institución. Permite a los funcionarios ingresar solicitudes técnicas con derivación inmediata según criticidad, registrar la hoja de vida completa de cada computador o impresora y emitir actas oficiales de entrega y devolución válidas para auditorías.',
+    shortName: 'TICPanel',
+    category: 'Infraestructura Tecnológica Institucional',
+    badge: 'Agentes Silenciosos en Endpoints · Sector Salud',
+    tagline: 'Monitoreo continuo mediante agentes instalados en cada equipo que reportan hardware y telemetría en tiempo real',
+    shortDescription:
+      'Control y trazabilidad total sobre el parque informático. Un agente ligero instalado en cada computador reporta hardware, seriales y estado en vivo, integrado a tickets con SLA y actas con firma digital.',
+    fullDescription:
+      'Diseñado para departamentos de informática en hospitales, clínicas y entidades públicas. TICPanel instala un agente silencioso y de bajo consumo en cada computador o endpoint de la red, recolectando automáticamente número de serie, hardware (CPU, RAM, discos), dirección IP, periféricos conectados y estado de salud operativa directamente al panel central. Permite atender incidentes bajo SLA estricto y formalizar actas de entrega/devolución con firma digital.',
+    architectureDetails: {
+      title: 'Agente Endpoint y Telemetría Automatizada',
+      description:
+        'El agente de TICPanel se despliega como servicio en segundo plano (Windows y Linux), eliminando inventarios manuales y auditorías ciegas.',
+      points: [
+        'Agente silencioso (.msi / daemon) que reporta automáticamente cambios de hardware o desconexiones sin interrumpir al usuario.',
+        'Detección instantánea de número de serie, dirección MAC, marca, modelo y periféricos (impresoras, lectores de código de barras).',
+        'Mesa de tickets con derivación inteligente por criticidad y tiempos máximos de respuesta (SLA).',
+        'Generador de actas oficiales de entrega, cambio y devolución de equipamiento con firma digital integrada.',
+      ],
+    },
     highlights: [
       {
+        title: 'Agente Silencioso en Endpoints',
+        desc: 'Servicio ligero instalado en cada computador que recolecta hardware, componentes y telemetría en vivo.',
+      },
+      {
+        title: 'Inventario & Seriales Automáticos',
+        desc: 'Lectura automática de números de serie, direcciones MAC y periféricos sin intervención del usuario.',
+      },
+      {
         title: 'Mesa de Tickets con SLA',
-        desc: 'Derivación inteligente por especialidad, criticidad y plazos de respuesta estrictos conforme a estándares de servicio.',
+        desc: 'Derivación inteligente por urgencia con control estricto de tiempos de respuesta conforme a estándares.',
       },
       {
         title: 'Actas con Firma Digital',
-        desc: 'Generación y archivo centralizado de actas de entrega, recepción y devolución de equipamiento con firma electrónica.',
-      },
-      {
-        title: 'Hoja de Vida de Hardware',
-        desc: 'Inventario detallado con código de barras, especificaciones técnicas, ubicación física y funcionario responsable.',
-      },
-      {
-        title: 'Conforme a Normativas de Auditoría',
-        desc: 'Diseñado bajo requerimientos de auditoría interna y estándares de seguridad exigidos en el sector público.',
+        desc: 'Emisión y archivo centralizado de actas de recepción y entrega de equipamiento válidas para auditorías.',
       },
     ],
     screens: [
@@ -162,7 +207,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/ticpanel-1.jpg',
         badge: 'Mesa de Control',
         click: [0.015, 0.22],
-        actionText: 'Filtrando tickets por nivel de urgencia...',
+        actionText: 'Agentes reportando 142 equipos conectados...',
       },
       {
         id: 'tickets',
@@ -171,7 +216,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/ticpanel-2.jpg',
         badge: 'SLA & Gestión',
         click: [0.015, 0.27],
-        actionText: 'Asignando especialista técnico según SLA...',
+        actionText: 'Asignando especialista según SLA hospitalario...',
       },
       {
         id: 'actas',
@@ -189,7 +234,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/ticpanel-4.jpg',
         badge: 'Inventario TI',
         click: [0.015, 0.12],
-        actionText: 'Escaneando código de barras de computador asignado...',
+        actionText: 'Agente detectó nuevo monitor y memoria RAM...',
       },
     ],
     ctaText: 'Solicitar Demostración TICPanel',
@@ -197,27 +242,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'tba',
     name: 'Logística TBA — Solicitudes y Bodega',
+    shortName: 'Logística TBA',
     category: 'Logística Institucional & Adquisiciones',
     badge: 'Producción Activa en logisticatba.cloud',
     tagline: 'Centralización de pedidos internos, control de existencias, órdenes de compra y activos fijos',
-    description:
-      'La solución que conecta a los solicitantes con los departamentos de adquisiciones y almacén central. Digitaliza el flujo completo de compras, recepciones conformes y entregas, eliminando planillas Excel dispersas y garantizando que ningún insumo crítico quede sin control.',
+    shortDescription:
+      'Digitaliza el flujo completo entre solicitantes, compras y almacén central. Kardex automatizado, existencias en tiempo real y flujo de aprobaciones sin papeles.',
+    fullDescription:
+      'La solución que conecta a los solicitantes departamentales con las unidades de adquisiciones y almacén central. Digitaliza el ciclo completo de requerimientos, cotizaciones, órdenes de compra, recepciones conformes y entregas, erradicando planillas Excel dispersas y asegurando que ningún insumo crítico quede sin control.',
+    architectureDetails: {
+      title: 'Control de Kardex y Trazabilidad de Adquisiciones',
+      description:
+        'Arquitectura cloud centralizada con perfiles de acceso estrictos para funcionarios solicitantes, jefaturas aprobadoras y personal de bodega.',
+      points: [
+        'Portal de solicitudes internas con flujo jerárquico de aprobaciones por departamento o centro de costo.',
+        'Kardex de bodega en tiempo real con control de lotes, fecha de caducidad y alertas automáticas de stock mínimo.',
+        'Vinculación directa entre órdenes de compra, proveedores y facturas comerciales registradas.',
+        'Reportes de auditoría y valorización contable de existencias listos para balances institucionales.',
+      ],
+    },
     highlights: [
       {
         title: 'Solicitudes Internas Digitales',
-        desc: 'Portal de pedidos internos con flujo jerárquico de aprobaciones por departamento o centro de costo.',
+        desc: 'Flujo de aprobaciones jerárquicas que erradica el papeleo y acelera la entrega de materiales.',
       },
       {
         title: 'Kardex Automatizado',
-        desc: 'Control de inventario en tiempo real con alertas de stock mínimo, trazabilidad de lotes y valorización contable.',
+        desc: 'Control de inventario en tiempo real con alertas de stock mínimo y trazabilidad de lotes.',
       },
       {
         title: 'Órdenes de Compra y Recepción',
-        desc: 'Vinculación directa entre adquisiciones, proveedores, recepciones de bodega y facturas comerciales.',
+        desc: 'Vinculación directa entre adquisiciones, proveedores y recepción conforme de bodega.',
       },
       {
-        title: 'Acceso Cloud Seguro',
-        desc: 'Plataforma en la nube con perfiles diferenciados para funcionarios, jefaturas, adquisiciones y bodegueros.',
+        title: 'Plataforma Cloud Segura',
+        desc: 'Acceso centralizado desde cualquier navegador con perfiles y permisos diferenciados.',
       },
     ],
     screens: [
@@ -228,7 +287,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/tba-1.jpg',
         badge: 'Métricas de Existencias',
         click: [0.06, 0.25],
-        actionText: 'Revisando alertas de stock crítico en bodega...',
+        actionText: 'Revisando alertas de stock crítico en almacén...',
       },
       {
         id: 'bodega',
@@ -264,27 +323,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'cajaya',
     name: 'CajaYA — POS Offline + Boleta SII',
+    shortName: 'CajaYA POS',
     category: 'Retail & Comercio de Alta Demanda',
     badge: '100% Offline + DTE Electrónico SII',
-    tagline: 'Punto de venta ultra veloz que nunca se detiene, incluso sin conexión a internet',
-    description:
-      'Construido para locales comerciales y puntos de cobro donde detener la venta no es una opción. Si se corta la red o falla el proveedor de internet, CajaYA sigue operando con total normalidad, cobrando e imprimiendo comprobantes, y sincroniza automáticamente las boletas electrónicas con el SII al reanudarse la señal.',
+    tagline: 'Punto de venta ultra veloz que nunca se detiene, incluso ante caídas totales de internet',
+    shortDescription:
+      'Diseñado para locales y cajas rápidas donde parar no es una opción. Cobra e imprime con normalidad sin internet y sincroniza con el SII al volver la conexión.',
+    fullDescription:
+      'Construido para comercios y puntos de cobro intensivo donde la continuidad operacional es crítica. Si se corta la red o falla el proveedor de internet, CajaYA sigue operando con total normalidad, cobrando, imprimiendo comprobantes y gestionando turnos. Al reanudarse la señal, sincroniza automáticamente las boletas electrónicas con el SII en segundo plano.',
+    architectureDetails: {
+      title: 'Motor de Persistencia Local y Sincronización SII',
+      description:
+        'Combina almacenamiento local cifrado en la estación de cobro con sincronización resiliente bidireccional.',
+      points: [
+        'Operación continua sin internet: cobro, cálculo de vuelto, impresión de ticket y control de caja.',
+        'Integración nativa con el SII para timbraje masivo y emisión de boletas y facturas electrónicas.',
+        'Arqueo de turno ciego con cuadratura automática de efectivo, tarjetas y reporte Z de cierre.',
+        'Catálogo táctil y soporte para lectores de código de barras para transacciones en menos de 3 segundos.',
+      ],
+    },
     highlights: [
       {
         title: 'Operación 100% Offline Garantizada',
-        desc: 'Sigue vendiendo y emitiendo comprobantes sin interrupción ante caídas de enlace o cortes de luz.',
+        desc: 'Sigue vendiendo y cobrando sin interrupción ante caídas de enlace o fallas de internet.',
       },
       {
         title: 'Boleta y Factura Electrónica SII',
-        desc: 'Timbraje y emisión inmediata de documentos tributarios con sincronización automática en segundo plano.',
+        desc: 'Timbraje y emisión inmediata con sincronización automática en segundo plano.',
       },
       {
         title: 'Arqueo Ciego y Reporte Z',
-        desc: 'Cuadratura de turnos transparente, control estricto de efectivo, tarjetas y reporte Z al instante.',
+        desc: 'Cuadratura de turnos transparente con control estricto de mermas y caja chica.',
       },
       {
-        title: 'Búsqueda Táctil y Código de Barras',
-        desc: 'Interfaz optimizada para velocidad de atención en cajas con alta concurrencia de público.',
+        title: 'Velocidad de Cobro Extrema',
+        desc: 'Interfaz optimizada para atención veloz en locales con alta concurrencia de clientes.',
       },
     ],
     screens: [
@@ -349,27 +422,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'paginago',
     name: 'PaginaGo — Catálogo & Ventas WhatsApp',
+    shortName: 'PaginaGo',
     category: 'Comercio Digital Directo',
     badge: 'A la Venta en paginago.com',
-    tagline: 'Tu tienda online en un link para recibir pedidos listos y calculados en tu WhatsApp',
-    description:
-      'La forma más rápida y económica de vender por internet sin comisiones por transacción ni configuraciones engorrosas. Crea tu catálogo con fotos, precios y variantes, comparte tu link exclusivo (paginago.com/tutienda) y recibe los pedidos organizados con lista, dirección y total en tu WhatsApp.',
+    tagline: 'Tu catálogo online en un enlace para recibir pedidos estructurados y calculados en WhatsApp',
+    shortDescription:
+      'Vende por internet sin comisiones por transacción. Catálogo autogestionable desde el celular que envía el pedido con lista, total y dirección al WhatsApp del negocio.',
+    fullDescription:
+      'La vía más directa y rentable para digitalizar ventas comerciales sin pagar comisiones por transacción ni depender de plataformas lentas. Permite crear catálogos visuales con precios, variantes y categorías, compartir un enlace exclusivo (paginago.com/tutienda) y recibir pedidos completamente estructurados directamente en el WhatsApp del negocio.',
+    architectureDetails: {
+      title: 'Plataforma Serverless y Enrutamiento a WhatsApp',
+      description:
+        'Carga ultrarrápida en redes móviles 4G/5G con integración nativa a la API de WhatsApp sin intermediarios de pago forzosos.',
+      points: [
+        '0% comisiones por venta: el 100% de la recaudación ingresa directo a la cuenta bancaria del negocio.',
+        'Carrito de compras móvil que genera un mensaje pre-formateado con detalle de productos, total y datos de despacho.',
+        'Panel autogestionable desde el navegador móvil para pausar stock, modificar precios y subir fotos en segundos.',
+        'Plataforma activa y comercializada con soporte técnico continuo en paginago.com.',
+      ],
+    },
     highlights: [
       {
         title: '0% Comisiones por Venta',
-        desc: 'El 100% de la recaudación va directo a tu cuenta bancaria sin retenciones ni comisiones porcentuales.',
+        desc: 'Recaudación 100% íntegra para tu negocio sin comisiones porcentuales por transacción.',
       },
       {
-        title: 'Pedido Estructurado a WhatsApp',
-        desc: 'Carrito de compras integrado que envía la lista de productos, datos de entrega y total calculado en un mensaje.',
+        title: 'Pedido Calculado a WhatsApp',
+        desc: 'El cliente arma su carrito y te envía la orden lista con dirección, teléfono y total.',
       },
       {
         title: 'Panel Móvil Autogestionable',
-        desc: 'Carga productos, actualiza precios y pausa stock en segundos directamente desde tu teléfono.',
+        desc: 'Controla existencias, precios y promociones directamente desde tu teléfono celular.',
       },
       {
         title: 'Enlace Único de Marca',
-        desc: 'Tu tienda con link exclusivo lista para colocar en el perfil de Instagram, TikTok o catálogos impresos.',
+        desc: 'Tu tienda con link exclusivo lista para bio de Instagram, TikTok o volantes impresos.',
       },
     ],
     screens: [
@@ -398,7 +485,7 @@ const PRODUCTS: ProductShowcase[] = [
         src: '/shots/paginago-3.jpg',
         badge: 'Casos Reales',
         click: [0.51, 0.035],
-        actionText: 'Viendo comercios vendiendo en vivo sin intermediarios...',
+        actionText: 'Viendo comercios vendiendo en vivo sin comisiones...',
       },
       {
         id: 'planes',
@@ -416,27 +503,41 @@ const PRODUCTS: ProductShowcase[] = [
   {
     id: 'auto',
     name: 'Automatizaciones & Bots RPA a Medida',
+    shortName: 'Automatizaciones RPA',
     category: 'Integración de Sistemas & Eficiencia Operativa',
     badge: 'Desarrollo Especializado tuEndpoint',
-    tagline: 'Conectamos sistemas desconectados y eliminamos tareas manuales repetitivas',
-    description:
-      'Desarrollamos robots de software (RPA) y conectores API dedicados que transfieren datos automáticamente entre ERPs, sistemas tributarios, plataformas web institucionales y planillas. Reduce horas de digitación manual, elimina errores humanos y acelera tus procesos operativos.',
+    tagline: 'Conectamos sistemas desconectados y eliminamos tareas manuales repetitivas mediante software robot',
+    shortDescription:
+      'Robots de software (RPA) y conectores API dedicados que transfieren datos automáticamente entre ERPs, sistemas tributarios y portales institucionales.',
+    fullDescription:
+      'Soluciones a medida para empresas e instituciones que gastan cientos de horas digitando datos entre sistemas desconectados. Diseñamos bots de automatización robótica de procesos (RPA), scripts de conciliación masiva y microservicios API que sincronizan compras, facturación, kardex y planillas sin intervención humana.',
+    architectureDetails: {
+      title: 'Motor de Ejecución y Monitoreo de Procesos',
+      description:
+        'Robots ejecutados en entornos aislados con control de concurrencia, reintentos automáticos y registro de auditoría.',
+      points: [
+        'Extracción, validación y digitación automática en portales web públicos o sistemas ERP heredados.',
+        'Conexión segura mediante APIs REST, webhooks e integraciones directas a bases de datos.',
+        'Panel de control con registro de logs minuto a minuto y alertas instantáneas a Telegram/WhatsApp ante fallos.',
+        'Ahorro comprobado en horas-hombre con retorno de inversión visible desde el primer mes.',
+      ],
+    },
     highlights: [
       {
         title: 'Robots de Software a Medida',
-        desc: 'Extracción, validación y carga automática de facturas, órdenes de compra y registros en portales web.',
+        desc: 'Extracción y carga automática de facturas, órdenes de compra y planillas sin errores humanos.',
       },
       {
-        title: 'Integración de APIs y Sistemas Legacy',
-        desc: 'Conexión segura entre bases de datos heredadas, plataformas cloud y servidores institucionales.',
+        title: 'Conectores API & Sistemas Legacy',
+        desc: 'Integración segura entre bases de datos heredadas y plataformas cloud modernas.',
       },
       {
-        title: 'Monitor de Ejecuciones en Tiempo Real',
-        desc: 'Panel de control con registro de tareas, trazabilidad de logs y alertas automáticas ante fallos.',
+        title: 'Monitor de Ejecución en Vivo',
+        desc: 'Control de procesos con alertas en tiempo real ante discrepancias de información.',
       },
       {
-        title: 'Retorno de Inversión Inmediato',
-        desc: 'Ahorro directo y cuantificable en horas-hombre desde las primeras semanas de implementación.',
+        title: 'Ahorro Inmediato de Horas-Hombre',
+        desc: 'Retorno de inversión medible desde las primeras semanas de automatización.',
       },
     ],
     screens: [
@@ -451,6 +552,412 @@ const PRODUCTS: ProductShowcase[] = [
     ctaText: 'Consultar Automatización',
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Fondo Tecnológico Interactivo: Grid Cybernetico & Nodos de Datos   */
+/* ------------------------------------------------------------------ */
+
+function TechCanvasBackground() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || 1200);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 600);
+
+    const onResize = () => {
+      if (!canvas || !canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    // Nodos representando endpoints conectados
+    const nodes = Array.from({ length: 32 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 2 + 1.2,
+      pulse: Math.random() * Math.PI,
+    }));
+
+    let mouseX = width / 2;
+    let mouseY = height / 3;
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    };
+    window.addEventListener('mousemove', onMouseMove);
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Resplandor sutil siguiendo cursor
+      const radial = ctx.createRadialGradient(mouseX, mouseY, 10, mouseX, mouseY, 380);
+      radial.addColorStop(0, 'rgba(2, 132, 199, 0.08)');
+      radial.addColorStop(0.5, 'rgba(2, 132, 199, 0.025)');
+      radial.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Malla / Grid fino de ingeniería
+      const gridSize = 48;
+      ctx.strokeStyle = 'rgba(226, 232, 240, 0.55)';
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+      }
+      ctx.stroke();
+
+      // 3. Conexiones entre endpoints
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        a.x += a.vx;
+        a.y += a.vy;
+        a.pulse += 0.03;
+
+        if (a.x < 0 || a.x > width) a.vx *= -1;
+        if (a.y < 0 || a.y > height) a.vy *= -1;
+
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 130) {
+            const alpha = (1 - dist / 130) * 0.22;
+            ctx.strokeStyle = `rgba(2, 132, 199, ${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+
+        // Dibujar nodo endpoint
+        const currentR = a.radius + Math.sin(a.pulse) * 0.6;
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, Math.max(1, currentR), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-80"
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Modal de Presentación Completa del Producto (Deep Dive)            */
+/* ------------------------------------------------------------------ */
+
+function AppPresentationModal({
+  product,
+  onClose,
+  waUrl,
+}: {
+  product: ProductShowcase;
+  onClose: () => void;
+  waUrl: (msg: string) => string;
+}) {
+  const [activeTab, setActiveTab] = useState<'screens' | 'architecture' | 'specs'>('screens');
+  const [selectedScreenId, setSelectedScreenId] = useState(product.screens[0].id);
+
+  // Cerrar con Escape
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const currentScreen = product.screens.find((s) => s.id === selectedScreenId) || product.screens[0];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div
+        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-slate-900"
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Cabecera del Modal */}
+        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" />
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                {product.name}
+                <span className="hidden sm:inline-block text-[11px] font-mono font-normal text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-800/80">
+                  {product.badge}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 hidden sm:block">{product.tagline}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            aria-label="Cerrar ventana"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Barra de Pestañas de la Presentación */}
+        <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab('screens')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              activeTab === 'screens'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-200/60'
+            }`}
+          >
+            <Monitor className="h-3.5 w-3.5" />
+            <span>Pantallas Reales del Sistema</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('architecture')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              activeTab === 'architecture'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-200/60'
+            }`}
+          >
+            <Server className="h-3.5 w-3.5" />
+            <span>Arquitectura & Agente</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('specs')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              activeTab === 'specs'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-200/60'
+            }`}
+          >
+            <CheckCircle className="h-3.5 w-3.5" />
+            <span>Especificaciones de Despliegue</span>
+          </button>
+        </div>
+
+        {/* Contenido Dinámico del Modal */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+          {/* TAB 1: PANTALLAS Y DEMO */}
+          {activeTab === 'screens' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Selecciona una vista para inspeccionar en alta resolución:
+                </span>
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                  {product.screens.map((scr) => (
+                    <button
+                      key={scr.id}
+                      type="button"
+                      onClick={() => setSelectedScreenId(scr.id)}
+                      className={`px-3 py-1 rounded-md text-xs font-bold transition ${
+                        currentScreen.id === scr.id
+                          ? 'bg-[#0284c7] text-white shadow-2xs'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {scr.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Visor de Pantalla */}
+              <div className="rounded-xl border border-slate-200 bg-slate-100 p-2 sm:p-3 overflow-hidden shadow-inner">
+                {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
+                {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
+                {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
+                {currentScreen.type === 'img' && currentScreen.src && (
+                  <div className="w-full aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={currentScreen.src}
+                      alt={`${product.name} — ${currentScreen.label}`}
+                      className="w-full h-full object-cover object-top block"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-slate-900 block">{currentScreen.label}</span>
+                  <span className="text-slate-500">{currentScreen.actionText || 'Captura verificada en producción.'}</span>
+                </div>
+                <span className="font-mono text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                  {currentScreen.badge || 'PRODUCCIÓN ACTIVA'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: ARQUITECTURA & AGENTES */}
+          {activeTab === 'architecture' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-3">
+                <div className="flex items-center gap-2 text-sky-400 text-xs font-mono font-bold uppercase tracking-wider">
+                  <Cpu className="h-4 w-4" />
+                  <span>{product.architectureDetails.title}</span>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {product.architectureDetails.description}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Componentes Clave de la Arquitectura
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {product.architectureDetails.points.map((pt, i) => (
+                    <div key={i} className="p-3.5 rounded-lg border border-slate-200 bg-white text-xs space-y-1">
+                      <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#0284c7]" />
+                        Módulo 0{i + 1}
+                      </span>
+                      <p className="text-slate-600 leading-relaxed">{pt}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-sky-50 border border-sky-100 text-xs text-sky-950 space-y-1">
+                <strong className="block font-bold">Despliegue Asistido y Soporte</strong>
+                <p className="text-sky-800 leading-relaxed">
+                  Todos nuestros sistemas son instalados, configurados y capacitados directamente por el equipo de ingeniería
+                  de <strong>Soluciones tuEndpoint SpA</strong>, garantizando compatibilidad con redes hospitalarias y corporativas.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: ESPECIFICACIONES TÉCNICAS */}
+          {activeTab === 'specs' && (
+            <div className="space-y-6 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="font-bold text-slate-900 block text-sm">Modalidad de Despliegue</span>
+                  <p className="text-slate-600 leading-relaxed">
+                    Disponible en modalidad <strong>Cloud Dedicado</strong> (servidor en nube chilena de baja latencia) o{' '}
+                    <strong>On-Premise</strong> (en servidores locales de la institución tras firewalls y redes privadas).
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="font-bold text-slate-900 block text-sm">Seguridad & Datos</span>
+                  <p className="text-slate-600 leading-relaxed">
+                    Cifrado en tránsito TLS 1.3, bases de datos PostgreSQL con replicación continua, backups automatizados y
+                    cumplimiento de estándares de auditoría pública.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="font-bold text-slate-900 block text-sm">Compatibilidad de Estaciones</span>
+                  <p className="text-slate-600 leading-relaxed">
+                    Acceso desde cualquier navegador moderno (Chrome, Edge, Firefox, Safari). Agentes de telemetría disponibles
+                    para Windows 10/11 y distribuciones Linux institucionales.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <span className="font-bold text-slate-900 block text-sm">Soporte y Garantía</span>
+                  <p className="text-slate-600 leading-relaxed">
+                    Mesa de ayuda directa de lunes a viernes, soporte técnico con derivación prioritaria y mantenimiento correctivo
+                    y evolutivo continuo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Pie de Acciones del Modal */}
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="text-xs text-slate-500">
+            ¿Deseas una presentación guiada por videollamada?
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100 transition"
+            >
+              Cerrar
+            </button>
+
+            {product.externalUrl ? (
+              <a
+                href={product.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0284c7] px-5 py-2 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+              >
+                <span>{product.ctaText}</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ) : (
+              <a
+                href={waUrl(`Hola tuEndpoint, me gustaría agendar una demostración asistida de ${product.name}.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0284c7] px-5 py-2 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>Pedir Demo con un Ingeniero</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /* Simulador TV Sala de Espera Hospitalario (Canvas 2D Ultra Nítido)  */
@@ -617,8 +1124,8 @@ function FilasTVSimulator() {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18); // A5
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18);
       gain.gain.setValueAtTime(0.18, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
       osc.connect(gain);
@@ -822,10 +1329,12 @@ function AnimatedAppWindow({
   product,
   activeScreenId,
   onSelectScreen,
+  onOpenModal,
 }: {
   product: ProductShowcase;
   activeScreenId: string;
   onSelectScreen: (screenId: string) => void;
+  onOpenModal: () => void;
 }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
@@ -847,17 +1356,14 @@ function AnimatedAppWindow({
     let timeoutClick: NodeJS.Timeout;
     let timeoutNext: NodeJS.Timeout;
 
-    // Destino del cursor en esta pantalla
     const target = currentScreen.click || [0.5, 0.45];
     const targetX = target[0] * 100;
     const targetY = target[1] * 100;
 
-    // Limpiar estados iniciales
     setIsClicking(false);
     setShowRipple(false);
     setActionTooltip(null);
 
-    // 1. Mover cursor suavemente hacia el botón/acción y mostrar tooltip de lo que está haciendo
     timeoutMove = setTimeout(() => {
       setCursorPos({ x: targetX, y: targetY });
       if (currentScreen.actionText) {
@@ -865,7 +1371,6 @@ function AnimatedAppWindow({
       }
     }, 600);
 
-    // 2. Simular clic con onda expansiva (ripple)
     timeoutClick = setTimeout(() => {
       setIsClicking(true);
       setShowRipple(true);
@@ -873,7 +1378,6 @@ function AnimatedAppWindow({
       setTimeout(() => setIsClicking(false), 260);
     }, 2100);
 
-    // 3. Pasar a la siguiente pantalla del flujo del sistema
     timeoutNext = setTimeout(() => {
       const nextIndex = (currentScreenIndex + 1) % screens.length;
       onSelectScreen(screens[nextIndex].id);
@@ -887,11 +1391,10 @@ function AnimatedAppWindow({
   }, [isPlaying, currentScreenIndex, currentScreen, screens, onSelectScreen]);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden transition-all">
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden transition-all group">
       {/* Barra de Título Estilo macOS */}
       <div className="px-4 py-3 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
-          {/* Botones de ventana */}
           <div className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded-full bg-rose-400" />
             <span className="h-3 w-3 rounded-full bg-amber-400" />
@@ -908,10 +1411,7 @@ function AnimatedAppWindow({
             <button
               key={scr.id}
               type="button"
-              onClick={() => {
-                onSelectScreen(scr.id);
-                // Pausar brevemente o cambiar inmediatamente
-              }}
+              onClick={() => onSelectScreen(scr.id)}
               className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition shrink-0 ${
                 currentScreen.id === scr.id
                   ? 'bg-slate-900 text-white shadow-2xs'
@@ -923,36 +1423,33 @@ function AnimatedAppWindow({
           ))}
         </div>
 
-        {/* Control de Reproducción / Pausa de la simulación */}
-        <button
-          type="button"
-          onClick={() => setIsPlaying(!isPlaying)}
-          title={isPlaying ? 'Pausar simulación automática' : 'Reanudar simulación de uso'}
-          className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-900 px-2 py-0.5 rounded hover:bg-slate-200/50 transition"
-        >
-          {isPlaying ? (
-            <>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="hidden md:inline">En uso</span>
-              <Pause className="h-3 w-3" />
-            </>
-          ) : (
-            <>
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-              <span className="hidden md:inline">Pausado</span>
-              <Play className="h-3 w-3" />
-            </>
-          )}
-        </button>
+        {/* Botón de Pantalla Completa / Modal y Play/Pause */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenModal}
+            title="Abrir presentación detallada"
+            className="flex items-center gap-1 text-[11px] font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-md border border-sky-200 transition"
+          >
+            <Maximize2 className="h-3 w-3" />
+            <span className="hidden sm:inline">Ver Detalles</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPlaying(!isPlaying)}
+            title={isPlaying ? 'Pausar simulación' : 'Reanudar simulación'}
+            className="p-1 text-slate-500 hover:text-slate-900 rounded hover:bg-slate-200 transition"
+          >
+            {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+          </button>
+        </div>
       </div>
 
       {/* Área Útil de la Pantalla */}
       <div className="relative bg-slate-100 p-2 sm:p-4 overflow-hidden select-none">
-        {/* Render del tipo de pantalla */}
         {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
-
         {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
-
         {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
 
         {currentScreen.type === 'img' && currentScreen.src && (
@@ -977,12 +1474,10 @@ function AnimatedAppWindow({
               transform: `translate(-3px, -3px) scale(${isClicking ? 0.86 : 1})`,
             }}
           >
-            {/* Onda expansiva de clic (Ripple) */}
             {showRipple && (
               <span className="absolute -left-3 -top-3 h-10 w-10 rounded-full border-2 border-sky-400 bg-sky-400/30 animate-ping pointer-events-none" />
             )}
 
-            {/* Puntero de ratón */}
             <svg
               className="w-6 h-6 filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)] text-slate-900"
               viewBox="0 0 24 24"
@@ -993,7 +1488,6 @@ function AnimatedAppWindow({
               <path d="M3 3l7 18 3-7 7-3L3 3z" />
             </svg>
 
-            {/* Tooltip de la acción que se está ejecutando */}
             {actionTooltip && (
               <div className="absolute left-6 top-1 whitespace-nowrap rounded-md bg-slate-900/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-white shadow-xl border border-slate-700/80 flex items-center gap-1.5 animate-in fade-in duration-200">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -1029,6 +1523,8 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
     return init;
   });
 
+  const [modalProduct, setModalProduct] = useState<ProductShowcase | null>(null);
+
   const setProductScreen = (productId: string, screenId: string) => {
     setActiveScreens((prev) => ({ ...prev, [productId]: screenId }));
   };
@@ -1038,6 +1534,15 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
 
   return (
     <div className="immersive-root min-h-screen bg-white text-[#0F172A] selection:bg-[#0284c7] selection:text-white">
+      {/* Modal de Presentación Interactiva si está activo */}
+      {modalProduct && (
+        <AppPresentationModal
+          product={modalProduct}
+          onClose={() => setModalProduct(null)}
+          waUrl={waUrl}
+        />
+      )}
+
       {/* =================================================================== */}
       {/* 1. NAVEGACIÓN SUPERIOR: MINIMALISTA Y ELEGANTE                      */}
       {/* =================================================================== */}
@@ -1088,19 +1593,37 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
       </header>
 
       {/* =================================================================== */}
-      {/* 2. HERO PRINCIPAL: LIMPIO, CONFIDENTE Y SIN CARDS TIPO IA           */}
+      {/* 2. HERO PRINCIPAL: FONDO TECNOLÓGICO ÉPICO + TYPEWRITER             */}
       {/* =================================================================== */}
-      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 border-b border-slate-100 bg-gradient-to-b from-[#F8FAFC] to-white">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6">
+      <section className="relative overflow-hidden pt-20 pb-24 sm:pt-28 sm:pb-32 border-b border-slate-100 bg-gradient-to-b from-[#F8FAFC] via-white to-white">
+        {/* Fondo interactivo de nodos y grid de ingeniería */}
+        <TechCanvasBackground />
+
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6">
           {/* Tag de Categoría */}
-          <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#0284c7]">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#0284c7]">
+            <span className="h-2 w-2 rounded-full bg-[#0284c7] animate-ping" />
             <span>SOFTWARE FACTORY & PLATAFORMAS EN PRODUCCIÓN</span>
           </div>
 
-          {/* Titular Principal */}
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#0F172A] leading-[1.1]">
+          {/* Titular Principal con Typewriter dinámico */}
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#0F172A] leading-[1.12]">
             Software enterprise que resuelve{' '}
-            <span className="text-[#0284c7]">operaciones reales.</span>
+            <span className="text-[#0284c7] inline-block">
+              <Typewriter
+                words={[
+                  'operaciones reales.',
+                  'urgencias hospitalarias.',
+                  'inventarios y bodegas.',
+                  'ventas sin internet.',
+                  'procesos manuales.',
+                ]}
+                speed={75}
+                delayBetweenWords={2200}
+                cursorChar="|"
+                cursorClassName="text-[#0284c7]"
+              />
+            </span>
           </h1>
 
           {/* Subtítulo Claro y Directo */}
@@ -1132,7 +1655,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
           </div>
 
           {/* Frase sutil de respaldo */}
-          <p className="pt-6 text-xs text-slate-400 font-medium">
+          <p className="pt-4 text-xs text-slate-400 font-medium">
             Plataformas activas en hospitales de red pública, almacenes logísticos y comercio digital en todo Chile.
           </p>
         </div>
@@ -1158,16 +1681,14 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 }`}
               >
                 {/* ---------------------------------------------------- */}
-                {/* COLUMNA DE TEXTOS: EDITORIAL, ELEGANTE Y DIRECTA     */}
+                {/* COLUMNA DE TEXTOS: EDITORIAL, CONCISA Y CON DOS CTAs */}
                 {/* ---------------------------------------------------- */}
-                <div className={`space-y-6 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
+                <div className={`space-y-5 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
                   {/* Número de sección y categoría */}
                   <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
                     <span className="font-bold text-[#0284c7]">0{index + 1}</span>
                     <span>/</span>
                     <span className="text-slate-600 font-semibold">{prod.category}</span>
-                    <span>·</span>
-                    <span className="text-emerald-700 font-medium">{prod.badge}</span>
                   </div>
 
                   {/* Nombre y Título del Producto */}
@@ -1175,47 +1696,58 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                     <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
                       {prod.name}
                     </h2>
-                    <p className="text-base sm:text-lg font-medium text-slate-700 leading-snug">
+                    <p className="text-sm sm:text-base font-semibold text-slate-700 leading-snug">
                       {prod.tagline}
                     </p>
                   </div>
 
-                  {/* Descripción Detallada */}
+                  {/* Descripción Breve y Directa */}
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    {prod.description}
+                    {prod.shortDescription}
                   </p>
 
-                  {/* Especificaciones Técnicas Clave (Grid Editorial Limpio) */}
-                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100">
-                    {prod.highlights.map((h, hIdx) => (
-                      <div key={hIdx} className="space-y-1">
-                        <span className="text-xs font-bold text-slate-900 block">{h.title}</span>
-                        <span className="text-xs text-slate-500 leading-relaxed block">{h.desc}</span>
-                      </div>
+                  {/* Pastillas de Capacidades Clave */}
+                  <div className="pt-1 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-700">
+                    {prod.highlights.slice(0, 3).map((h, hIdx) => (
+                      <span
+                        key={hIdx}
+                        className="rounded-lg bg-slate-100 px-3 py-1.5 border border-slate-200/80 text-slate-800"
+                      >
+                        {h.title}
+                      </span>
                     ))}
                   </div>
 
-                  {/* Botón de Acción Específico */}
-                  <div className="pt-3 flex items-center gap-3">
+                  {/* DOS BOTONES: VER PRESENTACIÓN (MODAL) Y PEDIR DEMO */}
+                  <div className="pt-3 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setModalProduct(prod)}
+                      className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5 text-sky-400" />
+                      <span>Ver Presentación Completa</span>
+                    </button>
+
                     {prod.externalUrl ? (
                       <a
                         href={prod.externalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
                       >
                         <span>{prod.ctaText}</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
                       </a>
                     ) : (
                       <a
-                        href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo de ${prod.name}.`)}
+                        href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo asistida de ${prod.name}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
                       >
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        <span>{prod.ctaText}</span>
+                        <MessageSquare className="h-3.5 w-3.5 text-[#0284c7]" />
+                        <span>Pedir Demo</span>
                       </a>
                     )}
                   </div>
@@ -1229,6 +1761,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                     product={prod}
                     activeScreenId={currentScreenId}
                     onSelectScreen={(sId) => setProductScreen(prod.id, sId)}
+                    onOpenModal={() => setModalProduct(prod)}
                   />
                 </div>
               </div>
@@ -1388,7 +1921,6 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 <li><a href="https://logisticatba.cloud" target="_blank" rel="noreferrer" className="hover:text-slate-900">logisticatba.cloud</a></li>
                 <li><a href="https://cajaya.cl" target="_blank" rel="noreferrer" className="hover:text-slate-900">cajaya.cl</a></li>
                 <li><a href="https://paginago.com" target="_blank" rel="noreferrer" className="hover:text-slate-900">paginago.com</a></li>
-                <li><Link href="/es/cotizador" className="hover:text-slate-900 text-slate-500">Cotizador Enterprise (PDF)</Link></li>
               </ul>
             </div>
 

@@ -56,13 +56,22 @@ export function InitialLoadingIntro({ onComplete, forceShow = false }: InitialLo
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35, ease: 'easeInOut' }}
           onClick={handleDismiss}
-          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-[#f8fafc]/90 backdrop-blur-sm"
+          className="fixed inset-0 z-[70] flex cursor-pointer select-none items-center justify-center bg-[#05070D]/95 backdrop-blur-md"
           role="img"
           aria-label="tuEndpoint"
         >
+          {/* Malla sutil de fondo de ingeniería */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-20"
+            style={{
+              backgroundImage: 'radial-gradient(#0284c7 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
+              backgroundSize: '32px 32px, 64px 64px, 64px 64px',
+            }}
+          />
+
           <div
             aria-hidden
-            className="relative flex items-baseline text-5xl font-semibold leading-none tracking-tight text-[#0f172a] sm:text-7xl md:text-8xl"
+            className="relative z-10 flex items-baseline text-5xl font-semibold leading-none tracking-tight text-white sm:text-7xl md:text-8xl"
           >
             {/* "tu" entra desde la izquierda */}
             <motion.span

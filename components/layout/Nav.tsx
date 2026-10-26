@@ -23,7 +23,6 @@ export function Nav() {
 
   const navItems = [
     { key: 'portal', href: '/#productos' },
-    { key: 'cotizador', href: '/cotizador' },
     { key: 'solutions', href: '/soluciones' },
     { key: 'sectors', href: '/#sectores' },
     { key: 'process', href: '/proceso' },

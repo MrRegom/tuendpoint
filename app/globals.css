@@ -258,13 +258,13 @@
   }
 }
 
-/* ===== Home inmersiva y Cotizador: ocultan el header/footer clásicos y el botón flotante ===== */
-body:has(.immersive-root) header,
-body:has(.immersive-root) footer,
+/* ===== Home y Cotizador: ocultan el header/footer clásicos del layout y el botón flotante genérico ===== */
+body:has(.immersive-root) header:not(.modern-site-header),
+body:has(.immersive-root) footer:not(.modern-site-footer),
 body:has(.immersive-root) .skip-link,
 body:has(.immersive-root) a[aria-label="Contactar por WhatsApp"],
-body:has(.cotizador-root) header,
-body:has(.cotizador-root) footer,
+body:has(.cotizador-root) header:not(.modern-site-header),
+body:has(.cotizador-root) footer:not(.modern-site-footer),
 body:has(.cotizador-root) .skip-link,
 body:has(.cotizador-root) a[aria-label="Contactar por WhatsApp"] {
   display: none !important;

@@ -2,20 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import {
-  ArrowRight,
-  ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
-  Lock,
-  Cpu,
-  Send,
-  Sparkles,
-  PhoneCall,
-  Mail,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { ArrowRight, ExternalLink, Send, CheckCircle2 } from 'lucide-react';
 import Autoplay from 'embla-carousel-autoplay';
 import {
   Carousel,
@@ -27,7 +14,7 @@ import { Typewriter } from '@/components/ui/typewriter';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Modelos y Datos de Productos para el Showcase Stage                 */
+/* Productos en Gran Formato (Showcase)                                */
 /* ------------------------------------------------------------------ */
 
 interface ShowcaseProduct {
@@ -51,24 +38,24 @@ const PRODUCTS: ShowcaseProduct[] = [
     category: 'Salud Pública',
     badge: 'Ley 20.584 · En Producción',
     description:
-      'Llamado audiovisual por voz chilena en pantallas y tótems táctiles de autoatención con RUT para hospitales, clínicas y farmacias ambulatorias.',
+      'Llamado audiovisual por voz sintetizada en pantallas y tótems táctiles de autoatención con cédula de identidad para hospitales y farmacias ambulatorias.',
     image: '/shots/filas-1.jpg',
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20del%20Gestor%20de%20Filas%20Hospitalario.',
-    ctaText: 'Pedir Demostración en Vivo',
+    ctaText: 'Pedir Demo en Vivo',
   },
   {
     id: 'ticpanel',
     name: 'TICPanel · Mesa de Ayuda TI',
     shortName: 'TICPanel',
-    category: 'Infraestructura & Endpoints',
+    category: 'Infraestructura',
     badge: 'Agentes Silenciosos en Equipos',
     description:
       'Agentes ligeros instalados en computadores envían telemetría y métricas en vivo. Tickets Kanban, inventario de hardware y soporte remoto unificado.',
     image: '/shots/ticpanel-1.jpg',
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20de%20TICPanel%20y%20sus%20agentes%20en%20equipos.',
-    ctaText: 'Pedir Demostración en Vivo',
+    ctaText: 'Pedir Demo en Vivo',
   },
   {
     id: 'tba',
@@ -120,18 +107,17 @@ const PRODUCTS: ShowcaseProduct[] = [
     image: '/shots/ticpanel-2.jpg',
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20quisiera%20cotizar%20un%20desarrollo%20a%20medida%20o%20integraci%C3%B3n%20cr%C3%ADtica.',
-    ctaText: 'Consultar Factibilidad Técnica',
+    ctaText: 'Consultar Factibilidad',
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/* Integraciones Oficiales de Chile                                    */
+/* Integraciones Oficiales de Chile (Estilo Tipográfico Editorial)    */
 /* ------------------------------------------------------------------ */
 
 interface IntegrationItem {
   name: string;
   entity: string;
-  badge: string;
   description: string;
   tech: string;
 }
@@ -140,7 +126,6 @@ const INTEGRATIONS: IntegrationItem[] = [
   {
     name: 'FirmaGob',
     entity: 'SEGPRES · Gobierno de Chile',
-    badge: 'Firma Electrónica Avanzada',
     description:
       'Firma digital ministerial de documentos PDF con estampado cronológico oficial y verificación en línea de autenticidad.',
     tech: 'REST API · PKCS#7 · Token FEA',
@@ -148,15 +133,13 @@ const INTEGRATIONS: IntegrationItem[] = [
   {
     name: 'ClaveÚnica',
     entity: 'Gobierno Digital',
-    badge: 'Identidad Ciudadana Oficial',
     description:
-      'Autenticación ciudadana segura para portales públicos y trámites del Estado sin necesidad de almacenar credenciales privadas.',
+      'Autenticación ciudadana oficial para portales públicos y trámites del Estado sin necesidad de almacenar credenciales privadas.',
     tech: 'OpenID Connect · OAuth 2.0',
   },
   {
     name: 'SII Facturación Electrónica',
     entity: 'Servicio de Impuestos Internos',
-    badge: 'DTE Boleta & Factura XML',
     description:
       'Emisión, timbraje con CAF, firma digital XML y envío automático de boletas, facturas y guías de despacho ante el SII.',
     tech: 'SOAP / REST · XML DSig · CAF',
@@ -164,7 +147,6 @@ const INTEGRATIONS: IntegrationItem[] = [
   {
     name: 'WhatsApp Business API',
     entity: 'Meta Cloud API Oficial',
-    badge: 'Mensajería Transaccional',
     description:
       'Notificaciones masivas certificadas, llamados a pacientes en filas, confirmación de pedidos y boletas enviadas al celular.',
     tech: 'Cloud API · Webhooks 24/7',
@@ -172,7 +154,6 @@ const INTEGRATIONS: IntegrationItem[] = [
   {
     name: 'Mercado Público',
     entity: 'Dirección ChileCompra',
-    badge: 'Licitaciones & Convenio Marco',
     description:
       'Arquitectura de software adaptada a las normas de contratación del Estado (Ley 19.886) para salud y organismos públicos.',
     tech: 'Ley 19.886 · RUT 78.411.033-8',
@@ -184,7 +165,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
   const [thumbApi, setThumbApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Formulario de Desarrollo a Medida
+  // Formulario a medida minimalista
   const [form, setForm] = useState({
     nombre: '',
     empresa: '',
@@ -240,227 +221,181 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#07090e] text-white selection:bg-emerald-500/30 selection:text-emerald-200">
-      {/* Luz ambiental superior minimalista */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[450px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(16,185,129,0.12),transparent_70%)]" />
-
+    <div className="relative min-h-screen bg-black text-white selection:bg-white selection:text-black">
       {/* ------------------------------------------------------------ */}
-      {/* 1. Header Minimalista & Headline con Typewriter              */}
+      {/* 1. Titular Minimalista Estilo iMac                           */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono tracking-wider text-emerald-400">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            SOLUCIONES TUENDPOINT · INGENIERÍA CHILENA
-          </div>
+      <section className="pt-20 pb-12 px-6 max-w-5xl mx-auto text-center space-y-4">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-none">
+          tuEndpoint<span className="text-[#0EA5E9]">.</span>
+        </h1>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl leading-tight">
-            Desarrollo de Software e Integraciones para{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400">
-              <Typewriter
-                words={[
-                  'Salud y Hospitales',
-                  'FirmaGob y ClaveÚnica',
-                  'Boletas y Facturación SII',
-                  'Bodegas y WMS Logístico',
-                  'Puntos de Venta Offline',
-                  'Agentes Endpoint 24/7',
-                ]}
-                speed={70}
-                delayBetweenWords={2000}
-                cursorChar="|"
-              />
-            </span>
-          </h1>
+        <p className="text-2xl sm:text-3xl md:text-4xl font-normal text-zinc-300 tracking-tight">
+          Software para{' '}
+          <span className="text-white font-medium">
+            <Typewriter
+              words={[
+                'Salud y Hospitales',
+                'FirmaGob y ClaveÚnica',
+                'Facturación SII y Boletas',
+                'Bodegas y WMS Logístico',
+                'Puntos de Venta Offline',
+                'Agentes en Equipos 24/7',
+              ]}
+              speed={70}
+              delayBetweenWords={2000}
+              cursorChar="|"
+            />
+          </span>
+        </p>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal leading-relaxed">
-            Plataformas de alta disponibilidad para el sector público y privado.
-            Consulte a continuación nuestras aplicaciones en producción real:
-          </p>
-        </div>
+        <p className="text-base sm:text-lg text-[#86868b] max-w-2xl mx-auto font-normal pt-2">
+          Plataformas de alta disponibilidad para el sector público y privado en Chile.
+          Vea nuestras aplicaciones en producción real a continuación:
+        </p>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 2. Hero Cinematic Showcase (Carousel a Pantalla Ancha)       */}
+      {/* 2. Escenario Widescreen (Carrusel Cinematográfico Minimalista) */}
       {/* ------------------------------------------------------------ */}
-      <section id="productos" className="relative px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-16">
-        <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_25px_80px_-15px_rgba(0,0,0,0.95)]">
-          {/* Main Stage Carousel */}
-          <div className="relative w-full">
-            <Carousel
-              className="w-full"
-              plugins={[
-                Autoplay({
-                  delay: 6000,
-                  stopOnInteraction: true,
-                }),
-              ]}
-              setApi={setMainApi}
-            >
-              <CarouselContent>
-                {PRODUCTS.map((prod, index) => (
-                  <CarouselItem key={prod.id}>
-                    <div className="relative h-[280px] sm:h-[400px] md:aspect-video md:h-auto w-full overflow-hidden bg-zinc-950">
-                      <Image
-                        alt={prod.name}
-                        className="object-cover object-top"
-                        fill
-                        priority={index === 0}
-                        src={prod.image}
-                        sizes="(max-width: 1280px) 100vw, 1280px"
-                      />
-                      {/* Degradado superior sutil */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-
-            {/* Flechas de navegación para desktop */}
-            <button
-              type="button"
-              onClick={() => mainApi?.scrollPrev()}
-              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/90 backdrop-blur-md border border-white/15 transition-all shadow-lg"
-              aria-label="Anterior"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={() => mainApi?.scrollNext()}
-              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/90 backdrop-blur-md border border-white/15 transition-all shadow-lg"
-              aria-label="Siguiente"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-
-            {/* Overlay Desktop (md y superior): Widescreen HUD Stage */}
-            <div className="hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 via-40% to-transparent pt-24 pb-5 px-6 transition-opacity duration-300">
-              <div className="flex items-end justify-between gap-5">
-                {/* Izquierda: Filmstrip de Thumbnails en Glass Deck */}
-                <div className="relative w-full max-w-sm bg-black/75 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-2xl">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center justify-between px-1">
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      Aplicaciones
-                    </span>
-                    <span className="text-emerald-400 font-semibold font-mono">
-                      0{selectedIndex + 1} / 0{PRODUCTS.length}
-                    </span>
+      <section id="productos" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
+        <div className="relative w-full overflow-hidden rounded-2xl bg-zinc-950 shadow-[0_40px_100px_rgba(0,0,0,0.8)] border border-white/5">
+          {/* Main Carousel */}
+          <Carousel
+            className="w-full"
+            plugins={[
+              Autoplay({
+                delay: 6000,
+                stopOnInteraction: true,
+              }),
+            ]}
+            setApi={setMainApi}
+          >
+            <CarouselContent>
+              {PRODUCTS.map((prod, index) => (
+                <CarouselItem key={prod.id}>
+                  <div className="relative h-[260px] sm:h-[340px] md:aspect-video md:h-auto w-full overflow-hidden bg-black">
+                    <Image
+                      alt={prod.name}
+                      className="object-cover object-top"
+                      fill
+                      priority={index === 0}
+                      src={prod.image}
+                      sizes="(max-width: 1280px) 100vw, 1280px"
+                    />
                   </div>
-                  <Carousel
-                    className="w-full"
-                    opts={{
-                      containScroll: 'keepSnaps',
-                      dragFree: true,
-                    }}
-                    setApi={setThumbApi}
-                  >
-                    <CarouselContent className="-ml-1.5 flex-row items-end">
-                      {PRODUCTS.map((prod, index) => (
-                        <CarouselItem
-                          className="basis-1/5 cursor-pointer pl-1.5"
-                          key={prod.id}
-                          onClick={() => onThumbClick(index)}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+
+          {/* Desktop Overlay (md y superior): Solid Black 35% Base for Razor-Sharp Readability */}
+          <div className="hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black from-35% via-black/90 via-65% to-transparent pt-44 pb-8 px-10 transition-opacity duration-300">
+            <div className="flex items-end justify-between gap-8">
+              {/* Izquierda: Filmstrip de Miniaturas */}
+              <div className="relative w-full max-w-md">
+                <div className="text-[11px] font-mono uppercase tracking-widest text-[#86868b] mb-3 flex items-center gap-2">
+                  <span>0{selectedIndex + 1} de 0{PRODUCTS.length}</span>
+                  <span className="text-zinc-700">·</span>
+                  <span className="text-white font-medium">{currentProduct.shortName}</span>
+                </div>
+                <Carousel
+                  className="w-full"
+                  opts={{
+                    containScroll: 'keepSnaps',
+                    dragFree: true,
+                  }}
+                  setApi={setThumbApi}
+                >
+                  <CarouselContent className="-ml-2 flex-row items-end">
+                    {PRODUCTS.map((prod, index) => (
+                      <CarouselItem
+                        className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
+                        key={prod.id}
+                        onClick={() => onThumbClick(index)}
+                      >
+                        <div
+                          className={cn(
+                            'relative overflow-hidden transition-all duration-300 rounded',
+                            index === selectedIndex
+                              ? 'h-18 opacity-100 ring-2 ring-white'
+                              : 'h-12 opacity-40 hover:opacity-80'
+                          )}
                         >
-                          <div
-                            className={cn(
-                              'relative overflow-hidden rounded-md transition-all duration-300 border',
-                              index === selectedIndex
-                                ? 'h-16 border-emerald-400 opacity-100 ring-2 ring-emerald-400/50 shadow-md shadow-emerald-500/20'
-                                : 'h-12 border-white/20 opacity-50 hover:opacity-80'
-                            )}
-                          >
-                            <Image
-                              alt={prod.shortName}
-                              className="object-cover object-top h-full w-full"
-                              fill
-                              src={prod.image}
-                              sizes="100px"
-                            />
-                            <div className="absolute inset-0 bg-black/35" />
-                            <span className="absolute bottom-1 left-1 right-1 text-[8px] font-mono text-white truncate drop-shadow">
-                              {prod.shortName}
-                            </span>
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                  </Carousel>
-                </div>
-
-                {/* Derecha: Información del Producto Seleccionado en Glass Card */}
-                <div className="flex max-w-md flex-col items-end gap-2 text-right bg-black/80 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 shadow-2xl">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      {currentProduct.badge}
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-400">
-                      {currentProduct.category}
-                    </span>
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                    {currentProduct.name}
-                  </h2>
-
-                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md">
-                    {currentProduct.description}
-                  </p>
-
-                  {/* Botón de Acción con Subrayado Animado Minimalista */}
-                  <div className="pt-1.5">
-                    {currentProduct.actionType === 'external' ? (
-                      <a
-                        href={currentProduct.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-sm text-white hover:text-emerald-400 transition-colors"
-                      >
-                        <span>{currentProduct.ctaText}</span>
-                        <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
-                        <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
-                      </a>
-                    ) : (
-                      <a
-                        href={currentProduct.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-sm text-white hover:text-emerald-400 transition-colors"
-                      >
-                        <span>{currentProduct.ctaText}</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                        <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
-                        <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
-                      </a>
-                    )}
-                  </div>
-                </div>
+                          <Image
+                            alt={prod.shortName}
+                            className="object-cover object-top h-full w-full"
+                            fill
+                            src={prod.image}
+                            sizes="120px"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
               </div>
 
-              {/* Watermark Gigante */}
-              <div className="pt-4 border-t border-white/10 mt-4 select-none pointer-events-none">
-                <h1 className="text-center font-black text-4xl lg:text-6xl text-white/[0.07] tracking-widest uppercase">
-                  TUENDPOINT + STUDIO
-                </h1>
+              {/* Derecha: Información del Producto & Botón con Subrayado Animado */}
+              <div className="flex max-w-md flex-col items-end gap-3 text-right">
+                <span className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
+                  {currentProduct.badge}
+                </span>
+
+                <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight">
+                  {currentProduct.name}
+                </h2>
+
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  {currentProduct.description}
+                </p>
+
+                {/* Botón con Subrayado Animado Estilo Flow Studio */}
+                <div className="pt-2">
+                  {currentProduct.actionType === 'external' ? (
+                    <a
+                      href={currentProduct.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-base text-white hover:text-white transition-colors"
+                    >
+                      <span>{currentProduct.ctaText}</span>
+                      <ExternalLink className="h-4 w-4" />
+                      <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
+                      <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
+                    </a>
+                  ) : (
+                    <a
+                      href={currentProduct.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-base text-white hover:text-white transition-colors"
+                    >
+                      <span>{currentProduct.ctaText}</span>
+                      <ArrowRight className="h-4 w-4" />
+                      <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
+                      <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
+                    </a>
+                  )}
+                </div>
               </div>
+            </div>
+
+            {/* Marca de Agua Gigante Flow Studio */}
+            <div className="pt-8 select-none pointer-events-none">
+              <h1 className="text-center font-semibold text-5xl sm:text-7xl md:text-8xl text-white/10 tracking-widest">
+                TUENDPOINT + STUDIO
+              </h1>
             </div>
           </div>
 
-          {/* Versión Mobile (< md): Deck Inferior Limpio y Legible sin Solapamientos */}
-          <div className="md:hidden bg-gradient-to-b from-black/90 to-[#0c1017] p-5 space-y-4 border-t border-white/10">
-            {/* Filmstrip de Thumbnails Touch */}
+          {/* Mobile Deck (< md): Totalmente Integrado, Cómodo y Legible */}
+          <div className="md:hidden bg-black p-6 space-y-4 border-t border-white/10">
+            {/* Filmstrip de Miniaturas Touch */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center justify-between">
-                <span>Aplicaciones</span>
-                <span className="text-emerald-400 font-semibold">
-                  0{selectedIndex + 1} de 0{PRODUCTS.length}
-                </span>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#86868b] mb-2 flex items-center justify-between">
+                <span>0{selectedIndex + 1} de 0{PRODUCTS.length}</span>
+                <span className="text-white font-medium">{currentProduct.shortName}</span>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {PRODUCTS.map((prod, index) => (
@@ -469,10 +404,10 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                     type="button"
                     onClick={() => onThumbClick(index)}
                     className={cn(
-                      'relative shrink-0 rounded-lg overflow-hidden border transition-all text-left',
+                      'relative shrink-0 rounded overflow-hidden transition-all text-left',
                       index === selectedIndex
-                        ? 'w-20 h-14 border-emerald-400 ring-2 ring-emerald-400/50'
-                        : 'w-16 h-12 border-white/20 opacity-50'
+                        ? 'w-18 h-12 opacity-100 ring-2 ring-white'
+                        : 'w-14 h-10 opacity-40'
                     )}
                   >
                     <Image
@@ -482,10 +417,6 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                       src={prod.image}
                       sizes="80px"
                     />
-                    <div className="absolute inset-0 bg-black/40" />
-                    <span className="absolute bottom-1 left-1 text-[8px] font-mono text-white truncate max-w-[90%]">
-                      {prod.shortName}
-                    </span>
                   </button>
                 ))}
               </div>
@@ -493,16 +424,11 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
 
             {/* Detalle Producto Mobile */}
             <div className="space-y-2 pt-1">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  {currentProduct.badge}
-                </span>
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {currentProduct.category}
-                </span>
-              </div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#86868b] block">
+                {currentProduct.badge}
+              </span>
 
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-medium text-white tracking-tight">
                 {currentProduct.name}
               </h2>
 
@@ -510,13 +436,13 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                 {currentProduct.description}
               </p>
 
-              <div className="pt-2">
+              <div className="pt-3">
                 {currentProduct.actionType === 'external' ? (
                   <a
                     href={currentProduct.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-emerald-500/15 border border-emerald-500/40 py-2.5 px-4 font-semibold text-xs text-emerald-300"
+                    className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-white text-black py-2.5 px-4 font-medium text-xs hover:bg-zinc-200 transition-colors"
                   >
                     <span>{currentProduct.ctaText}</span>
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -526,7 +452,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                     href={currentProduct.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-emerald-500 py-2.5 px-4 font-semibold text-xs text-black"
+                    className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-white text-black py-2.5 px-4 font-medium text-xs hover:bg-zinc-200 transition-colors"
                   >
                     <span>{currentProduct.ctaText}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -535,8 +461,8 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-white/5 text-center">
-              <span className="text-[11px] font-mono text-white/20 tracking-widest font-black uppercase">
+            <div className="pt-4 border-t border-white/5 text-center select-none pointer-events-none">
+              <span className="text-[11px] font-mono text-white/10 tracking-widest font-semibold uppercase">
                 TUENDPOINT + STUDIO
               </span>
             </div>
@@ -545,270 +471,206 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 3. Integraciones Críticas de Chile (FirmaGob, ClaveÚnica...) */}
+      {/* 3. Integraciones Oficiales de Chile (Estilo Tipográfico)     */}
       {/* ------------------------------------------------------------ */}
-      <section id="integraciones" className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 border-t border-white/[0.06]">
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-emerald-400">
-            <ShieldCheck className="h-4 w-4" />
-            <span>Infraestructura Digital de Chile</span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
-            Integraciones Oficiales con el Estado y la Empresa
+      <section id="integraciones" className="px-6 sm:px-8 max-w-5xl mx-auto py-20 border-t border-white/10">
+        <div className="max-w-2xl mb-12 space-y-3">
+          <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
+            Infraestructura Digital de Chile
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+            Integraciones oficiales con el Estado y la empresa.
           </h2>
-          <p className="text-sm sm:text-base text-zinc-400">
-            Desarrollamos conectores directos de alto rendimiento para interactuar con los servicios clave del ecosistema público y privado sin intermediarios.
+          <p className="text-base text-[#86868b] leading-relaxed">
+            Conectores directos sin intermediarios para operar con los estándares oficiales de Chile.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Lista Editorial Limpia (Sin Cards) */}
+        <div className="divide-y divide-white/10">
           {INTEGRATIONS.map((item) => (
             <div
               key={item.name}
-              className="group relative rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:bg-white/[0.04] hover:border-emerald-500/40 transition-all duration-300"
+              className="py-6 flex flex-col md:flex-row md:items-baseline justify-between gap-3 group"
             >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300 border border-white/10">
+              <div className="md:w-1/3">
+                <span className="text-[11px] font-mono text-[#86868b] uppercase tracking-wider block">
                   {item.entity}
                 </span>
-                <span className="text-[11px] font-mono text-emerald-400">
-                  {item.badge}
+                <span className="text-lg font-medium text-white group-hover:text-[#0EA5E9] transition-colors">
+                  {item.name}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-emerald-300 transition-colors">
-                {item.name}
-              </h3>
-              <p className="text-sm text-zinc-400 leading-relaxed mb-4">
+
+              <div className="md:w-1/2 text-sm text-zinc-400 leading-relaxed">
                 {item.description}
-              </p>
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-500">
-                <span>Protocolo</span>
-                <span className="text-zinc-400">{item.tech}</span>
+              </div>
+
+              <div className="md:w-1/6 md:text-right text-xs font-mono text-zinc-500">
+                {item.tech}
               </div>
             </div>
           ))}
-
-          {/* Card de Conectores Específicos */}
-          <div className="rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/[0.02] p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono uppercase tracking-wider mb-3">
-                <Cpu className="h-4 w-4" />
-                <span>¿Requiere una API o Conector Específico?</span>
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">
-                Conectamos Sistemas Heredados
-              </h3>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Transformamos bases de datos SQL Server, sistemas legacy, webhooks bancarios o ERPs en arquitecturas modernas y seguras.
-              </p>
-            </div>
-            <a
-              href="#formulario"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
-            >
-              <span>Consultar por mi requerimiento</span>
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 4. Formulario de Desarrollo a Medida & Integraciones          */}
+      {/* 4. Solicitud de Desarrollo a Medida (Limpio y Espacioso)     */}
       {/* ------------------------------------------------------------ */}
-      <section id="formulario" className="relative px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto py-16">
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/90 p-6 sm:p-12 backdrop-blur-md">
-          <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
-              <Sparkles className="h-3.5 w-3.5" />
-              SOLICITUD DE INGENIERÍA
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
-              ¿Busca un Desarrollo a Medida o Integración?
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-400">
-              Complete el formulario y nuestro equipo de ingenieros analizará la factibilidad técnica de su proyecto de forma directa.
+      <section id="formulario" className="px-6 sm:px-8 max-w-4xl mx-auto py-24 border-t border-white/10">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+          <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
+            Ingeniería de Software
+          </p>
+          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+            ¿Busca un desarrollo a medida?
+          </h2>
+          <p className="text-base text-[#86868b] leading-relaxed">
+            Diseñamos sistemas críticos, APIs seguras y módulos específicos. Cuéntenos su requerimiento técnico.
+          </p>
+        </div>
+
+        {formSent ? (
+          <div className="py-12 text-center space-y-3">
+            <CheckCircle2 className="h-10 w-10 text-white mx-auto" />
+            <h3 className="text-xl font-medium text-white">
+              Requerimiento enviado con éxito.
+            </h3>
+            <p className="text-sm text-[#86868b] max-w-md mx-auto">
+              Un ingeniero analizará la factibilidad de su proyecto y le responderá a la brevedad.
             </p>
+            <button
+              type="button"
+              onClick={() => setFormSent(false)}
+              className="text-xs font-mono text-white underline pt-4"
+            >
+              Enviar otra consulta
+            </button>
           </div>
-
-          {formSent ? (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center space-y-3">
-              <CheckCircle2 className="h-10 w-10 text-emerald-400 mx-auto" />
-              <h3 className="text-lg font-semibold text-white">
-                Requerimiento Enviado con Éxito
-              </h3>
-              <p className="text-sm text-zinc-300 max-w-md mx-auto">
-                Hemos recibido los antecedentes de su solicitud. Un ingeniero se pondrá en contacto con usted en breve por WhatsApp o correo.
-              </p>
-              <button
-                type="button"
-                onClick={() => setFormSent(false)}
-                className="mt-4 text-xs font-mono text-emerald-400 underline cursor-pointer"
-              >
-                Enviar otra consulta
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleFormSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-mono text-zinc-300 mb-2">
-                    NOMBRE Y APELLIDO *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.nombre}
-                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    placeholder="Ej. Carlos Valenzuela"
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-zinc-300 mb-2">
-                    EMPRESA / INSTITUCIÓN *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.empresa}
-                    onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-                    placeholder="Ej. Clínica Santa María / Municipalidad..."
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-zinc-300 mb-2">
-                    TELÉFONO O WHATSAPP *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={form.telefono}
-                    onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    placeholder="+56 9 1234 5678"
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-zinc-300 mb-2">
-                    CORREO ELECTRÓNICO *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="carlos@empresa.cl"
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
+        ) : (
+          <form onSubmit={handleFormSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div>
-                <label className="block text-xs font-mono text-zinc-300 mb-2">
-                  TIPO DE REQUERIMIENTO *
+                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                  Nombre y Apellido
                 </label>
-                <select
-                  value={form.tipo}
-                  onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-[#0c1017] px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors"
-                >
-                  <option value="Integración FirmaGob / ClaveÚnica">
-                    Integración FirmaGob (SEGPRES) / ClaveÚnica
-                  </option>
-                  <option value="Facturación Electrónica SII (DTE XML)">
-                    Facturación Electrónica SII (Boletas / Facturas DTE)
-                  </option>
-                  <option value="Gestor de Filas Hospitalario / Tótems">
-                    Gestor de Filas Hospitalario / Tótems de Autoatención
-                  </option>
-                  <option value="TICPanel & Agentes en Equipos">
-                    TICPanel & Agentes Silenciosos en Endpoints
-                  </option>
-                  <option value="Logística TBA / WMS Bodegas">
-                    Logística TBA / Control de Stock WMS
-                  </option>
-                  <option value="CajaYA POS Offline">
-                    CajaYA POS Offline para Comercio o Retail
-                  </option>
-                  <option value="Desarrollo de Software Nuevo desde Cero">
-                    Desarrollo de Software Nuevo desde Cero
-                  </option>
-                  <option value="Licitación Mercado Público">
-                    Licitación Mercado Público (Ley 19.886)
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono text-zinc-300 mb-2">
-                  DESCRIPCIÓN DEL PROYECTO O PREGUNTAS (OPCIONAL)
-                </label>
-                <textarea
-                  rows={3}
-                  value={form.mensaje}
-                  onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
-                  placeholder="Detalle plazos, cantidad de usuarios, servidores o integraciones requeridas..."
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+                <input
+                  type="text"
+                  required
+                  value={form.nombre}
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                  placeholder="Carlos Valenzuela"
+                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>Respuesta técnica directa sin intermediarios comerciales</span>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-6 py-3 font-semibold text-sm text-black transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
-                >
-                  <Send className="h-4 w-4" />
-                  <span>Enviar Requerimiento a Ingeniería</span>
-                </button>
+              <div>
+                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                  Empresa o Institución
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.empresa}
+                  onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+                  placeholder="Clínica / Empresa / Organismo..."
+                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                />
               </div>
-            </form>
-          )}
-        </div>
-      </section>
 
-      {/* ------------------------------------------------------------ */}
-      {/* 5. Franja Corporativa de Transparencia & Contacto            */}
-      {/* ------------------------------------------------------------ */}
-      <section className="border-t border-white/[0.08] bg-black/60 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div>
-            <div className="text-sm font-semibold text-white tracking-wide">
-              SOLUCIONES TUENDPOINT SPA
-            </div>
-            <div className="text-xs font-mono text-zinc-400 mt-1">
-              RUT: 78.411.033-8 · Viña del Mar, Región de Valparaíso, Chile
-            </div>
-          </div>
+              <div>
+                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                  Teléfono o WhatsApp
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={form.telefono}
+                  onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                  placeholder="+56 9 1234 5678"
+                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                />
+              </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-6 text-xs font-mono text-zinc-300">
-            <a
-              href="mailto:contacto@tuendpoint.cl"
-              className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
-            >
-              <Mail className="h-3.5 w-3.5 text-emerald-400" />
-              contacto@tuendpoint.cl
-            </a>
-            <a
-              href="https://wa.me/5694925337"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
-            >
-              <PhoneCall className="h-3.5 w-3.5 text-emerald-400" />
-              +56 9 492 5337
-            </a>
-          </div>
-        </div>
+              <div>
+                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="carlos@empresa.cl"
+                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                Tipo de Requerimiento
+              </label>
+              <select
+                value={form.tipo}
+                onChange={(e) => setForm({ ...form, tipo: e.target.value })}
+                className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white focus:border-white focus:outline-none transition-colors"
+              >
+                <option value="Integración FirmaGob / ClaveÚnica" className="bg-black text-white">
+                  Integración FirmaGob (SEGPRES) / ClaveÚnica
+                </option>
+                <option value="Facturación Electrónica SII (DTE XML)" className="bg-black text-white">
+                  Facturación Electrónica SII (Boletas / Facturas DTE)
+                </option>
+                <option value="Gestor de Filas Hospitalario / Tótems" className="bg-black text-white">
+                  Gestor de Filas Hospitalario / Tótems de Autoatención
+                </option>
+                <option value="TICPanel & Agentes en Equipos" className="bg-black text-white">
+                  TICPanel & Agentes Silenciosos en Endpoints
+                </option>
+                <option value="Logística TBA / WMS Bodegas" className="bg-black text-white">
+                  Logística TBA / Control de Stock WMS
+                </option>
+                <option value="CajaYA POS Offline" className="bg-black text-white">
+                  CajaYA POS Offline para Comercio o Retail
+                </option>
+                <option value="Desarrollo de Software Nuevo desde Cero" className="bg-black text-white">
+                  Desarrollo de Software Nuevo desde Cero
+                </option>
+                <option value="Licitación Mercado Público" className="bg-black text-white">
+                  Licitación Mercado Público (Ley 19.886)
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
+                Breve descripción del requerimiento
+              </label>
+              <textarea
+                rows={2}
+                value={form.mensaje}
+                onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+                placeholder="Indique usuarios, plazos o especificaciones requeridas..."
+                className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors resize-none"
+              />
+            </div>
+
+            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <span className="text-xs text-[#86868b]">
+                Respuesta directa por equipo de ingeniería. Sin intermediarios comerciales.
+              </span>
+
+              <button
+                type="submit"
+                className="w-full sm:w-auto rounded-full bg-white text-black hover:bg-zinc-200 px-8 py-3 text-sm font-medium transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <span>Enviar Requerimiento</span>
+                <Send className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </form>
+        )}
       </section>
     </div>
   );

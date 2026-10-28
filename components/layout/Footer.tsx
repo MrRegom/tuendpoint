@@ -1,118 +1,57 @@
 import { useTranslations } from 'next-intl';
-
 import { Link } from '@/i18n/routing';
 import { Logo } from '@/components/layout/Logo';
 import { brand } from '@/lib/config/brand';
-import { sectors } from '@/lib/data/sectors';
 
 export function Footer() {
   const t = useTranslations('footer');
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-ink text-paper">
-      <div className="mx-auto w-full max-w-container-wide px-5 py-16 md:px-8 md:py-20 lg:px-12 lg:py-24">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-5">
+    <footer className="bg-black text-[#86868b] border-t border-white/10">
+      <div className="mx-auto w-full max-w-7xl px-6 py-14 sm:px-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-white/10">
+          <div>
             <Logo variant="light" />
-            <p className="mt-5 max-w-sm text-body-m text-paper/70 text-pretty">
-              {t('tagline')}
-            </p>
-
-          </div>
-
-          <div className="lg:col-span-2">
-            <h3 className="font-mono text-eyebrow uppercase tracking-[0.14em] text-paper/50">
-              {t('company')}
-            </h3>
-            <ul className="mt-5 space-y-3">
-              <li>
-                <Link href="/nosotros" className="text-body-s text-paper/80 transition-colors hover:text-paper">
-                  {t('about')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/proceso" className="text-body-s text-paper/80 transition-colors hover:text-paper">
-                  {t('process')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/soluciones" className="text-body-s text-paper/80 transition-colors hover:text-paper">
-                  {t('solutions')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="lg:col-span-2">
-            <h3 className="font-mono text-eyebrow uppercase tracking-[0.14em] text-paper/50">
-              {t('sectors')}
-            </h3>
-            <ul className="mt-5 space-y-3">
-              {sectors.slice(0, 5).map((s) => (
-                <li key={s.id}>
-                  <Link
-                    href={{ pathname: '/sectores/[sector]', params: { sector: s.id } } as any}
-                    className="text-body-s text-paper/80 transition-colors hover:text-paper"
-                  >
-                    {s.name.es}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-3">
-            <h3 className="font-mono text-eyebrow uppercase tracking-[0.14em] text-paper/50">
-              {t('contact')}
-            </h3>
-            <ul className="mt-5 space-y-3">
-              <li>
-                <a
-                  href={`mailto:${brand.email}`}
-                  className="text-body-s text-paper/80 transition-colors hover:text-paper"
-                >
-                  {brand.email}
-                </a>
-              </li>
-              <li>
-                <span className="text-body-s text-paper/80">{brand.phone}</span>
-              </li>
-              <li>
-                <span className="text-body-s text-paper/80">{brand.address}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="mt-16 grid grid-cols-1 gap-8 border-t border-paper/10 pt-10 md:grid-cols-12 md:gap-10">
-          <div className="md:col-span-8">
-            <p className="serif text-display-m italic text-paper text-balance">
-              {t('ctaTitle')}
+            <p className="mt-3 text-xs text-[#86868b] max-w-md">
+              Soluciones tuEndpoint SpA · RUT 78.411.033-8 · Ingeniería de software para operaciones críticas, salud y el Estado de Chile.
             </p>
           </div>
-          <div className="flex items-end md:col-span-4">
-            <Link
-              href="/contacto"
-              className="group inline-flex items-center gap-2 text-body-s font-medium text-paper transition-colors hover:text-paper/70"
+
+          <div className="flex flex-wrap gap-8 text-xs font-mono text-[#86868b]">
+            <a
+              href={`mailto:${brand.email}`}
+              className="hover:text-white transition-colors"
             >
-              <span className="border-b border-paper pb-0.5 transition-colors group-hover:border-paper/70">
-                {t('ctaContact')}
-              </span>
-              <span className="transition-transform duration-400 ease-soft group-hover:translate-x-1">→</span>
-            </Link>
+              {brand.email}
+            </a>
+            <a
+              href="https://wa.me/5694925337"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              {brand.phone}
+            </a>
+            <span>{brand.address}</span>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-paper/10 pt-6 md:flex-row md:items-center">
-          <p className="text-body-xs text-paper/40">
-            © {year} {brand.name}. {t('rights')}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#86868b]">
+          <p>
+            © {year} Soluciones tuEndpoint SpA. Todos los derechos reservados.
           </p>
           <div className="flex gap-6">
-            <Link href="/legal/privacidad" className="text-body-xs text-paper/40 transition-colors hover:text-paper">
+            <Link
+              href="/legal/privacidad"
+              className="hover:text-white transition-colors"
+            >
               {t('privacy')}
             </Link>
-            <Link href="/legal/terminos" className="text-body-xs text-paper/40 transition-colors hover:text-paper">
+            <Link
+              href="/legal/terminos"
+              className="hover:text-white transition-colors"
+            >
               {t('terms')}
             </Link>
           </div>

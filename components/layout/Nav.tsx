@@ -40,12 +40,12 @@ export function Nav() {
         className={cn(
           'sticky top-0 z-50 transition-all duration-300',
           scrolled
-            ? 'border-b border-white/10 bg-[#07090e]/90 backdrop-blur-xl shadow-lg shadow-black/40'
-            : 'border-b border-white/5 bg-[#07090e]'
+            ? 'border-b border-white/10 bg-black/85 backdrop-blur-xl shadow-lg shadow-black/60'
+            : 'border-b border-white/5 bg-black'
         )}
       >
         <nav
-          className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+          className="mx-auto flex h-14 sm:h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-8"
           aria-label="Primary"
         >
           <Link href="/" className="flex items-center" aria-label="tuEndpoint">
@@ -58,7 +58,7 @@ export function Nav() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+                  className="text-xs font-normal text-[#86868b] hover:text-white transition-colors"
                 >
                   {item.label}
                 </a>
@@ -66,7 +66,7 @@ export function Nav() {
                 <Link
                   key={item.href}
                   href={item.href as any}
-                  className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+                  className="text-xs font-normal text-[#86868b] hover:text-white transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -79,10 +79,9 @@ export function Nav() {
               href="https://wa.me/5694925337?text=Hola%2C%20quisiera%20consultar%20por%20servicios%20de%20desarrollo%20e%20ingenier%C3%ADa."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 text-xs font-mono font-medium transition-all"
+              className="rounded-full bg-white text-black hover:bg-zinc-200 px-4 py-1.5 text-xs font-medium transition-colors"
             >
-              <span>Hablar con Ingeniería</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              Contactar
             </a>
           </div>
 
@@ -90,7 +89,7 @@ export function Nav() {
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-300 hover:text-white md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[#86868b] hover:text-white md:hidden"
             aria-label={isOpen ? t('closeMenu') : t('openMenu')}
             aria-expanded={isOpen}
           >
@@ -105,7 +104,7 @@ export function Nav() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden border-b border-white/10 bg-[#0c1017] px-5 py-6 md:hidden"
+              className="overflow-hidden border-b border-white/10 bg-black px-6 py-6 md:hidden"
             >
               <div className="flex flex-col space-y-4">
                 {navItems.map((item) => (
@@ -114,7 +113,7 @@ export function Nav() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-base font-medium text-zinc-300 hover:text-white"
+                      className="text-sm font-normal text-[#86868b] hover:text-white"
                     >
                       {item.label}
                     </a>
@@ -123,7 +122,7 @@ export function Nav() {
                       key={item.href}
                       href={item.href as any}
                       onClick={() => setIsOpen(false)}
-                      className="text-base font-medium text-zinc-300 hover:text-white"
+                      className="text-sm font-normal text-[#86868b] hover:text-white"
                     >
                       {item.label}
                     </Link>
@@ -136,10 +135,9 @@ export function Nav() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black"
+                    className="flex w-full items-center justify-center rounded-full bg-white py-2.5 text-xs font-medium text-black"
                   >
-                    <span>Hablar con Ingeniería</span>
-                    <ArrowRight className="h-4 w-4" />
+                    Contactar
                   </a>
                 </div>
               </div>

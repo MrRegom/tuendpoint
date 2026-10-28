@@ -13,6 +13,8 @@
     "@hookform/resolvers": "3.9.1",
     "@types/three": "^0.169.0",
     "clsx": "2.1.1",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "11.11.17",
     "html2canvas": "^1.4.1",
     "isomorphic-git": "^1.44.4",

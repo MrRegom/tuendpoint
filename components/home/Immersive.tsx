@@ -1,1540 +1,731 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import {
+  ArrowRight,
   ExternalLink,
   MessageSquare,
-  ArrowRight,
-  Play,
-  Pause,
-  Tv,
-  Smartphone,
-  Volume2,
-  VolumeX,
-  Send,
-  Monitor,
-  Printer,
-  Server,
-  Cpu,
-  Layers,
-  Terminal,
-  Activity,
-  CheckCircle2,
-  HardDrive,
-  Laptop,
-  ChevronRight,
-  ChevronLeft,
   ShieldCheck,
-  KeyRound,
+  CheckCircle2,
+  Lock,
   FileCheck,
-  Receipt,
   Building2,
-  Code2,
+  Cpu,
+  Send,
+  Sparkles,
+  PhoneCall,
+  Mail,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { brand } from '@/lib/config/brand';
-import { TUENDPOINT_COMPANY } from '@/lib/cotizador/catalog';
-import { AssistantBot } from '@/components/home/AssistantBot';
+import Autoplay from 'embla-carousel-autoplay';
+import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
 import { Typewriter } from '@/components/ui/typewriter';
+import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Modelos y Datos de Productos y Pantallas                           */
+/* Datos de Productos para el Cinematic Showcase Stage                 */
 /* ------------------------------------------------------------------ */
 
-interface ScreenTab {
-  id: string;
-  label: string;
-  type: 'img' | 'filas-tv' | 'filas-totem' | 'ticpanel-agents' | 'auto-monitor';
-  src?: string;
-  badge?: string;
-  click?: [number, number];
-  actionText?: string;
-}
-
-interface ProductShowcase {
+interface ShowcaseProduct {
   id: string;
   name: string;
   shortName: string;
-  tagline: string;
   category: string;
   badge: string;
-  oneLiner: string;
-  techSpecs: string[];
-  screens: ScreenTab[];
-  externalUrl?: string;
+  description: string;
+  image: string;
   actionType: 'external' | 'whatsapp';
+  url: string;
   ctaText: string;
-  thumbImg: string;
+  ratingText: string;
 }
 
-const PRODUCTS: ProductShowcase[] = [
+const PRODUCTS: ShowcaseProduct[] = [
   {
     id: 'filas',
     name: 'Gestor de Filas Hospitalario',
     shortName: 'Filas Hospital',
     category: 'Salud Pública',
     badge: 'Ley 20.584 · En Producción',
-    tagline: 'Llamado por voz sintetizada en TV y tótems de autoatención con RUT.',
-    oneLiner:
-      'Erradica el desorden en salas de espera y farmacias con llamado audiovisual en vivo, atención preferente garantizada y métricas de espera en tiempo real.',
-    techSpecs: [
-      'Prioridad estricta para adultos mayores y personas con movilidad reducida (Ley 20.584).',
-      'Voz fonética chilena natural que indica paciente y módulo por audio.',
-      'Tótem táctil 21.5" con corte automático de ticket e ingreso por cédula de identidad.',
-    ],
-    screens: [
-      {
-        id: 'tv',
-        label: 'TV Sala de Espera',
-        type: 'filas-tv',
-        badge: 'Llamado por Voz en Vivo',
-        actionText: 'Llamando paciente a Módulo 3 por voz...',
-      },
-      {
-        id: 'totem',
-        label: 'Tótem Táctil 21.5"',
-        type: 'filas-totem',
-        badge: 'Autoatención con RUT',
-        click: [0.5, 0.46],
-        actionText: 'Emitiendo ticket Farmacia Ambulatoria...',
-      },
-      {
-        id: 'envivo',
-        label: 'Panel Ventanilla',
-        type: 'img',
-        src: '/shots/filas-1.jpg',
-        badge: 'Ventanillas en Vivo',
-        click: [0.055, 0.078],
-        actionText: 'Operador llamando al siguiente paciente...',
-      },
-      {
-        id: 'resumen',
-        label: 'Tiempos de Espera',
-        type: 'img',
-        src: '/shots/filas-2.jpg',
-        badge: 'Métricas Diarias',
-        click: [0.055, 0.184],
-        actionText: 'Calculando promedio de atención...',
-      },
-      {
-        id: 'trazabilidad',
-        label: 'Auditoría Ley 20.584',
-        type: 'img',
-        src: '/shots/filas-3.jpg',
-        badge: 'Trazabilidad',
-        click: [0.93, 0.115],
-        actionText: 'Exportando informe oficial ministerial...',
-      },
-    ],
+    description:
+      'Llamado audiovisual por voz chilena en pantallas y tótems táctiles de autoatención con RUT para hospitales, clínicas y farmacias ambulatorias.',
+    image: '/shots/filas-1.jpg',
     actionType: 'whatsapp',
-    ctaText: 'Pedir Demo de Filas',
-    thumbImg: '/shots/filas-1.jpg',
+    url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20del%20Gestor%20de%20Filas%20Hospitalario.',
+    ctaText: 'Pedir Demostración en Vivo',
+    ratingText: 'Norma Salud · Ley 20.584',
   },
   {
     id: 'ticpanel',
-    name: 'TICPanel — Mesa de Ayuda & TI',
+    name: 'TICPanel · Mesa de Ayuda TI',
     shortName: 'TICPanel',
-    category: 'Infraestructura TI',
-    badge: 'Agentes Silenciosos en Endpoints',
-    tagline: 'Agentes instalados en cada equipo que reportan hardware y telemetría en tiempo real.',
-    oneLiner:
-      'Control total del parque informático. Un agente ligero en segundo plano reporta CPU, RAM, discos, seriales y estado sin intervención del usuario, integrado a tickets con SLA y actas con firma digital.',
-    techSpecs: [
-      'Agente silencioso (Windows / Linux) que transmite telemetría y periféricos al servidor central.',
-      'Detección automática de números de serie, direcciones MAC y hardware para control patrimonial.',
-      'Mesa de tickets con derivación inteligente por criticidad y actas oficiales con firma digital.',
-    ],
-    screens: [
-      {
-        id: 'agents',
-        label: 'Agentes en Endpoints',
-        type: 'ticpanel-agents',
-        badge: 'Telemetría en Vivo',
-        actionText: 'Agentes reportando telemetría de 142 equipos...',
-      },
-      {
-        id: 'tickets',
-        label: 'Mesa de Tickets',
-        type: 'img',
-        src: '/shots/ticpanel-2.jpg',
-        badge: 'SLA Hospitalario',
-        click: [0.015, 0.27],
-        actionText: 'Asignando especialista según SLA...',
-      },
-      {
-        id: 'actas',
-        label: 'Actas con Firma',
-        type: 'img',
-        src: '/shots/ticpanel-3.jpg',
-        badge: 'Firma Digital',
-        click: [0.58, 0.56],
-        actionText: 'Registrando firma digital de entrega...',
-      },
-      {
-        id: 'equipos',
-        label: 'Control de Hardware',
-        type: 'img',
-        src: '/shots/ticpanel-4.jpg',
-        badge: 'Inventario TI',
-        click: [0.015, 0.12],
-        actionText: 'Escaneando código de barras de equipo...',
-      },
-      {
-        id: 'panel',
-        label: 'Dashboard General',
-        type: 'img',
-        src: '/shots/ticpanel-1.jpg',
-        badge: 'Mesa de Control',
-        click: [0.015, 0.22],
-        actionText: 'Revisando estado general de infraestructura...',
-      },
-    ],
+    category: 'Infraestructura & Endpoints',
+    badge: 'Agentes Silenciosos en Equipos',
+    description:
+      'Agentes ligeros instalados en computadores envían telemetría y métricas en vivo. Tickets Kanban, inventario de hardware y soporte remoto unificado.',
+    image: '/shots/ticpanel-1.jpg',
     actionType: 'whatsapp',
-    ctaText: 'Pedir Demo de TICPanel',
-    thumbImg: '/shots/ticpanel-1.jpg',
+    url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20de%20TICPanel%20y%20sus%20agentes%20en%20equipos.',
+    ctaText: 'Pedir Demostración en Vivo',
+    ratingText: 'Multi-Plataforma · Telemetría',
   },
   {
     id: 'tba',
-    name: 'Logística TBA — Solicitudes y Bodega',
+    name: 'Logística TBA · WMS Bodega',
     shortName: 'Logística TBA',
-    category: 'Logística & Compras',
-    badge: 'Producción en logisticatba.cloud',
-    tagline: 'Kardex digital y flujo de solicitudes internas sin planillas Excel.',
-    oneLiner:
-      'Centraliza pedidos internos con aprobaciones jerárquicas por departamento, control de existencias en tiempo real y vinculación directa con órdenes de compra y facturas.',
-    techSpecs: [
-      'Portal de pedidos con flujo jerárquico de aprobaciones por departamento o centro de costo.',
-      'Kardex de bodega en tiempo real con alertas de stock mínimo, control de lotes y valorización.',
-      'Trazabilidad completa con órdenes de compra, proveedores y recepciones conformes de almacén.',
-    ],
-    screens: [
-      {
-        id: 'dash',
-        label: 'Dashboard Bodega',
-        type: 'img',
-        src: '/shots/tba-1.jpg',
-        badge: 'Métricas de Stock',
-        click: [0.06, 0.25],
-        actionText: 'Revisando alertas de stock crítico...',
-      },
-      {
-        id: 'bodega',
-        label: 'Kardex Digital',
-        type: 'img',
-        src: '/shots/tba-2.jpg',
-        badge: 'Control Almacén',
-        click: [0.06, 0.21],
-        actionText: 'Aprobando solicitud interna de materiales...',
-      },
-      {
-        id: 'reportes',
-        label: 'Reportes & Balances',
-        type: 'img',
-        src: '/shots/tba-3.jpg',
-        badge: 'Auditoría',
-        click: [0.06, 0.128],
-        actionText: 'Generando balance valorizado de inventario...',
-      },
-      {
-        id: 'modulos',
-        label: 'Centros de Costo',
-        type: 'img',
-        src: '/shots/tba-4.jpg',
-        badge: 'Presupuestos',
-        click: [0.06, 0.17],
-        actionText: 'Asignando presupuesto departamental...',
-      },
-    ],
-    externalUrl: 'https://logisticatba.cloud',
+    category: 'Cadena de Suministro',
+    badge: 'SaaS Cloud · Multi-Bodega',
+    description:
+      'Control integral de inventario con Kardex FIFO, despachos con código QR, trazabilidad de pallets y sincronización multi-sucursal en tiempo real.',
+    image: '/shots/tba-1.jpg',
     actionType: 'external',
+    url: 'https://logisticatba.cloud',
     ctaText: 'Visitar logisticatba.cloud',
-    thumbImg: '/shots/tba-1.jpg',
+    ratingText: 'En vivo en logisticatba.cloud',
   },
   {
     id: 'cajaya',
-    name: 'CajaYA — POS Offline + Boleta SII',
+    name: 'CajaYA · POS Offline + Boleta SII',
     shortName: 'CajaYA POS',
     category: 'Retail & Comercio',
-    badge: '100% Offline + DTE Electrónico SII',
-    tagline: 'Punto de venta ultra rápido que cobra sin internet y sincroniza con el SII.',
-    oneLiner:
-      'Construido para locales de alta concurrencia. Sigue vendiendo, cobrando e imprimiendo comprobantes ante caídas de internet y sincroniza las boletas electrónicas al volver la señal.',
-    techSpecs: [
-      'Operación 100% offline garantizada: nunca detengas la venta ante cortes de red o luz.',
-      'Integración nativa con el SII para timbraje y emisión inmediata de boletas y facturas electrónicas.',
-      'Arqueo ciego con cuadratura automática de turnos, control estricto de caja y reporte Z al instante.',
-    ],
-    screens: [
-      {
-        id: 'pos',
-        label: 'Punto de Venta',
-        type: 'img',
-        src: '/shots/cajaya-1.jpg',
-        badge: 'Cobro en 3s',
-        click: [0.235, 0.34],
-        actionText: 'Cobrando y emitiendo boleta SII...',
-      },
-      {
-        id: 'inicio',
-        label: 'Apertura de Turno',
-        type: 'img',
-        src: '/shots/cajaya-2.jpg',
-        badge: 'Turno Offline',
-        click: [0.045, 0.29],
-        actionText: 'Iniciando turno de cajero sin internet...',
-      },
-      {
-        id: 'miturno',
-        label: 'Arqueo de Turno',
-        type: 'img',
-        src: '/shots/cajaya-3.jpg',
-        badge: 'Cuadratura Ciega',
-        click: [0.72, 0.31],
-        actionText: 'Verificando cuadratura automática de caja...',
-      },
-      {
-        id: 'turnos',
-        label: 'Cierres Z',
-        type: 'img',
-        src: '/shots/cajaya-4.jpg',
-        badge: 'Reporte Z',
-        click: [0.045, 0.34],
-        actionText: 'Generando reporte Z diario...',
-      },
-      {
-        id: 'stock',
-        label: 'Control de Stock',
-        type: 'img',
-        src: '/shots/cajaya-5.jpg',
-        badge: 'Inventario',
-        click: [0.045, 0.23],
-        actionText: 'Descontando stock por código de barras...',
-      },
-      {
-        id: 'ventas',
-        label: 'Registro DTE SII',
-        type: 'img',
-        src: '/shots/cajaya-6.jpg',
-        badge: 'DTE SII',
-        click: [0.045, 0.17],
-        actionText: 'Sincronizando comprobantes con el SII...',
-      },
-    ],
-    externalUrl: 'https://cajaya.cl',
+    badge: '100% Offline · Boleta DTE',
+    description:
+      'Punto de venta diseñado para operar sin Internet en cortes de red. Emite boletas electrónicas válidas ante el SII, arqueos e impresión térmica ultra rápida.',
+    image: '/shots/cajaya-1.jpg',
     actionType: 'external',
+    url: 'https://cajaya.cl',
     ctaText: 'Ver más en cajaya.cl',
-    thumbImg: '/shots/cajaya-1.jpg',
+    ratingText: 'En vivo en cajaya.cl',
   },
   {
     id: 'paginago',
-    name: 'PaginaGo — Catálogo WhatsApp',
+    name: 'PaginaGo · E-Commerce WhatsApp',
     shortName: 'PaginaGo',
     category: 'Comercio Digital',
-    badge: 'Operativo en paginago.com',
-    tagline: 'Tu catálogo online en un enlace para recibir pedidos directos sin comisiones.',
-    oneLiner:
-      '0% comisiones por venta. El cliente navega tu catálogo desde el celular y envía el pedido estructurado con total y datos de despacho directo a tu WhatsApp.',
-    techSpecs: [
-      '0% comisiones por venta: el 100% del dinero ingresa directo a tu cuenta bancaria.',
-      'Carrito de compras integrado que genera el mensaje estructurado con datos de despacho.',
-      'Panel autogestionable desde el celular para cargar productos, pausar stock y modificar precios.',
-    ],
-    screens: [
-      {
-        id: 'tienda',
-        label: 'Tienda Virtual',
-        type: 'img',
-        src: '/shots/paginago-1.jpg',
-        badge: 'Catálogo Móvil',
-        click: [0.79, 0.035],
-        actionText: 'Explorando catálogo en celular...',
-      },
-      {
-        id: 'como',
-        label: 'Flujo a WhatsApp',
-        type: 'img',
-        src: '/shots/paginago-2.jpg',
-        badge: 'Carrito a WhatsApp',
-        click: [0.68, 0.78],
-        actionText: 'Transfiriendo pedido directo a WhatsApp...',
-      },
-      {
-        id: 'ejemplos',
-        label: 'Tiendas Activas',
-        type: 'img',
-        src: '/shots/paginago-3.jpg',
-        badge: 'Casos Reales',
-        click: [0.51, 0.035],
-        actionText: 'Viendo comercios vendiendo sin comisiones...',
-      },
-      {
-        id: 'planes',
-        label: 'Planes & Precios',
-        type: 'img',
-        src: '/shots/paginago-4.jpg',
-        badge: 'Suscripción Plana',
-        click: [0.5, 0.78],
-        actionText: 'Activando catálogo con dominio propio...',
-      },
-    ],
-    externalUrl: 'https://paginago.com',
+    badge: 'Operativo en Producción',
+    description:
+      'Convierte el chat de WhatsApp en un catálogo interactivo con carrito, cobro Webpay y sincronización automática de pedidos e inventario.',
+    image: '/shots/paginago-1.jpg',
     actionType: 'external',
+    url: 'https://paginago.com',
     ctaText: 'Ver Demo en paginago.com',
-    thumbImg: '/shots/paginago-1.jpg',
+    ratingText: 'Operativo en paginago.com',
   },
   {
-    id: 'auto',
-    name: 'Automatizaciones & Bots RPA',
-    shortName: 'Automatizaciones',
-    category: 'Integración de Sistemas',
-    badge: 'Desarrollo Especializado',
-    tagline: 'Robots de software que conectan sistemas y eliminan tareas repetitivas.',
-    oneLiner:
-      'Desarrollamos bots RPA y conectores API que extraen, concilian y cargan datos automáticamente entre ERPs, sistemas tributarios y planillas sin errores humanos.',
-    techSpecs: [
-      'Robots RPA a medida para extracción y carga automática de facturas y órdenes de compra.',
-      'Conectores seguros entre bases de datos heredadas y plataformas cloud modernas.',
-      'Monitor de ejecución en tiempo real con alertas inmediatas a Telegram o WhatsApp ante fallos.',
-    ],
-    screens: [
-      {
-        id: 'monitor',
-        label: 'Monitor de Ejecuciones',
-        type: 'auto-monitor',
-        badge: 'Bots en Vivo',
-        actionText: 'Ejecutando robot RPA para conciliación...',
-      },
-    ],
+    id: 'integraciones',
+    name: 'RPA & Desarrollo a Medida',
+    shortName: 'Desarrollo a Medida',
+    category: 'Ingeniería de Software',
+    badge: 'FirmaGob · ClaveÚnica · SII',
+    description:
+      'Conectamos sus sistemas existentes con FirmaGob, ClaveÚnica, SII, bancos y WhatsApp Business API sin rehacer su infraestructura técnica.',
+    image: '/shots/ticpanel-2.jpg',
     actionType: 'whatsapp',
-    ctaText: 'Pedir Demo de Automatizaciones',
-    thumbImg: '/shots/ticpanel-1.jpg',
+    url: 'https://wa.me/5694925337?text=Hola%2C%20quisiera%20cotizar%20un%20desarrollo%20a%20medida%20o%20integraci%C3%B3n%20cr%C3%ADtica.',
+    ctaText: 'Consultar Factibilidad Técnica',
+    ratingText: 'APIs & Conectores Oficiales',
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/* Integraciones Críticas a Medida (FirmaGob, ClaveÚnica, SII, etc.)  */
+/* Integraciones Oficiales de Chile                                    */
 /* ------------------------------------------------------------------ */
 
 interface IntegrationItem {
-  id: string;
   name: string;
-  tag: string;
+  entity: string;
+  badge: string;
   description: string;
-  icon: React.ReactNode;
+  tech: string;
 }
 
-const CUSTOM_INTEGRATIONS: IntegrationItem[] = [
+const INTEGRATIONS: IntegrationItem[] = [
   {
-    id: 'firmagob',
     name: 'FirmaGob',
-    tag: 'Firma Electrónica Avanzada',
-    description: 'Integración oficial del Estado de Chile para firma electrónica de decretos, contratos y actas institucionales.',
-    icon: <FileCheck className="h-5 w-5 text-sky-600" />,
+    entity: 'SEGPRES · Gobierno de Chile',
+    badge: 'Firma Electrónica Avanzada',
+    description:
+      'Firma digital ministerial de documentos PDF con estampado cronológico oficial y verificación en línea de autenticidad.',
+    tech: 'REST API · PKCS#7 · Token FEA',
   },
   {
-    id: 'claveunica',
     name: 'ClaveÚnica',
-    tag: 'Autenticación Ciudadana',
-    description: 'Inicio de sesión seguro para usuarios y funcionarios mediante el sistema oficial de Gobierno Digital.',
-    icon: <KeyRound className="h-5 w-5 text-emerald-600" />,
+    entity: 'Gobierno Digital',
+    badge: 'Identidad Ciudadana Oficial',
+    description:
+      'Autenticación ciudadana segura para portales públicos y trámites del Estado sin necesidad de almacenar credenciales privadas.',
+    tech: 'OpenID Connect · OAuth 2.0',
   },
   {
-    id: 'sii',
-    name: 'SII / DTE Electrónico',
-    tag: 'Facturación & Boletas',
-    description: 'Timbraje y emisión masiva de DTE (boletas, facturas, guías de despacho) con sincronización automática de folios CAF.',
-    icon: <Receipt className="h-5 w-5 text-amber-600" />,
+    name: 'SII Facturación Electrónica',
+    entity: 'Servicio de Impuestos Internos',
+    badge: 'DTE Boleta & Factura XML',
+    description:
+      'Emisión, timbraje con CAF, firma digital XML y envío automático de boletas, facturas y guías de despacho ante el SII.',
+    tech: 'SOAP / REST · XML DSig · CAF',
   },
   {
-    id: 'whatsapp',
     name: 'WhatsApp Business API',
-    tag: 'Mensajería & Notificaciones',
-    description: 'Bots automáticos para confirmación de pedidos, envío de tickets hospitalarios y notificaciones transaccionales.',
-    icon: <MessageSquare className="h-5 w-5 text-emerald-600" />,
+    entity: 'Meta Cloud API Oficial',
+    badge: 'Mensajería Transaccional',
+    description:
+      'Notificaciones masivas certificadas, llamados a pacientes en filas, confirmación de pedidos y boletas enviadas al celular.',
+    tech: 'Cloud API · Webhooks 24/7',
   },
   {
-    id: 'mercadopublico',
-    name: 'Mercado Público & ChileCompra',
-    tag: 'Licitaciones Ley 19.886',
-    description: 'Conexión de órdenes de compra (OC) y licitaciones del Estado para automatizar la gestión de compras públicas.',
-    icon: <Building2 className="h-5 w-5 text-indigo-600" />,
+    name: 'Mercado Público',
+    entity: 'Dirección ChileCompra',
+    badge: 'Licitaciones & Convenio Marco',
+    description:
+      'Arquitectura de software adaptada a las normas de contratación del Estado (Ley 19.886) para salud y organismos públicos.',
+    tech: 'Ley 19.886 · RUT 78.411.033-8',
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/* Simulador de Telemetría de Agentes TICPanel (Pura Ingeniería)      */
-/* ------------------------------------------------------------------ */
-
-function TICPanelAgentsSimulator() {
-  const [agents, setAgents] = useState([
-    { id: 'PC-FARMACIA-01', os: 'Win 11', cpu: '14%', ram: '8GB / 16GB', ip: '10.12.4.18', status: 'ONLINE', ping: '12ms' },
-    { id: 'PC-URGENCIAS-03', os: 'Win 10', cpu: '28%', ram: '12GB / 16GB', ip: '10.12.4.45', status: 'ONLINE', ping: '8ms' },
-    { id: 'PC-SOME-02', os: 'Linux', cpu: '6%', ram: '4GB / 8GB', ip: '10.12.5.10', status: 'ONLINE', ping: '15ms' },
-    { id: 'PC-DIRECCION-01', os: 'Win 11', cpu: '19%', ram: '14GB / 32GB', ip: '10.12.1.2', status: 'ONLINE', ping: '9ms' },
-  ]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAgents((prev) =>
-        prev.map((a) => ({
-          ...a,
-          cpu: `${Math.floor(Math.random() * 25 + 8)}%`,
-          ping: `${Math.floor(Math.random() * 12 + 6)}ms`,
-        }))
-      );
-    }, 2800);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-3 sm:p-5 rounded-2xl text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
-      <div>
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-bold text-white text-xs">Agente Silencioso tuEndpoint · Telemetría en Vivo</span>
-          </div>
-          <span className="text-[10px] text-sky-400 font-semibold bg-sky-950/80 px-2 py-0.5 rounded border border-sky-800/80">
-            142 Endpoints Conectados
-          </span>
-        </div>
-
-        <div className="mt-3 space-y-2">
-          {agents.map((ag) => (
-            <div
-              key={ag.id}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px]"
-            >
-              <div className="flex items-center gap-2.5">
-                <Laptop className="h-3.5 w-3.5 text-sky-400" />
-                <span className="font-bold text-slate-100">{ag.id}</span>
-                <span className="text-[10px] text-slate-400 hidden sm:inline">({ag.os})</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 hidden md:inline">IP: {ag.ip}</span>
-                <span className="text-slate-300">CPU: <strong className="text-emerald-400">{ag.cpu}</strong></span>
-                <span className="text-slate-400 hidden sm:inline">RAM: {ag.ram}</span>
-                <span className="rounded bg-emerald-950 px-2 py-0.5 text-[9px] font-bold text-emerald-400 border border-emerald-800">
-                  {ag.status}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-[10px] text-slate-500">
-        <span>Agente desplegado como servicio en segundo plano (0% uso de pantalla)</span>
-        <span className="text-emerald-400">● Cifrado TLS 1.3 Activo</span>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Simulador TV Sala de Espera Hospitalario (Canvas 2D)               */
-/* ------------------------------------------------------------------ */
-
-function FilasTVSimulator() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-    const startTime = performance.now();
-
-    const CALL_SEQ = [
-      { cod: 'A-042', mod: 'Módulo 3', serv: 'Farmacia Ambulatoria', pref: false },
-      { cod: 'P-019', mod: 'Módulo 1', serv: 'Atención Preferente Ley 20.584', pref: true },
-      { cod: 'F-105', mod: 'Módulo 2', serv: 'Entrega de Recetas', pref: false },
-      { cod: 'A-043', mod: 'Módulo 4', serv: 'Farmacia Ambulatoria', pref: false },
-    ];
-
-    const render = (time: number) => {
-      const t = (time - startTime) / 1000;
-      const W = canvas.width;
-      const H = canvas.height;
-
-      const cycle = 3.8;
-      const step = Math.floor(t / cycle);
-      const local = (t % cycle) / cycle;
-      const cur = CALL_SEQ[step % CALL_SEQ.length];
-      const prev1 = CALL_SEQ[(step + CALL_SEQ.length - 1) % CALL_SEQ.length];
-      const prev2 = CALL_SEQ[(step + CALL_SEQ.length - 2) % CALL_SEQ.length];
-
-      const OSCURO = '#002A54';
-      const OSCURO2 = '#0B3B70';
-      const ACENTO = '#FAAF40';
-
-      ctx.fillStyle = OSCURO;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.fillStyle = OSCURO;
-      ctx.fillRect(0, 0, W, 72);
-      ctx.fillStyle = ACENTO;
-      ctx.fillRect(0, 68, W, 4);
-
-      ctx.fillStyle = ACENTO;
-      ctx.beginPath();
-      ctx.roundRect(24, 16, 40, 40, 10);
-      ctx.fill();
-      ctx.fillStyle = OSCURO;
-      ctx.fillRect(40, 24, 8, 24);
-      ctx.fillRect(32, 32, 24, 8);
-
-      ctx.fillStyle = '#B9CCE6';
-      ctx.font = '600 13px Inter, sans-serif';
-      ctx.fillText('SALA DE ESPERA · ATENCIÓN EN VIVO', 76, 32);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '700 24px Inter, sans-serif';
-      ctx.fillText('Farmacia Central & CAE', 76, 56);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '700 28px monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText('16:42', W - 24, 42);
-      ctx.fillStyle = '#B9CCE6';
-      ctx.font = '500 11px Inter, sans-serif';
-      ctx.fillText('Sistema por Voz Activo', W - 24, 60);
-      ctx.textAlign = 'left';
-
-      const ew = W * 0.62;
-      const eh = H - 96;
-      ctx.fillStyle = OSCURO2;
-      ctx.beginPath();
-      ctx.roundRect(20, 84, ew, eh, 12);
-      ctx.fill();
-
-      ctx.fillStyle = ACENTO;
-      ctx.font = '700 12px Inter, sans-serif';
-      ctx.fillText('NÚMERO LLAMADO EN VOZ', 40, 114);
-
-      const isCalling = local < 0.28;
-      if (isCalling) {
-        ctx.strokeStyle = ACENTO;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(22, 86, ew - 4, eh - 4);
-      }
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 84px monospace';
-      ctx.fillText(cur.cod, 40, 204);
-
-      if (cur.pref) {
-        ctx.fillStyle = ACENTO;
-        ctx.beginPath();
-        ctx.roundRect(40, 222, 230, 24, 6);
-        ctx.fill();
-        ctx.fillStyle = OSCURO;
-        ctx.font = '700 11px Inter, sans-serif';
-        ctx.fillText('★ ATENCIÓN PREFERENTE LEY 20.584', 48, 238);
-      }
-
-      ctx.fillStyle = '#B9CCE6';
-      ctx.font = '600 13px Inter, sans-serif';
-      ctx.fillText('DIRÍJASE A:', 40, 276);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '800 36px Inter, sans-serif';
-      ctx.fillText(cur.mod, 40, 318);
-
-      ctx.fillStyle = '#B9CCE6';
-      ctx.font = '500 13px Inter, sans-serif';
-      ctx.fillText(cur.serv, 40, 344);
-
-      const rx = ew + 32;
-      const rw = W - rx - 20;
-      ctx.fillStyle = OSCURO2;
-      ctx.beginPath();
-      ctx.roundRect(rx, 84, rw, eh, 12);
-      ctx.fill();
-
-      ctx.fillStyle = ACENTO;
-      ctx.font = '700 12px Inter, sans-serif';
-      ctx.fillText('ÚLTIMOS LLAMADOS', rx + 16, 114);
-
-      [prev1, prev2].forEach((item, idx) => {
-        const iy = 144 + idx * 96;
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '700 34px monospace';
-        ctx.fillText(item.cod, rx + 16, iy);
-
-        ctx.fillStyle = ACENTO;
-        ctx.font = '700 14px Inter, sans-serif';
-        ctx.fillText(item.mod, rx + 16, iy + 24);
-
-        ctx.fillStyle = '#B9CCE6';
-        ctx.font = '400 11px Inter, sans-serif';
-        ctx.fillText(item.serv, rx + 16, iy + 42);
-      });
-
-      animId = requestAnimationFrame(render);
-    };
-
-    animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
-  }, []);
-
-  const playChime = () => {
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18);
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.55);
-    } catch {
-      // Audio no permitido
-    }
-  };
-
-  return (
-    <div className="relative w-full aspect-[16/10] bg-[#002A54] rounded-2xl overflow-hidden border border-slate-700 shadow-inner">
-      <canvas ref={canvasRef} width={640} height={400} className="w-full h-full block" />
-      <div className="absolute bottom-2 right-2 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            setSoundEnabled(!soundEnabled);
-            playChime();
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 text-[10px] font-bold text-white backdrop-blur border border-white/20 transition cursor-pointer"
-        >
-          {soundEnabled ? <Volume2 className="h-3 w-3 text-amber-400" /> : <VolumeX className="h-3 w-3 text-slate-400" />}
-          <span>{soundEnabled ? 'Timbre Activo' : 'Probar Timbre'}</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Simulador Tótem Táctil 21.5"                                       */
-/* ------------------------------------------------------------------ */
-
-function FilasTotemSimulator() {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [ticketPrinted, setTicketPrinted] = useState<{ cod: string; serv: string } | null>(null);
-
-  const services = [
-    { id: 'farmacia', name: 'Farmacia Ambulatoria', cod: 'A-044', wait: '3 en espera', icon: '💊' },
-    { id: 'preferente', name: 'Atención Preferente (Ley 20.584)', cod: 'P-020', wait: '1 en espera', icon: '⭐' },
-    { id: 'recetas', name: 'Entrega de Recetas', cod: 'F-106', wait: '4 en espera', icon: '📋' },
-    { id: 'informaciones', name: 'Informaciones & SOME', cod: 'I-012', wait: 'Sin espera', icon: 'ℹ️' },
-  ];
-
-  const handleSelect = (s: (typeof services)[0]) => {
-    setSelectedService(s.id);
-    setTimeout(() => {
-      setTicketPrinted({ cod: s.cod, serv: s.name });
-    }, 400);
-  };
-
-  return (
-    <div className="w-full aspect-[16/10] bg-[#0F172A] p-4 rounded-2xl text-white flex flex-col justify-between border border-slate-800 shadow-inner">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-        <span className="text-xs font-bold text-white">Tótem Autoatención Hospitalario 21&quot;</span>
-        <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-emerald-400">
-          ● ONLINE · IMPRESORA OK
-        </span>
-      </div>
-
-      {!ticketPrinted ? (
-        <div className="py-2 space-y-2">
-          <p className="text-[11px] text-slate-400">Toque el servicio al que se dirige:</p>
-          <div className="grid grid-cols-2 gap-2">
-            {services.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => handleSelect(s)}
-                className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
-                  selectedService === s.id
-                    ? 'border-amber-400 bg-amber-400/20'
-                    : 'border-slate-800 bg-slate-900/90 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{s.icon}</span>
-                  <span className="text-xs font-bold text-white leading-tight">{s.name}</span>
-                </div>
-                <span className="text-[9px] text-slate-400 mt-1 block">{s.wait}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="py-2 flex flex-col items-center justify-center space-y-2">
-          <div className="bg-white text-slate-950 p-3 rounded shadow-xl w-44 text-center font-mono border-t-2 border-dashed border-slate-300">
-            <span className="text-[9px] font-bold text-slate-500 uppercase block">Hospital de Red</span>
-            <span className="text-xs font-bold text-slate-800 block mt-0.5">{ticketPrinted.serv}</span>
-            <div className="my-1 border-y border-dashed border-slate-300 py-1">
-              <span className="text-2xl font-black text-slate-950 block">{ticketPrinted.cod}</span>
-              <span className="text-[8px] text-slate-500">SU NÚMERO DE ATENCIÓN</span>
-            </div>
-            <span className="text-[8px] text-slate-400 block">Atento al llamado en TV</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setTicketPrinted(null);
-              setSelectedService(null);
-            }}
-            className="text-[11px] font-bold text-sky-400 hover:underline cursor-pointer"
-          >
-            ← Imprimir otro turno
-          </button>
-        </div>
-      )}
-
-      <div className="border-t border-slate-800 pt-1.5 flex items-center justify-between text-[9px] text-slate-500">
-        <span>Lector de Cédula (RUT) Habilitado</span>
-        <span>tuEndpoint. Hardware</span>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Simulador Monitor RPA                                              */
-/* ------------------------------------------------------------------ */
-
-function AutoMonitorSimulator() {
-  const [logs, setLogs] = useState([
-    { id: 1, time: '16:42:01', job: 'Sincronización DTE SII', status: 'OK', records: '48 boletas' },
-    { id: 2, time: '16:42:15', job: 'Importación Mercado Público', status: 'OK', records: '12 OC' },
-    { id: 3, time: '16:42:30', job: 'Actualización Stock Kardex', status: 'OK', records: '320 ítems' },
-  ]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date().toTimeString().split(' ')[0];
-      const jobTypes = [
-        { job: 'Conciliación Bancaria Automática', records: '8 transferencias' },
-        { job: 'Envío Notificaciones WhatsApp', records: '15 mensajes' },
-        { job: 'Auditoría Tickets Resueltos', records: '6 tickets' },
-      ];
-      const pick = jobTypes[Math.floor(Math.random() * jobTypes.length)];
-      setLogs((prev) => [
-        { id: Date.now(), time: now, job: pick.job, status: 'OK', records: pick.records },
-        ...prev.slice(0, 2),
-      ]);
-    }, 3800);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="w-full aspect-[16/10] bg-[#0A0F1D] p-4 rounded-2xl text-white font-mono text-xs flex flex-col justify-between border border-slate-800 shadow-inner">
-      <div>
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="font-bold text-white text-xs">Monitor de Procesos RPA</span>
-          </div>
-          <span className="text-[10px] text-slate-400">0 Errores · 99.98% Uptime</span>
-        </div>
-
-        <div className="mt-3 space-y-2">
-          {logs.map((l) => (
-            <div
-              key={l.id}
-              className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px]"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">{l.time}</span>
-                <span className="text-slate-200 font-semibold">{l.job}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-400 hidden sm:inline">{l.records}</span>
-                <span className="rounded bg-emerald-950 px-2 py-0.5 text-[9px] font-bold text-emerald-400 border border-emerald-800">
-                  {l.status}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="border-t border-slate-800 pt-1.5 flex items-center justify-between text-[9px] text-slate-500">
-        <span>Conectores API Activos: SII · Mercado Público</span>
-        <span>tuEndpoint. RPA Engine</span>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Escenario Visual Master iMac (Cinema Stage en Grande)              */
-/* ------------------------------------------------------------------ */
-
-function MasterCinemaStage({
-  product,
-  activeScreenId,
-  onSelectScreen,
-}: {
-  product: ProductShowcase;
-  activeScreenId: string;
-  onSelectScreen: (screenId: string) => void;
-}) {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
-  const [isClicking, setIsClicking] = useState(false);
-  const [showRipple, setShowRipple] = useState(false);
-  const [actionTooltip, setActionTooltip] = useState<string | null>(null);
-
-  const screens = product.screens;
-  const currentScreenIndex = Math.max(
-    0,
-    screens.findIndex((s) => s.id === activeScreenId)
-  );
-  const currentScreen = screens[currentScreenIndex] || screens[0];
-
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    let timeoutMove: NodeJS.Timeout;
-    let timeoutClick: NodeJS.Timeout;
-    let timeoutNext: NodeJS.Timeout;
-
-    const target = currentScreen.click || [0.5, 0.45];
-    const targetX = target[0] * 100;
-    const targetY = target[1] * 100;
-
-    setIsClicking(false);
-    setShowRipple(false);
-    setActionTooltip(null);
-
-    timeoutMove = setTimeout(() => {
-      setCursorPos({ x: targetX, y: targetY });
-      if (currentScreen.actionText) {
-        setActionTooltip(currentScreen.actionText);
-      }
-    }, 600);
-
-    timeoutClick = setTimeout(() => {
-      setIsClicking(true);
-      setShowRipple(true);
-      setTimeout(() => setShowRipple(false), 600);
-      setTimeout(() => setIsClicking(false), 260);
-    }, 2100);
-
-    timeoutNext = setTimeout(() => {
-      const nextIndex = (currentScreenIndex + 1) % screens.length;
-      onSelectScreen(screens[nextIndex].id);
-    }, 4500);
-
-    return () => {
-      clearTimeout(timeoutMove);
-      clearTimeout(timeoutClick);
-      clearTimeout(timeoutNext);
-    };
-  }, [isPlaying, currentScreenIndex, currentScreen, screens, onSelectScreen]);
-
-  return (
-    <div className="w-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-2xl overflow-hidden transition-all">
-      {/* Barra de Título iMac Minimalista */}
-      <div className="px-4 py-3 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-rose-400" />
-            <span className="h-3 w-3 rounded-full bg-amber-400" />
-            <span className="h-3 w-3 rounded-full bg-emerald-400" />
-          </div>
-          <span className="ml-2 font-mono text-[11px] text-slate-500 hidden sm:inline">
-            tuendpoint.cl/{product.id}
-          </span>
-        </div>
-
-        {/* Pestañas de pantallas del producto activo */}
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-          {screens.map((scr) => (
-            <button
-              key={scr.id}
-              type="button"
-              onClick={() => onSelectScreen(scr.id)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition shrink-0 cursor-pointer ${
-                currentScreen.id === scr.id
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              {scr.label}
-            </button>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="p-1 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition cursor-pointer"
-          title={isPlaying ? 'Pausar simulación' : 'Reanudar'}
-        >
-          {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-        </button>
-      </div>
-
-      {/* Pantalla del Software en Gran Formato */}
-      <div className="relative bg-slate-100 p-2 sm:p-4 overflow-hidden select-none">
-        {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
-        {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
-        {currentScreen.type === 'ticpanel-agents' && <TICPanelAgentsSimulator />}
-        {currentScreen.type === 'auto-monitor' && <AutoMonitorSimulator />}
-
-        {currentScreen.type === 'img' && currentScreen.src && (
-          <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-slate-200 bg-white shadow-xs">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={currentScreen.src}
-              alt={`${product.name} — ${currentScreen.label}`}
-              className="w-full h-full object-cover object-top block"
-              loading="eager"
-            />
-          </div>
-        )}
-
-        {/* Cursor animado simulando uso humano */}
-        {isPlaying && currentScreen.type === 'img' && (
-          <div
-            className="pointer-events-none absolute z-30 transition-all duration-700 ease-out"
-            style={{
-              left: `${cursorPos.x}%`,
-              top: `${cursorPos.y}%`,
-              transform: `translate(-3px, -3px) scale(${isClicking ? 0.86 : 1})`,
-            }}
-          >
-            {showRipple && (
-              <span className="absolute -left-3 -top-3 h-10 w-10 rounded-full border-2 border-sky-400 bg-sky-400/30 animate-ping pointer-events-none" />
-            )}
-
-            <svg
-              className="w-6 h-6 filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)] text-slate-900"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              stroke="#ffffff"
-              strokeWidth="1.8"
-            >
-              <path d="M3 3l7 18 3-7 7-3L3 3z" />
-            </svg>
-
-            {actionTooltip && (
-              <div className="absolute left-6 top-1 whitespace-nowrap rounded-md bg-slate-900/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-white shadow-xl border border-slate-700/80 flex items-center gap-1.5 animate-in fade-in duration-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{actionTooltip}</span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Barra de Estado inferior minimalista */}
-      <div className="px-4 py-2.5 bg-white border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="font-semibold text-slate-800">{currentScreen.badge || currentScreen.label}</span>
-        </div>
-        <span className="font-mono text-[10px] text-slate-400">Captura Real en Producción</span>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Componente Principal Home: Minimalista, Inteligente y Wow          */
-/* ------------------------------------------------------------------ */
-
-export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {}) {
-  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
-  const [activeScreens, setActiveScreens] = useState<Record<string, string>>(() => {
-    const init: Record<string, string> = {};
-    PRODUCTS.forEach((p) => {
-      init[p.id] = p.screens[0].id;
-    });
-    return init;
+export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
+  const [mainApi, setMainApi] = useState<CarouselApi>();
+  const [thumbApi, setThumbApi] = useState<CarouselApi>();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Formulario de Desarrollo a Medida
+  const [form, setForm] = useState({
+    nombre: '',
+    empresa: '',
+    telefono: '',
+    email: '',
+    tipo: 'Integración FirmaGob / ClaveÚnica',
+    mensaje: '',
   });
+  const [formSent, setFormSent] = useState(false);
 
-  const activeProduct = PRODUCTS[selectedProductIndex];
-  const currentScreenId = activeScreens[activeProduct.id] || activeProduct.screens[0].id;
+  // Sincronización de Thumbnails
+  const onThumbClick = useCallback(
+    (index: number) => {
+      if (!mainApi || !thumbApi) return;
+      mainApi.scrollTo(index);
+    },
+    [mainApi, thumbApi]
+  );
 
-  const setProductScreen = (productId: string, screenId: string) => {
-    setActiveScreens((prev) => ({ ...prev, [productId]: screenId }));
+  const onSelect = useCallback(() => {
+    if (!mainApi || !thumbApi) return;
+    const index = mainApi.selectedScrollSnap();
+    setSelectedIndex(index);
+    thumbApi.scrollTo(index);
+  }, [mainApi, thumbApi]);
+
+  useEffect(() => {
+    if (!mainApi) return;
+    onSelect();
+    mainApi.on('select', onSelect);
+    mainApi.on('reInit', onSelect);
+    return () => {
+      mainApi.off('select', onSelect);
+      mainApi.off('reInit', onSelect);
+    };
+  }, [mainApi, onSelect]);
+
+  const currentProduct = PRODUCTS[selectedIndex] || PRODUCTS[0];
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = encodeURIComponent(
+      `*SOLICITUD DESARROLLO A MEDIDA / INTEGRACIÓN*\n\n` +
+        `*Nombre:* ${form.nombre}\n` +
+        `*Empresa / Institución:* ${form.empresa}\n` +
+        `*Teléfono:* ${form.telefono}\n` +
+        `*Email:* ${form.email}\n` +
+        `*Tipo de Requerimiento:* ${form.tipo}\n` +
+        `*Detalles:* ${form.mensaje || 'Sin detalles adicionales'}`
+    );
+    window.open(`https://wa.me/5694925337?text=${text}`, '_blank');
+    setFormSent(true);
   };
 
-  const waUrl = (text: string) =>
-    `https://wa.me/5694925337?text=${encodeURIComponent(text)}`;
-
   return (
-    <div className="immersive-root min-h-screen bg-white text-[#0F172A] selection:bg-[#0284c7] selection:text-white">
-      {/* =================================================================== */}
-      {/* 1. NAVEGACIÓN SUPERIOR MINIMALISTA                                  */}
-      {/* =================================================================== */}
-      <header className="modern-site-header sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-slate-100 transition-all">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/es" className="flex items-center gap-2 group">
-            <span className="text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0284c7] transition">
-              tuEndpoint<span className="text-[#0284c7]">.</span>
+    <div className="relative min-h-screen bg-[#07090e] text-white selection:bg-emerald-500/30 selection:text-emerald-200">
+      {/* Luz ambiente superior sutil estilo iMac */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[450px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(16,185,129,0.12),transparent_70%)]" />
+
+      {/* ------------------------------------------------------------ */}
+      {/* 1. Header Minimalista & Headline con Typewriter              */}
+      {/* ------------------------------------------------------------ */}
+      <section className="relative pt-12 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono tracking-wider text-emerald-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
-            {PRODUCTS.map((p, idx) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  setSelectedProductIndex(idx);
-                  const el = document.getElementById('showcase-stage');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className={`transition cursor-pointer ${
-                  selectedProductIndex === idx ? 'text-slate-900 font-bold' : 'hover:text-slate-900'
-                }`}
-              >
-                {p.shortName}
-              </button>
-            ))}
-            <a href="#integraciones" className="hover:text-slate-900 transition">Integraciones</a>
-            <a href="#contacto" className="hover:text-slate-900 transition">Desarrollo a Medida</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href={waUrl('Hola tuEndpoint, me gustaría consultar por un desarrollo de software.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
-            >
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>Hablemos</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* =================================================================== */}
-      {/* 2. HERO: ATMÓSFERA STUDIO APPLE (CERO CUADRADOS DE IA) + TYPEWRITER */}
-      {/* =================================================================== */}
-      <section className="relative overflow-hidden pt-20 pb-16 sm:pt-24 sm:pb-20 border-b border-slate-100 bg-white">
-        {/* Iluminación de estudio suave sin cuadrados */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-sky-100/50 via-sky-50/20 to-transparent blur-3xl opacity-80" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-5">
-          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#0284c7]">
-            <span>SOFTWARE FACTORY · PLATAFORMAS PROPIAS & A MEDIDA</span>
+            SOLUCIONES TUENDPOINT · INGENIERÍA CHILENA
           </div>
 
-          {/* Titular con Typewriter */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-[#0F172A] leading-[1.08]">
-            Software enterprise que resuelve{' '}
-            <span className="text-[#0284c7] inline-block">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl leading-tight">
+            Desarrollo de Software e Integraciones para{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400">
               <Typewriter
                 words={[
-                  'operaciones reales.',
-                  'urgencias médicas.',
-                  'inventarios críticos.',
-                  'ventas sin internet.',
-                  'integraciones con FirmaGob y SII.',
+                  'Salud y Hospitales',
+                  'FirmaGob y ClaveÚnica',
+                  'Boletas y Facturación SII',
+                  'Bodegas y WMS Logístico',
+                  'Puntos de Venta Offline',
+                  'Agentes Endpoint 24/7',
                 ]}
                 speed={70}
-                delayBetweenWords={2400}
+                delayBetweenWords={2000}
                 cursorChar="|"
-                cursorClassName="text-[#0284c7]"
               />
             </span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-base sm:text-lg text-slate-500 font-normal leading-relaxed">
-            Desarrollamos plataformas críticas en producción para salud pública, logística y retail en Chile,
-            e integramos sistemas a medida con los estándares oficiales del Estado.
+          <p className="text-base sm:text-lg text-zinc-400 max-w-2xl font-normal leading-relaxed">
+            Plataformas de alta disponibilidad sin pantallas lentas ni plantillas genéricas. 
+            Vea nuestros sistemas en operación real a continuación:
           </p>
+        </div>
+      </section>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="#showcase-stage"
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-sm"
-            >
-              <span>Ver Soluciones en Grande ↓</span>
-            </a>
+      {/* ------------------------------------------------------------ */}
+      {/* 2. Hero Cinematic Showcase (Carousel a Pantalla Ancha)       */}
+      {/* ------------------------------------------------------------ */}
+      <section className="relative px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-16">
+        <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/80 shadow-[0_20px_70px_-15px_rgba(0,0,0,0.9)]">
+          {/* Main Stage Carousel */}
+          <Carousel
+            className="w-full"
+            plugins={[
+              Autoplay({
+                delay: 6000,
+                stopOnInteraction: true,
+              }),
+            ]}
+            setApi={setMainApi}
+          >
+            <CarouselContent>
+              {PRODUCTS.map((prod, index) => (
+                <CarouselItem key={prod.id}>
+                  <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden bg-zinc-950">
+                    <Image
+                      alt={prod.name}
+                      className="object-cover object-top transition-transform duration-700 ease-out"
+                      fill
+                      priority={index === 0}
+                      src={prod.image}
+                      sizes="(max-width: 1280px) 100vw, 1280px"
+                    />
+                    {/* Viñeta sutil para contraste */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/10" />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
 
-            <a
-              href="#contacto"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-800 hover:bg-slate-50 transition shadow-2xs"
-            >
-              <Code2 className="h-3.5 w-3.5 text-[#0284c7]" />
-              <span>Cotizar Desarrollo a Medida</span>
-            </a>
+          {/* Flechas de navegación para desktop */}
+          <button
+            type="button"
+            onClick={() => mainApi?.scrollPrev()}
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/80 backdrop-blur-md border border-white/10 transition-all"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            onClick={() => mainApi?.scrollNext()}
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/80 backdrop-blur-md border border-white/10 transition-all"
+            aria-label="Siguiente"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          {/* Overlay Inferior (Thumbnails a la izquierda + Detalles y CTA a la derecha) */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-4 sm:p-8 pt-12 transition-opacity duration-300">
+            <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+              {/* Izquierda: Filmstrip de Thumbnails */}
+              <div className="relative w-full md:max-w-md order-2 md:order-1">
+                <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-2">
+                  <span>Productos en Producción</span>
+                  <span className="text-zinc-600">·</span>
+                  <span className="text-emerald-400 font-semibold">
+                    0{selectedIndex + 1} de 0{PRODUCTS.length}
+                  </span>
+                </div>
+                <Carousel
+                  className="w-full"
+                  opts={{
+                    containScroll: 'keepSnaps',
+                    dragFree: true,
+                  }}
+                  setApi={setThumbApi}
+                >
+                  <CarouselContent className="-ml-2 flex-row items-end">
+                    {PRODUCTS.map((prod, index) => (
+                      <CarouselItem
+                        className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
+                        key={prod.id}
+                        onClick={() => onThumbClick(index)}
+                      >
+                        <div
+                          className={cn(
+                            'relative overflow-hidden rounded-lg transition-all duration-300 border',
+                            index === selectedIndex
+                              ? 'h-16 sm:h-20 border-emerald-400 opacity-100 ring-2 ring-emerald-400/40'
+                              : 'h-12 sm:h-14 border-white/20 opacity-50 hover:opacity-80'
+                          )}
+                        >
+                          <Image
+                            alt={prod.shortName}
+                            className="object-cover object-top h-full w-full"
+                            fill
+                            src={prod.image}
+                            sizes="120px"
+                          />
+                          <div className="absolute inset-0 bg-black/30" />
+                          <span className="absolute bottom-1 left-1.5 right-1 text-[9px] font-mono text-white truncate drop-shadow">
+                            {prod.shortName}
+                          </span>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+              </div>
+
+              {/* Derecha: Información del Producto Seleccionado & Botón */}
+              <div className="flex max-w-xl flex-col items-start md:items-end gap-3 text-left md:text-right order-1 md:order-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    {currentProduct.badge}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-400">
+                    {currentProduct.category}
+                  </span>
+                </div>
+
+                <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
+                  {currentProduct.name}
+                </h2>
+
+                <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-md">
+                  {currentProduct.description}
+                </p>
+
+                {/* Botón de Acción con Subrayado Animado Minimalista */}
+                <div className="pt-2">
+                  {currentProduct.actionType === 'external' ? (
+                    <a
+                      href={currentProduct.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-base text-white hover:text-emerald-400 transition-colors"
+                    >
+                      <span>{currentProduct.ctaText}</span>
+                      <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
+                      <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
+                    </a>
+                  ) : (
+                    <a
+                      href={currentProduct.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-base text-white hover:text-emerald-400 transition-colors"
+                    >
+                      <span>{currentProduct.ctaText}</span>
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
+                      <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Marca de Agua Minimalista Gigante */}
+            <div className="pt-6 border-t border-white/10 mt-6 select-none pointer-events-none">
+              <h1 className="text-center font-black text-3xl sm:text-6xl md:text-8xl text-white/[0.07] tracking-widest uppercase">
+                TUENDPOINT + STUDIO
+              </h1>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* =================================================================== */}
-      {/* 3. GRAND CINEMA STAGE: VISUAL EN GRANDE CON CARRETE INFERIOR       */}
-      {/* =================================================================== */}
-      <section id="showcase-stage" className="scroll-mt-20 py-16 sm:py-24 bg-[#F8FAFC]/80 border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-8">
-          {/* Cabecera del Producto Activo en el Escenario */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-1.5 max-w-3xl">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
-                <span className="font-bold text-[#0284c7]">0{selectedProductIndex + 1}</span>
-                <span>/</span>
-                <span className="text-slate-600 font-semibold">{activeProduct.category}</span>
-                <span>·</span>
-                <span className="text-emerald-700 font-medium">{activeProduct.badge}</span>
+      {/* ------------------------------------------------------------ */}
+      {/* 3. Integraciones Críticas de Chile (FirmaGob, ClaveÚnica...) */}
+      {/* ------------------------------------------------------------ */}
+      <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 border-t border-white/[0.06]">
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+          <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-emerald-400">
+            <ShieldCheck className="h-4 w-4" />
+            <span>Infraestructura Digital de Chile</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+            Integraciones Oficiales con el Estado y la Empresa
+          </h2>
+          <p className="text-sm sm:text-base text-zinc-400">
+            Desarrollamos conectores de alto rendimiento para interactuar con los servicios clave del ecosistema público y privado sin intermediarios.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {INTEGRATIONS.map((item) => (
+            <div
+              key={item.name}
+              className="group relative rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:bg-white/[0.04] hover:border-emerald-500/40 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300 border border-white/10">
+                  {item.entity}
+                </span>
+                <span className="text-[11px] font-mono text-emerald-400">
+                  {item.badge}
+                </span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
-                {activeProduct.name}
-              </h2>
-              <p className="text-base font-medium text-slate-600 leading-snug">
-                {activeProduct.tagline}
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-emerald-300 transition-colors">
+                {item.name}
+              </h3>
+              <p className="text-sm text-zinc-400 leading-relaxed mb-4">
+                {item.description}
+              </p>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-500">
+                <span>Protocolo</span>
+                <span className="text-zinc-400">{item.tech}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Card de Capacidad Técnica Especial */}
+          <div className="rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/[0.02] p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono uppercase tracking-wider mb-3">
+                <Cpu className="h-4 w-4" />
+                <span>¿Requiere una API o Conector Específico?</span>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Conectamos Sistemas Heredados
+              </h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Transformamos bases de datos relacionales, sistemas legacy o webhooks privados en arquitecturas modernas y seguras.
               </p>
             </div>
-
-            {/* BOTÓN DE ACCIÓN PERSONALIZADO POR PRODUCTO */}
-            <div className="shrink-0 flex items-center gap-3">
-              {activeProduct.actionType === 'external' && activeProduct.externalUrl ? (
-                <a
-                  href={activeProduct.externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0284c7] px-6 py-3 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
-                >
-                  <span>{activeProduct.ctaText}</span>
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              ) : (
-                <a
-                  href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo en vivo de ${activeProduct.name}.`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
-                >
-                  <MessageSquare className="h-4 w-4 text-sky-400" />
-                  <span>{activeProduct.ctaText}</span>
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* ESCENARIO VISUAL EN GRANDE (IMAC MASTER DISPLAY) */}
-          <MasterCinemaStage
-            product={activeProduct}
-            activeScreenId={currentScreenId}
-            onSelectScreen={(sId) => setProductScreen(activeProduct.id, sId)}
-          />
-
-          {/* 3 ESPECIFICACIONES TÉCNICAS CLAVE DEL PRODUCTO */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-            {activeProduct.techSpecs.map((spec, i) => (
-              <div key={i} className="flex items-start gap-2.5 p-3 rounded-2xl bg-white border border-slate-200/90 text-xs text-slate-700 shadow-2xs">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="leading-snug">{spec}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* TIRA DE MINIATURAS ESTILO CAROUSEL DECK (CAMBIO FLUIDO) */}
-          <div className="pt-4 space-y-2">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
-              Explorar otras plataformas tuEndpoint:
-            </span>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-              {PRODUCTS.map((p, idx) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setSelectedProductIndex(idx)}
-                  className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
-                    selectedProductIndex === idx
-                      ? 'border-[#0284c7] bg-white shadow-md ring-2 ring-[#0284c7]/20'
-                      : 'border-slate-200 bg-white/70 hover:bg-white hover:border-slate-300 opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 block">0{idx + 1}</span>
-                    <span className="text-xs font-bold text-slate-900 block leading-tight line-clamp-1">{p.shortName}</span>
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-500 mt-2 block line-clamp-1">{p.badge}</span>
-                </button>
-              ))}
-            </div>
+            <a
+              href="#formulario"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              <span>Consultar por mi requerimiento</span>
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </section>
 
-      {/* =================================================================== */}
-      {/* 4. INTEGRACIONES A MEDIDA: FIRMAGOB, CLAVEÚNICA, WHATSAPP, SII      */}
-      {/* =================================================================== */}
-      <section id="integraciones" className="py-20 sm:py-28 bg-white border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#0284c7]">
-              <span>INGENIERÍA E INTEGRACIONES OFICIALES</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
-              Conectamos tus sistemas con los estándares de Chile.
+      {/* ------------------------------------------------------------ */}
+      {/* 4. Formulario de Desarrollo a Medida & Integraciones          */}
+      {/* ------------------------------------------------------------ */}
+      <section id="formulario" className="relative px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto py-16">
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/90 p-6 sm:p-12 backdrop-blur-md">
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+              <Sparkles className="h-3.5 w-3.5" />
+              SOLICITUD DE INGENIERÍA
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+              ¿Busca un Desarrollo a Medida o Integración?
             </h2>
-            <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
-              Además de nuestras plataformas listas para operar, desarrollamos microservicios, conectores API
-              y pasarelas dedicadas para entidades que requieren interoperabilidad oficial y seguridad bancaria.
+            <p className="text-sm sm:text-base text-zinc-400">
+              Complete el formulario y nuestro equipo de ingenieros analizará la factibilidad técnica de su proyecto de forma directa.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {CUSTOM_INTEGRATIONS.map((integ) => (
-              <div
-                key={integ.id}
-                className="p-5 rounded-3xl border border-slate-200/90 bg-[#F8FAFC] hover:bg-white hover:border-[#0284c7]/40 hover:shadow-lg transition space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="h-10 w-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-2xs">
-                    {integ.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">{integ.name}</h3>
-                    <span className="text-[10px] font-mono text-slate-400 font-semibold uppercase block">{integ.tag}</span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {integ.description}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-slate-200/60">
-                  <span className="text-[10px] font-bold text-[#0284c7] flex items-center gap-1">
-                    <span>Disponible a medida</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =================================================================== */}
-      {/* 5. FORMULARIO PARA DESARROLLO A MEDIDA & LICITACIONES               */}
-      {/* =================================================================== */}
-      <section id="contacto" className="py-20 sm:py-28 bg-[#F8FAFC]">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-12 shadow-sm space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0284c7]">Hablemos de tu Proyecto</span>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
-                ¿Buscas un desarrollo a medida o integración institucional?
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
-                Descríbenos tu requerimiento. Analizamos la factibilidad técnica y te entregamos una propuesta clara con plazos y cotización formal.
+          {formSent ? (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center space-y-3">
+              <CheckCircle2 className="h-10 w-10 text-emerald-400 mx-auto" />
+              <h3 className="text-lg font-semibold text-white">
+                Requerimiento Enviado con Éxito
+              </h3>
+              <p className="text-sm text-zinc-300 max-w-md mx-auto">
+                Hemos recibido los antecedentes de su solicitud. Un ingeniero se pondrá en contacto con usted en breve por WhatsApp o correo.
               </p>
+              <button
+                type="button"
+                onClick={() => setFormSent(false)}
+                className="mt-4 text-xs font-mono text-emerald-400 underline"
+              >
+                Enviar otra consulta
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleFormSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-mono text-zinc-300 mb-2">
+                    NOMBRE Y APELLIDO *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.nombre}
+                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    placeholder="Ej. Carlos Valenzuela"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                  />
+                </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const form = e.currentTarget;
-                const data = new FormData(form);
-                const nombre = data.get('nombre') || '';
-                const email = data.get('email') || '';
-                const fono = data.get('telefono') || '';
-                const tipo = data.get('tipo_desarrollo') || '';
-                const msg = data.get('mensaje') || '';
-                const text = `Hola tuEndpoint, mi nombre es ${nombre} (${email}, ${fono}). Requerimiento: [${tipo}] - ${msg}`;
-                window.open(waUrl(text), '_blank');
-              }}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs"
-            >
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Nombre o Empresa / Institución</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  required
-                  placeholder="Ej: Hospital Dr. Gustavo Fricke / Empresa SpA"
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
-                />
+                <div>
+                  <label className="block text-xs font-mono text-zinc-300 mb-2">
+                    EMPRESA / INSTITUCIÓN *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.empresa}
+                    onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+                    placeholder="Ej. Clínica Santa María / Municipalidad..."
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-zinc-300 mb-2">
+                    TELÉFONO O WHATSAPP *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={form.telefono}
+                    onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                    placeholder="+56 9 1234 5678"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-zinc-300 mb-2">
+                    CORREO ELECTRÓNICO *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="carlos@empresa.cl"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Correo Electrónico Institucional</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="contacto@institucion.cl"
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Teléfono o WhatsApp</label>
-                <input
-                  type="tel"
-                  name="telefono"
-                  placeholder="+56 9 ..."
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Tipo de Requerimiento</label>
+                <label className="block text-xs font-mono text-zinc-300 mb-2">
+                  TIPO DE REQUERIMIENTO *
+                </label>
                 <select
-                  name="tipo_desarrollo"
-                  aria-label="Tipo de Requerimiento"
-                  defaultValue="medida"
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none font-medium"
+                  value={form.tipo}
+                  onChange={(e) => setForm({ ...form, tipo: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-[#0c1017] px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors"
                 >
-                  <option value="medida">Desarrollo de Software a Medida</option>
-                  <option value="firmagob">Integración con FirmaGob (Firma Avanzada)</option>
-                  <option value="claveunica">Integración con ClaveÚnica</option>
-                  <option value="sii">Facturación Electrónica SII (DTE)</option>
-                  <option value="whatsapp">WhatsApp Business API & Bots</option>
-                  <option value="filas">Gestor de Filas Hospitalario</option>
-                  <option value="ticpanel">TICPanel Mesa de Ayuda TI</option>
-                  <option value="tba">Logística TBA Bodega</option>
-                  <option value="cajaya">CajaYA POS Offline</option>
-                  <option value="paginago">PaginaGo Catálogo</option>
-                  <option value="auto">Automatizaciones RPA</option>
+                  <option value="Integración FirmaGob / ClaveÚnica">
+                    Integración FirmaGob (SEGPRES) / ClaveÚnica
+                  </option>
+                  <option value="Facturación Electrónica SII (DTE XML)">
+                    Facturación Electrónica SII (Boletas / Facturas DTE)
+                  </option>
+                  <option value="Gestor de Filas Hospitalario / Tótems">
+                    Gestor de Filas Hospitalario / Tótems de Autoatención
+                  </option>
+                  <option value="TICPanel & Agentes en Equipos">
+                    TICPanel & Agentes Silenciosos en Endpoints
+                  </option>
+                  <option value="Logística TBA / WMS Bodegas">
+                    Logística TBA / Control de Stock WMS
+                  </option>
+                  <option value="CajaYA POS Offline">
+                    CajaYA POS Offline para Comercio o Retail
+                  </option>
+                  <option value="Desarrollo de Software Nuevo desde Cero">
+                    Desarrollo de Software Nuevo desde Cero
+                  </option>
+                  <option value="Licitación Mercado Público">
+                    Licitación Mercado Público (Ley 19.886)
+                  </option>
                 </select>
               </div>
 
-              <div className="sm:col-span-2">
-                <label className="font-bold text-slate-700 block mb-1">Detalle del requerimiento o proceso a resolver</label>
+              <div>
+                <label className="block text-xs font-mono text-zinc-300 mb-2">
+                  DESCRIPCIÓN DEL PROYECTO O PREGUNTAS (OPCIONAL)
+                </label>
                 <textarea
-                  name="mensaje"
-                  rows={4}
-                  required
-                  placeholder="Describe brevemente la lógica de negocio, número de usuarios, bases de datos o sistemas con los que debe interoperar..."
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
+                  rows={3}
+                  value={form.mensaje}
+                  onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+                  placeholder="Detalle plazos, cantidad de usuarios, servidores o integraciones requeridas..."
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
                 />
               </div>
 
-              <div className="sm:col-span-2 pt-2 flex flex-wrap items-center justify-between gap-3">
-                <div className="text-[11px] text-slate-500">
-                  Email directo: <strong className="text-slate-800">contacto@tuendpoint.cl</strong> · WhatsApp:{' '}
-                  <strong className="text-slate-800">+56 9 492 5337</strong>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Respuesta técnica directa sin intermediarios comerciales</span>
                 </div>
 
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-6 py-3 font-semibold text-sm text-black transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
                 >
-                  <Send className="h-3.5 w-3.5" />
-                  <span>Enviar Consulta de Desarrollo</span>
+                  <Send className="h-4 w-4" />
+                  <span>Enviar Requerimiento a Ingeniería</span>
                 </button>
               </div>
             </form>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* =================================================================== */}
-      {/* 6. PIE DE PÁGINA CORPORATIVO                                        */}
-      {/* =================================================================== */}
-      <footer className="modern-site-footer border-t border-slate-200 bg-white py-12 text-xs text-slate-600">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-2">
-              <span className="text-lg font-extrabold text-[#0F172A]">
-                tuEndpoint<span className="text-[#0284c7]">.</span>
-              </span>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                {TUENDPOINT_COMPANY.razonSocial}
-                <br />
-                RUT: {TUENDPOINT_COMPANY.rut}
-                <br />
-                Giro: {TUENDPOINT_COMPANY.giro}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                Casa Matriz: {TUENDPOINT_COMPANY.direccion}, {TUENDPOINT_COMPANY.ciudad}, Chile.
-              </p>
+      {/* ------------------------------------------------------------ */}
+      {/* 5. Franja Corporativa de Transparencia & Contacto            */}
+      {/* ------------------------------------------------------------ */}
+      <section className="border-t border-white/[0.08] bg-black/60 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div>
+            <div className="text-sm font-semibold text-white tracking-wide">
+              SOLUCIONES TUENDPOINT SPA
             </div>
-
-            <div className="space-y-2">
-              <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Soluciones Propias</span>
-              <ul className="space-y-1.5 text-[11px]">
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(0)} className="hover:text-slate-900 transition">Gestor de Filas Hospitalario</a></li>
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(1)} className="hover:text-slate-900 transition">TICPanel Mesa de Ayuda TI</a></li>
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(2)} className="hover:text-slate-900 transition">Logística TBA Bodega</a></li>
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(3)} className="hover:text-slate-900 transition">CajaYA POS + SII</a></li>
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(4)} className="hover:text-slate-900 transition">PaginaGo</a></li>
-                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(5)} className="hover:text-slate-900 transition">Automatizaciones RPA</a></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Portales & Servicios</span>
-              <ul className="space-y-1.5 text-[11px]">
-                <li><a href="https://paginago.com" target="_blank" rel="noreferrer" className="hover:text-slate-900">paginago.com (Activo)</a></li>
-                <li><a href="https://cajaya.cl" target="_blank" rel="noreferrer" className="hover:text-slate-900">cajaya.cl</a></li>
-                <li><a href="https://logisticatba.cloud" target="_blank" rel="noreferrer" className="hover:text-slate-900">logisticatba.cloud</a></li>
-                <li><a href="#integraciones" className="hover:text-slate-900">FirmaGob & ClaveÚnica</a></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Contacto Directo</span>
-              <p className="text-[11px]">
-                WhatsApp: <a href={waUrl('Hola tuEndpoint')} className="font-bold text-[#0284c7]">{brand.phone}</a>
-                <br />
-                Correo: <a href="mailto:contacto@tuendpoint.cl" className="text-slate-700">contacto@tuendpoint.cl</a>
-                <br />
-                Soporte y Mesa de Ayuda: Lunes a Viernes 08:30 a 18:30 hrs.
-              </p>
-              <div className="pt-2">
-                <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-800 border border-emerald-200">
-                  ✔ PROVEEDOR DEL ESTADO HÁBIL
-                </span>
-              </div>
+            <div className="text-xs font-mono text-zinc-400 mt-1">
+              RUT: 78.411.033-8 · Viña del Mar, Región de Valparaíso, Chile
             </div>
           </div>
 
-          <div className="mt-8 border-t border-slate-100 pt-6 text-center text-[11px] text-slate-400">
-            © {new Date().getFullYear()} Soluciones tuEndpoint SpA. Todos los derechos reservados. Desarrollado en Chile.
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-6 text-xs font-mono text-zinc-300">
+            <a
+              href="mailto:contacto@tuendpoint.cl"
+              className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+            >
+              <Mail className="h-3.5 w-3.5 text-emerald-400" />
+              contacto@tuendpoint.cl
+            </a>
+            <a
+              href="https://wa.me/5694925337"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+            >
+              <PhoneCall className="h-3.5 w-3.5 text-emerald-400" />
+              +56 9 492 5337
+            </a>
           </div>
         </div>
-      </footer>
-
-      {/* Asistente interactivo flotante en esquina */}
-      <AssistantBot
-        productIndexById={{
-          filas: 1,
-          ticpanel: 2,
-          tba: 3,
-          cajaya: 4,
-          paginago: 5,
-          auto: 6,
-        }}
-        contactIndex={7}
-        onNavigate={(idx) => {
-          if (idx >= 1 && idx <= 6) {
-            setSelectedProductIndex(idx - 1);
-            const el = document.getElementById('showcase-stage');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            const el = document.getElementById('contacto');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
-        onPrefillContact={(_topic, draft) => {
-          const el = document.getElementById('contacto');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-          const textarea = document.querySelector<HTMLTextAreaElement>('textarea[name="mensaje"]');
-          if (textarea) textarea.value = draft;
-        }}
-      />
+      </section>
     </div>
   );
 }

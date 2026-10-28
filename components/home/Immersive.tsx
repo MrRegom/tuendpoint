@@ -1,16 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
   ArrowRight,
   ExternalLink,
-  MessageSquare,
   ShieldCheck,
   CheckCircle2,
   Lock,
-  FileCheck,
-  Building2,
   Cpu,
   Send,
   Sparkles,
@@ -30,7 +27,7 @@ import { Typewriter } from '@/components/ui/typewriter';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Datos de Productos para el Cinematic Showcase Stage                 */
+/* Modelos y Datos de Productos para el Showcase Stage                 */
 /* ------------------------------------------------------------------ */
 
 interface ShowcaseProduct {
@@ -44,7 +41,6 @@ interface ShowcaseProduct {
   actionType: 'external' | 'whatsapp';
   url: string;
   ctaText: string;
-  ratingText: string;
 }
 
 const PRODUCTS: ShowcaseProduct[] = [
@@ -60,7 +56,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20del%20Gestor%20de%20Filas%20Hospitalario.',
     ctaText: 'Pedir Demostración en Vivo',
-    ratingText: 'Norma Salud · Ley 20.584',
   },
   {
     id: 'ticpanel',
@@ -74,7 +69,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20de%20TICPanel%20y%20sus%20agentes%20en%20equipos.',
     ctaText: 'Pedir Demostración en Vivo',
-    ratingText: 'Multi-Plataforma · Telemetría',
   },
   {
     id: 'tba',
@@ -88,7 +82,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'external',
     url: 'https://logisticatba.cloud',
     ctaText: 'Visitar logisticatba.cloud',
-    ratingText: 'En vivo en logisticatba.cloud',
   },
   {
     id: 'cajaya',
@@ -102,7 +95,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'external',
     url: 'https://cajaya.cl',
     ctaText: 'Ver más en cajaya.cl',
-    ratingText: 'En vivo en cajaya.cl',
   },
   {
     id: 'paginago',
@@ -116,7 +108,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'external',
     url: 'https://paginago.com',
     ctaText: 'Ver Demo en paginago.com',
-    ratingText: 'Operativo en paginago.com',
   },
   {
     id: 'integraciones',
@@ -130,7 +121,6 @@ const PRODUCTS: ShowcaseProduct[] = [
     actionType: 'whatsapp',
     url: 'https://wa.me/5694925337?text=Hola%2C%20quisiera%20cotizar%20un%20desarrollo%20a%20medida%20o%20integraci%C3%B3n%20cr%C3%ADtica.',
     ctaText: 'Consultar Factibilidad Técnica',
-    ratingText: 'APIs & Conectores Oficiales',
   },
 ];
 
@@ -251,13 +241,13 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
 
   return (
     <div className="relative min-h-screen bg-[#07090e] text-white selection:bg-emerald-500/30 selection:text-emerald-200">
-      {/* Luz ambiente superior sutil estilo iMac */}
+      {/* Luz ambiental superior minimalista */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[450px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(16,185,129,0.12),transparent_70%)]" />
 
       {/* ------------------------------------------------------------ */}
       {/* 1. Header Minimalista & Headline con Typewriter              */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative pt-12 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono tracking-wider text-emerald-400">
             <span className="relative flex h-2 w-2">
@@ -286,9 +276,9 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-zinc-400 max-w-2xl font-normal leading-relaxed">
-            Plataformas de alta disponibilidad sin pantallas lentas ni plantillas genéricas. 
-            Vea nuestros sistemas en operación real a continuación:
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal leading-relaxed">
+            Plataformas de alta disponibilidad para el sector público y privado.
+            Consulte a continuación nuestras aplicaciones en producción real:
           </p>
         </div>
       </section>
@@ -296,165 +286,259 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
       {/* ------------------------------------------------------------ */}
       {/* 2. Hero Cinematic Showcase (Carousel a Pantalla Ancha)       */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-16">
-        <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/80 shadow-[0_20px_70px_-15px_rgba(0,0,0,0.9)]">
+      <section id="productos" className="relative px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-16">
+        <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_25px_80px_-15px_rgba(0,0,0,0.95)]">
           {/* Main Stage Carousel */}
-          <Carousel
-            className="w-full"
-            plugins={[
-              Autoplay({
-                delay: 6000,
-                stopOnInteraction: true,
-              }),
-            ]}
-            setApi={setMainApi}
-          >
-            <CarouselContent>
-              {PRODUCTS.map((prod, index) => (
-                <CarouselItem key={prod.id}>
-                  <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden bg-zinc-950">
-                    <Image
-                      alt={prod.name}
-                      className="object-cover object-top transition-transform duration-700 ease-out"
-                      fill
-                      priority={index === 0}
-                      src={prod.image}
-                      sizes="(max-width: 1280px) 100vw, 1280px"
-                    />
-                    {/* Viñeta sutil para contraste */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/10" />
+          <div className="relative w-full">
+            <Carousel
+              className="w-full"
+              plugins={[
+                Autoplay({
+                  delay: 6000,
+                  stopOnInteraction: true,
+                }),
+              ]}
+              setApi={setMainApi}
+            >
+              <CarouselContent>
+                {PRODUCTS.map((prod, index) => (
+                  <CarouselItem key={prod.id}>
+                    <div className="relative h-[280px] sm:h-[400px] md:aspect-video md:h-auto w-full overflow-hidden bg-zinc-950">
+                      <Image
+                        alt={prod.name}
+                        className="object-cover object-top"
+                        fill
+                        priority={index === 0}
+                        src={prod.image}
+                        sizes="(max-width: 1280px) 100vw, 1280px"
+                      />
+                      {/* Degradado superior sutil */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+
+            {/* Flechas de navegación para desktop */}
+            <button
+              type="button"
+              onClick={() => mainApi?.scrollPrev()}
+              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/90 backdrop-blur-md border border-white/15 transition-all shadow-lg"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={() => mainApi?.scrollNext()}
+              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/90 backdrop-blur-md border border-white/15 transition-all shadow-lg"
+              aria-label="Siguiente"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+
+            {/* Overlay Desktop (md y superior): Widescreen HUD Stage */}
+            <div className="hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 via-40% to-transparent pt-24 pb-5 px-6 transition-opacity duration-300">
+              <div className="flex items-end justify-between gap-5">
+                {/* Izquierda: Filmstrip de Thumbnails en Glass Deck */}
+                <div className="relative w-full max-w-sm bg-black/75 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-2xl">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center justify-between px-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      Aplicaciones
+                    </span>
+                    <span className="text-emerald-400 font-semibold font-mono">
+                      0{selectedIndex + 1} / 0{PRODUCTS.length}
+                    </span>
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-
-          {/* Flechas de navegación para desktop */}
-          <button
-            type="button"
-            onClick={() => mainApi?.scrollPrev()}
-            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/80 backdrop-blur-md border border-white/10 transition-all"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </button>
-          <button
-            type="button"
-            onClick={() => mainApi?.scrollNext()}
-            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/80 backdrop-blur-md border border-white/10 transition-all"
-            aria-label="Siguiente"
-          >
-            <ChevronRight className="h-6 w-6" />
-          </button>
-
-          {/* Overlay Inferior (Thumbnails a la izquierda + Detalles y CTA a la derecha) */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-4 sm:p-8 pt-12 transition-opacity duration-300">
-            <div className="flex flex-col md:flex-row items-end justify-between gap-6">
-              {/* Izquierda: Filmstrip de Thumbnails */}
-              <div className="relative w-full md:max-w-md order-2 md:order-1">
-                <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-2">
-                  <span>Productos en Producción</span>
-                  <span className="text-zinc-600">·</span>
-                  <span className="text-emerald-400 font-semibold">
-                    0{selectedIndex + 1} de 0{PRODUCTS.length}
-                  </span>
-                </div>
-                <Carousel
-                  className="w-full"
-                  opts={{
-                    containScroll: 'keepSnaps',
-                    dragFree: true,
-                  }}
-                  setApi={setThumbApi}
-                >
-                  <CarouselContent className="-ml-2 flex-row items-end">
-                    {PRODUCTS.map((prod, index) => (
-                      <CarouselItem
-                        className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
-                        key={prod.id}
-                        onClick={() => onThumbClick(index)}
-                      >
-                        <div
-                          className={cn(
-                            'relative overflow-hidden rounded-lg transition-all duration-300 border',
-                            index === selectedIndex
-                              ? 'h-16 sm:h-20 border-emerald-400 opacity-100 ring-2 ring-emerald-400/40'
-                              : 'h-12 sm:h-14 border-white/20 opacity-50 hover:opacity-80'
-                          )}
+                  <Carousel
+                    className="w-full"
+                    opts={{
+                      containScroll: 'keepSnaps',
+                      dragFree: true,
+                    }}
+                    setApi={setThumbApi}
+                  >
+                    <CarouselContent className="-ml-1.5 flex-row items-end">
+                      {PRODUCTS.map((prod, index) => (
+                        <CarouselItem
+                          className="basis-1/5 cursor-pointer pl-1.5"
+                          key={prod.id}
+                          onClick={() => onThumbClick(index)}
                         >
-                          <Image
-                            alt={prod.shortName}
-                            className="object-cover object-top h-full w-full"
-                            fill
-                            src={prod.image}
-                            sizes="120px"
-                          />
-                          <div className="absolute inset-0 bg-black/30" />
-                          <span className="absolute bottom-1 left-1.5 right-1 text-[9px] font-mono text-white truncate drop-shadow">
-                            {prod.shortName}
-                          </span>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                </Carousel>
+                          <div
+                            className={cn(
+                              'relative overflow-hidden rounded-md transition-all duration-300 border',
+                              index === selectedIndex
+                                ? 'h-16 border-emerald-400 opacity-100 ring-2 ring-emerald-400/50 shadow-md shadow-emerald-500/20'
+                                : 'h-12 border-white/20 opacity-50 hover:opacity-80'
+                            )}
+                          >
+                            <Image
+                              alt={prod.shortName}
+                              className="object-cover object-top h-full w-full"
+                              fill
+                              src={prod.image}
+                              sizes="100px"
+                            />
+                            <div className="absolute inset-0 bg-black/35" />
+                            <span className="absolute bottom-1 left-1 right-1 text-[8px] font-mono text-white truncate drop-shadow">
+                              {prod.shortName}
+                            </span>
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                  </Carousel>
+                </div>
+
+                {/* Derecha: Información del Producto Seleccionado en Glass Card */}
+                <div className="flex max-w-md flex-col items-end gap-2 text-right bg-black/80 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 shadow-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      {currentProduct.badge}
+                    </span>
+                    <span className="text-[11px] font-mono text-zinc-400">
+                      {currentProduct.category}
+                    </span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    {currentProduct.name}
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md">
+                    {currentProduct.description}
+                  </p>
+
+                  {/* Botón de Acción con Subrayado Animado Minimalista */}
+                  <div className="pt-1.5">
+                    {currentProduct.actionType === 'external' ? (
+                      <a
+                        href={currentProduct.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-sm text-white hover:text-emerald-400 transition-colors"
+                      >
+                        <span>{currentProduct.ctaText}</span>
+                        <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
+                        <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
+                      </a>
+                    ) : (
+                      <a
+                        href={currentProduct.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-sm text-white hover:text-emerald-400 transition-colors"
+                      >
+                        <span>{currentProduct.ctaText}</span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                        <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
+                        <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Derecha: Información del Producto Seleccionado & Botón */}
-              <div className="flex max-w-xl flex-col items-start md:items-end gap-3 text-left md:text-right order-1 md:order-2">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                    {currentProduct.badge}
-                  </span>
-                  <span className="text-xs font-mono text-zinc-400">
-                    {currentProduct.category}
-                  </span>
-                </div>
+              {/* Watermark Gigante */}
+              <div className="pt-4 border-t border-white/10 mt-4 select-none pointer-events-none">
+                <h1 className="text-center font-black text-4xl lg:text-6xl text-white/[0.07] tracking-widest uppercase">
+                  TUENDPOINT + STUDIO
+                </h1>
+              </div>
+            </div>
+          </div>
 
-                <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
-                  {currentProduct.name}
-                </h2>
-
-                <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-md">
-                  {currentProduct.description}
-                </p>
-
-                {/* Botón de Acción con Subrayado Animado Minimalista */}
-                <div className="pt-2">
-                  {currentProduct.actionType === 'external' ? (
-                    <a
-                      href={currentProduct.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-base text-white hover:text-emerald-400 transition-colors"
-                    >
-                      <span>{currentProduct.ctaText}</span>
-                      <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
-                      <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
-                    </a>
-                  ) : (
-                    <a
-                      href={currentProduct.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center gap-2 overflow-hidden px-1 py-1 font-medium text-base text-white hover:text-emerald-400 transition-colors"
-                    >
-                      <span>{currentProduct.ctaText}</span>
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      <div className="absolute bottom-0 z-20 h-[2px] w-full bg-zinc-700" />
-                      <div className="absolute bottom-0 z-30 h-[2px] w-full -translate-x-full bg-emerald-400 transition-transform duration-500 ease-in-out group-hover:translate-x-0" />
-                    </a>
-                  )}
-                </div>
+          {/* Versión Mobile (< md): Deck Inferior Limpio y Legible sin Solapamientos */}
+          <div className="md:hidden bg-gradient-to-b from-black/90 to-[#0c1017] p-5 space-y-4 border-t border-white/10">
+            {/* Filmstrip de Thumbnails Touch */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 flex items-center justify-between">
+                <span>Aplicaciones</span>
+                <span className="text-emerald-400 font-semibold">
+                  0{selectedIndex + 1} de 0{PRODUCTS.length}
+                </span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                {PRODUCTS.map((prod, index) => (
+                  <button
+                    key={prod.id}
+                    type="button"
+                    onClick={() => onThumbClick(index)}
+                    className={cn(
+                      'relative shrink-0 rounded-lg overflow-hidden border transition-all text-left',
+                      index === selectedIndex
+                        ? 'w-20 h-14 border-emerald-400 ring-2 ring-emerald-400/50'
+                        : 'w-16 h-12 border-white/20 opacity-50'
+                    )}
+                  >
+                    <Image
+                      alt={prod.shortName}
+                      className="object-cover object-top h-full w-full"
+                      fill
+                      src={prod.image}
+                      sizes="80px"
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                    <span className="absolute bottom-1 left-1 text-[8px] font-mono text-white truncate max-w-[90%]">
+                      {prod.shortName}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Marca de Agua Minimalista Gigante */}
-            <div className="pt-6 border-t border-white/10 mt-6 select-none pointer-events-none">
-              <h1 className="text-center font-black text-3xl sm:text-6xl md:text-8xl text-white/[0.07] tracking-widest uppercase">
+            {/* Detalle Producto Mobile */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  {currentProduct.badge}
+                </span>
+                <span className="text-[11px] font-mono text-zinc-400">
+                  {currentProduct.category}
+                </span>
+              </div>
+
+              <h2 className="text-xl font-bold text-white">
+                {currentProduct.name}
+              </h2>
+
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                {currentProduct.description}
+              </p>
+
+              <div className="pt-2">
+                {currentProduct.actionType === 'external' ? (
+                  <a
+                    href={currentProduct.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-emerald-500/15 border border-emerald-500/40 py-2.5 px-4 font-semibold text-xs text-emerald-300"
+                  >
+                    <span>{currentProduct.ctaText}</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                ) : (
+                  <a
+                    href={currentProduct.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-emerald-500 py-2.5 px-4 font-semibold text-xs text-black"
+                  >
+                    <span>{currentProduct.ctaText}</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/5 text-center">
+              <span className="text-[11px] font-mono text-white/20 tracking-widest font-black uppercase">
                 TUENDPOINT + STUDIO
-              </h1>
+              </span>
             </div>
           </div>
         </div>
@@ -463,7 +547,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
       {/* ------------------------------------------------------------ */}
       {/* 3. Integraciones Críticas de Chile (FirmaGob, ClaveÚnica...) */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 border-t border-white/[0.06]">
+      <section id="integraciones" className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 border-t border-white/[0.06]">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-emerald-400">
             <ShieldCheck className="h-4 w-4" />
@@ -473,7 +557,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
             Integraciones Oficiales con el Estado y la Empresa
           </h2>
           <p className="text-sm sm:text-base text-zinc-400">
-            Desarrollamos conectores de alto rendimiento para interactuar con los servicios clave del ecosistema público y privado sin intermediarios.
+            Desarrollamos conectores directos de alto rendimiento para interactuar con los servicios clave del ecosistema público y privado sin intermediarios.
           </p>
         </div>
 
@@ -504,7 +588,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
             </div>
           ))}
 
-          {/* Card de Capacidad Técnica Especial */}
+          {/* Card de Conectores Específicos */}
           <div className="rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/[0.02] p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono uppercase tracking-wider mb-3">
@@ -515,7 +599,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                 Conectamos Sistemas Heredados
               </h3>
               <p className="text-sm text-zinc-400 leading-relaxed">
-                Transformamos bases de datos relacionales, sistemas legacy o webhooks privados en arquitecturas modernas y seguras.
+                Transformamos bases de datos SQL Server, sistemas legacy, webhooks bancarios o ERPs en arquitecturas modernas y seguras.
               </p>
             </div>
             <a
@@ -559,7 +643,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
               <button
                 type="button"
                 onClick={() => setFormSent(false)}
-                className="mt-4 text-xs font-mono text-emerald-400 underline"
+                className="mt-4 text-xs font-mono text-emerald-400 underline cursor-pointer"
               >
                 Enviar otra consulta
               </button>

@@ -24,6 +24,13 @@ import {
   HardDrive,
   Laptop,
   ChevronRight,
+  ChevronLeft,
+  ShieldCheck,
+  KeyRound,
+  FileCheck,
+  Receipt,
+  Building2,
+  Code2,
 } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { TUENDPOINT_COMPANY } from '@/lib/cotizador/catalog';
@@ -31,7 +38,7 @@ import { AssistantBot } from '@/components/home/AssistantBot';
 import { Typewriter } from '@/components/ui/typewriter';
 
 /* ------------------------------------------------------------------ */
-/* Datos Oficiales de Productos y Pantallas                           */
+/* Modelos y Datos de Productos y Pantallas                           */
 /* ------------------------------------------------------------------ */
 
 interface ScreenTab {
@@ -55,7 +62,9 @@ interface ProductShowcase {
   techSpecs: string[];
   screens: ScreenTab[];
   externalUrl?: string;
+  actionType: 'external' | 'whatsapp';
   ctaText: string;
+  thumbImg: string;
 }
 
 const PRODUCTS: ProductShowcase[] = [
@@ -78,7 +87,7 @@ const PRODUCTS: ProductShowcase[] = [
         id: 'tv',
         label: 'TV Sala de Espera',
         type: 'filas-tv',
-        badge: 'Llamado por Voz',
+        badge: 'Llamado por Voz en Vivo',
         actionText: 'Llamando paciente a Módulo 3 por voz...',
       },
       {
@@ -87,7 +96,7 @@ const PRODUCTS: ProductShowcase[] = [
         type: 'filas-totem',
         badge: 'Autoatención con RUT',
         click: [0.5, 0.46],
-        actionText: 'Emitiendo ticket para Farmacia Ambulatoria...',
+        actionText: 'Emitiendo ticket Farmacia Ambulatoria...',
       },
       {
         id: 'envivo',
@@ -117,7 +126,9 @@ const PRODUCTS: ProductShowcase[] = [
         actionText: 'Exportando informe oficial ministerial...',
       },
     ],
+    actionType: 'whatsapp',
     ctaText: 'Pedir Demo de Filas',
+    thumbImg: '/shots/filas-1.jpg',
   },
   {
     id: 'ticpanel',
@@ -178,7 +189,9 @@ const PRODUCTS: ProductShowcase[] = [
         actionText: 'Revisando estado general de infraestructura...',
       },
     ],
+    actionType: 'whatsapp',
     ctaText: 'Pedir Demo de TICPanel',
+    thumbImg: '/shots/ticpanel-1.jpg',
   },
   {
     id: 'tba',
@@ -233,7 +246,9 @@ const PRODUCTS: ProductShowcase[] = [
       },
     ],
     externalUrl: 'https://logisticatba.cloud',
+    actionType: 'external',
     ctaText: 'Visitar logisticatba.cloud',
+    thumbImg: '/shots/tba-1.jpg',
   },
   {
     id: 'cajaya',
@@ -306,17 +321,19 @@ const PRODUCTS: ProductShowcase[] = [
       },
     ],
     externalUrl: 'https://cajaya.cl',
-    ctaText: 'Conocer cajaya.cl',
+    actionType: 'external',
+    ctaText: 'Ver más en cajaya.cl',
+    thumbImg: '/shots/cajaya-1.jpg',
   },
   {
     id: 'paginago',
     name: 'PaginaGo — Catálogo WhatsApp',
     shortName: 'PaginaGo',
     category: 'Comercio Digital',
-    badge: 'A la Venta en paginago.com',
-    tagline: 'Tu tienda online en un enlace para recibir pedidos directos sin comisiones.',
+    badge: 'Operativo en paginago.com',
+    tagline: 'Tu catálogo online en un enlace para recibir pedidos directos sin comisiones.',
     oneLiner:
-      'La vía más rápida de vender por internet. El cliente arma su carrito en el celular y te envía la orden lista con lista, dirección y total calculado directamente a tu WhatsApp.',
+      '0% comisiones por venta. El cliente navega tu catálogo desde el celular y envía el pedido estructurado con total y datos de despacho directo a tu WhatsApp.',
     techSpecs: [
       '0% comisiones por venta: el 100% del dinero ingresa directo a tu cuenta bancaria.',
       'Carrito de compras integrado que genera el mensaje estructurado con datos de despacho.',
@@ -361,7 +378,9 @@ const PRODUCTS: ProductShowcase[] = [
       },
     ],
     externalUrl: 'https://paginago.com',
-    ctaText: 'Ir a paginago.com',
+    actionType: 'external',
+    ctaText: 'Ver Demo en paginago.com',
+    thumbImg: '/shots/paginago-1.jpg',
   },
   {
     id: 'auto',
@@ -386,7 +405,59 @@ const PRODUCTS: ProductShowcase[] = [
         actionText: 'Ejecutando robot RPA para conciliación...',
       },
     ],
-    ctaText: 'Consultar Automatización',
+    actionType: 'whatsapp',
+    ctaText: 'Pedir Demo de Automatizaciones',
+    thumbImg: '/shots/ticpanel-1.jpg',
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Integraciones Críticas a Medida (FirmaGob, ClaveÚnica, SII, etc.)  */
+/* ------------------------------------------------------------------ */
+
+interface IntegrationItem {
+  id: string;
+  name: string;
+  tag: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const CUSTOM_INTEGRATIONS: IntegrationItem[] = [
+  {
+    id: 'firmagob',
+    name: 'FirmaGob',
+    tag: 'Firma Electrónica Avanzada',
+    description: 'Integración oficial del Estado de Chile para firma electrónica de decretos, contratos y actas institucionales.',
+    icon: <FileCheck className="h-5 w-5 text-sky-600" />,
+  },
+  {
+    id: 'claveunica',
+    name: 'ClaveÚnica',
+    tag: 'Autenticación Ciudadana',
+    description: 'Inicio de sesión seguro para usuarios y funcionarios mediante el sistema oficial de Gobierno Digital.',
+    icon: <KeyRound className="h-5 w-5 text-emerald-600" />,
+  },
+  {
+    id: 'sii',
+    name: 'SII / DTE Electrónico',
+    tag: 'Facturación & Boletas',
+    description: 'Timbraje y emisión masiva de DTE (boletas, facturas, guías de despacho) con sincronización automática de folios CAF.',
+    icon: <Receipt className="h-5 w-5 text-amber-600" />,
+  },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp Business API',
+    tag: 'Mensajería & Notificaciones',
+    description: 'Bots automáticos para confirmación de pedidos, envío de tickets hospitalarios y notificaciones transaccionales.',
+    icon: <MessageSquare className="h-5 w-5 text-emerald-600" />,
+  },
+  {
+    id: 'mercadopublico',
+    name: 'Mercado Público & ChileCompra',
+    tag: 'Licitaciones Ley 19.886',
+    description: 'Conexión de órdenes de compra (OC) y licitaciones del Estado para automatizar la gestión de compras públicas.',
+    icon: <Building2 className="h-5 w-5 text-indigo-600" />,
   },
 ];
 
@@ -806,10 +877,10 @@ function AutoMonitorSimulator() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ventana iMac Studio Display (Sin Modals Clumsy, 100% Visual)       */
+/* Escenario Visual Master iMac (Cinema Stage en Grande)              */
 /* ------------------------------------------------------------------ */
 
-function IMacDisplayStage({
+function MasterCinemaStage({
   product,
   activeScreenId,
   onSelectScreen,
@@ -863,7 +934,7 @@ function IMacDisplayStage({
     timeoutNext = setTimeout(() => {
       const nextIndex = (currentScreenIndex + 1) % screens.length;
       onSelectScreen(screens[nextIndex].id);
-    }, 4400);
+    }, 4500);
 
     return () => {
       clearTimeout(timeoutMove);
@@ -873,7 +944,7 @@ function IMacDisplayStage({
   }, [isPlaying, currentScreenIndex, currentScreen, screens, onSelectScreen]);
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-2xl overflow-hidden transition-all">
+    <div className="w-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-2xl overflow-hidden transition-all">
       {/* Barra de Título iMac Minimalista */}
       <div className="px-4 py-3 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -887,7 +958,7 @@ function IMacDisplayStage({
           </span>
         </div>
 
-        {/* Pestañas limpias estilo macOS */}
+        {/* Pestañas de pantallas del producto activo */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           {screens.map((scr) => (
             <button
@@ -915,7 +986,7 @@ function IMacDisplayStage({
         </button>
       </div>
 
-      {/* Pantalla del Software en Alta Definición */}
+      {/* Pantalla del Software en Gran Formato */}
       <div className="relative bg-slate-100 p-2 sm:p-4 overflow-hidden select-none">
         {currentScreen.type === 'filas-tv' && <FilasTVSimulator />}
         {currentScreen.type === 'filas-totem' && <FilasTotemSimulator />}
@@ -985,6 +1056,7 @@ function IMacDisplayStage({
 /* ------------------------------------------------------------------ */
 
 export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {}) {
+  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [activeScreens, setActiveScreens] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {};
     PRODUCTS.forEach((p) => {
@@ -992,6 +1064,9 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
     });
     return init;
   });
+
+  const activeProduct = PRODUCTS[selectedProductIndex];
+  const currentScreenId = activeScreens[activeProduct.id] || activeProduct.screens[0].id;
 
   const setProductScreen = (productId: string, screenId: string) => {
     setActiveScreens((prev) => ({ ...prev, [productId]: screenId }));
@@ -1014,17 +1089,29 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
-            <a href="#filas" className="hover:text-slate-900 transition">Gestor de Filas</a>
-            <a href="#ticpanel" className="hover:text-slate-900 transition">TICPanel</a>
-            <a href="#tba" className="hover:text-slate-900 transition">Logística TBA</a>
-            <a href="#cajaya" className="hover:text-slate-900 transition">CajaYA POS</a>
-            <a href="#paginago" className="hover:text-slate-900 transition">PaginaGo</a>
-            <a href="#auto" className="hover:text-slate-900 transition">Automatizaciones</a>
+            {PRODUCTS.map((p, idx) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  setSelectedProductIndex(idx);
+                  const el = document.getElementById('showcase-stage');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className={`transition cursor-pointer ${
+                  selectedProductIndex === idx ? 'text-slate-900 font-bold' : 'hover:text-slate-900'
+                }`}
+              >
+                {p.shortName}
+              </button>
+            ))}
+            <a href="#integraciones" className="hover:text-slate-900 transition">Integraciones</a>
+            <a href="#contacto" className="hover:text-slate-900 transition">Desarrollo a Medida</a>
           </nav>
 
           <div className="flex items-center gap-3">
             <a
-              href={waUrl('Hola tuEndpoint, me gustaría consultar por sus soluciones de software.')}
+              href={waUrl('Hola tuEndpoint, me gustaría consultar por un desarrollo de software.')}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
@@ -1037,17 +1124,17 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
       </header>
 
       {/* =================================================================== */}
-      {/* 2. HERO: ILUMINACIÓN STUDIO APPLE (CERO CUADRADOS DE IA)            */}
+      {/* 2. HERO: ATMÓSFERA STUDIO APPLE (CERO CUADRADOS DE IA) + TYPEWRITER */}
       {/* =================================================================== */}
-      <section className="relative overflow-hidden pt-20 pb-20 sm:pt-28 sm:pb-28 border-b border-slate-100 bg-white">
+      <section className="relative overflow-hidden pt-20 pb-16 sm:pt-24 sm:pb-20 border-b border-slate-100 bg-white">
         {/* Iluminación de estudio suave sin cuadrados */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-sky-100/50 via-sky-50/20 to-transparent blur-3xl opacity-80" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-5">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#0284c7]">
-            <span>SOFTWARE FACTORY & PLATAFORMAS EN PRODUCCIÓN</span>
+            <span>SOFTWARE FACTORY · PLATAFORMAS PROPIAS & A MEDIDA</span>
           </div>
 
           {/* Titular con Typewriter */}
@@ -1060,7 +1147,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                   'urgencias médicas.',
                   'inventarios críticos.',
                   'ventas sin internet.',
-                  'tareas manuales.',
+                  'integraciones con FirmaGob y SII.',
                 ]}
                 speed={70}
                 delayBetweenWords={2400}
@@ -1070,138 +1157,187 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
             </span>
           </h1>
 
-          <p className="mx-auto max-w-xl text-base sm:text-lg text-slate-500 font-normal leading-relaxed">
-            Plataformas críticas en producción para salud, logística y retail en Chile.
+          <p className="mx-auto max-w-2xl text-base sm:text-lg text-slate-500 font-normal leading-relaxed">
+            Desarrollamos plataformas críticas en producción para salud pública, logística y retail en Chile,
+            e integramos sistemas a medida con los estándares oficiales del Estado.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#filas"
+              href="#showcase-stage"
               className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-sm"
             >
-              <span>Explorar Soluciones ↓</span>
+              <span>Ver Soluciones en Grande ↓</span>
             </a>
 
             <a
-              href={waUrl('Hola tuEndpoint, me gustaría conversar con un ingeniero sobre un proyecto de software.')}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#contacto"
               className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-800 hover:bg-slate-50 transition shadow-2xs"
             >
-              <MessageSquare className="h-3.5 w-3.5 text-[#0284c7]" />
-              <span>Hablar con un Ingeniero</span>
+              <Code2 className="h-3.5 w-3.5 text-[#0284c7]" />
+              <span>Cotizar Desarrollo a Medida</span>
             </a>
           </div>
         </div>
       </section>
 
       {/* =================================================================== */}
-      {/* 3. SHOWCASE IMAC: VISUAL, PRECISO Y SIN MODALS APILADOS             */}
+      {/* 3. GRAND CINEMA STAGE: VISUAL EN GRANDE CON CARRETE INFERIOR       */}
       {/* =================================================================== */}
-      <section className="py-20 sm:py-28 space-y-24 sm:space-y-36">
-        {PRODUCTS.map((prod, index) => {
-          const isReversed = index % 2 === 1;
-          const currentScreenId = activeScreens[prod.id] || prod.screens[0].id;
-
-          return (
-            <div
-              key={prod.id}
-              id={prod.id}
-              className="scroll-mt-24 mx-auto max-w-7xl px-4 sm:px-6"
-            >
-              <div
-                className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center ${
-                  isReversed ? 'lg:flex-row-reverse' : ''
-                }`}
-              >
-                {/* ---------------------------------------------------- */}
-                {/* COLUMNA DE TEXTOS: CORTA, PRECISA Y DIRECTA          */}
-                {/* ---------------------------------------------------- */}
-                <div className={`space-y-4 lg:col-span-5 ${isReversed ? 'lg:order-2' : 'lg:order-1'}`}>
-                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
-                    <span className="font-bold text-[#0284c7]">0{index + 1}</span>
-                    <span>/</span>
-                    <span className="text-slate-600 font-semibold">{prod.category}</span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
-                      {prod.name}
-                    </h2>
-                    <p className="text-base font-semibold text-slate-700 leading-snug">
-                      {prod.tagline}
-                    </p>
-                  </div>
-
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    {prod.oneLiner}
-                  </p>
-
-                  {/* 3 Puntos Técnicos Rápidos */}
-                  <div className="pt-2 space-y-2 text-xs text-slate-600">
-                    {prod.techSpecs.map((spec, sIdx) => (
-                      <div key={sIdx} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="leading-snug">{spec}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* BOTÓN ÚNICO Y DIRECTO: PEDIR DEMO */}
-                  <div className="pt-4 flex flex-wrap items-center gap-3">
-                    {prod.externalUrl ? (
-                      <a
-                        href={prod.externalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
-                      >
-                        <span>{prod.ctaText}</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    ) : (
-                      <a
-                        href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo en vivo de ${prod.name}.`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
-                      >
-                        <MessageSquare className="h-3.5 w-3.5 text-sky-400" />
-                        <span>Pedir Demostración en Vivo</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {/* ---------------------------------------------------- */}
-                {/* COLUMNA VISUAL: PANTALLA IMAC EN VIVO                */}
-                {/* ---------------------------------------------------- */}
-                <div className={`lg:col-span-7 ${isReversed ? 'lg:order-1' : 'lg:order-2'}`}>
-                  <IMacDisplayStage
-                    product={prod}
-                    activeScreenId={currentScreenId}
-                    onSelectScreen={(sId) => setProductScreen(prod.id, sId)}
-                  />
-                </div>
+      <section id="showcase-stage" className="scroll-mt-20 py-16 sm:py-24 bg-[#F8FAFC]/80 border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-8">
+          {/* Cabecera del Producto Activo en el Escenario */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-1.5 max-w-3xl">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
+                <span className="font-bold text-[#0284c7]">0{selectedProductIndex + 1}</span>
+                <span>/</span>
+                <span className="text-slate-600 font-semibold">{activeProduct.category}</span>
+                <span>·</span>
+                <span className="text-emerald-700 font-medium">{activeProduct.badge}</span>
               </div>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
+                {activeProduct.name}
+              </h2>
+              <p className="text-base font-medium text-slate-600 leading-snug">
+                {activeProduct.tagline}
+              </p>
             </div>
-          );
-        })}
+
+            {/* BOTÓN DE ACCIÓN PERSONALIZADO POR PRODUCTO */}
+            <div className="shrink-0 flex items-center gap-3">
+              {activeProduct.actionType === 'external' && activeProduct.externalUrl ? (
+                <a
+                  href={activeProduct.externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0284c7] px-6 py-3 text-xs font-bold text-white hover:bg-[#0369a1] transition shadow-xs"
+                >
+                  <span>{activeProduct.ctaText}</span>
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              ) : (
+                <a
+                  href={waUrl(`Hola tuEndpoint, me gustaría agendar una demo en vivo de ${activeProduct.name}.`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs"
+                >
+                  <MessageSquare className="h-4 w-4 text-sky-400" />
+                  <span>{activeProduct.ctaText}</span>
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* ESCENARIO VISUAL EN GRANDE (IMAC MASTER DISPLAY) */}
+          <MasterCinemaStage
+            product={activeProduct}
+            activeScreenId={currentScreenId}
+            onSelectScreen={(sId) => setProductScreen(activeProduct.id, sId)}
+          />
+
+          {/* 3 ESPECIFICACIONES TÉCNICAS CLAVE DEL PRODUCTO */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+            {activeProduct.techSpecs.map((spec, i) => (
+              <div key={i} className="flex items-start gap-2.5 p-3 rounded-2xl bg-white border border-slate-200/90 text-xs text-slate-700 shadow-2xs">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span className="leading-snug">{spec}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* TIRA DE MINIATURAS ESTILO CAROUSEL DECK (CAMBIO FLUIDO) */}
+          <div className="pt-4 space-y-2">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+              Explorar otras plataformas tuEndpoint:
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {PRODUCTS.map((p, idx) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setSelectedProductIndex(idx)}
+                  className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                    selectedProductIndex === idx
+                      ? 'border-[#0284c7] bg-white shadow-md ring-2 ring-[#0284c7]/20'
+                      : 'border-slate-200 bg-white/70 hover:bg-white hover:border-slate-300 opacity-75 hover:opacity-100'
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 block">0{idx + 1}</span>
+                    <span className="text-xs font-bold text-slate-900 block leading-tight line-clamp-1">{p.shortName}</span>
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-500 mt-2 block line-clamp-1">{p.badge}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* =================================================================== */}
-      {/* 4. FORMULARIO DE CONTACTO DIRECTO                                   */}
+      {/* 4. INTEGRACIONES A MEDIDA: FIRMAGOB, CLAVEÚNICA, WHATSAPP, SII      */}
       {/* =================================================================== */}
-      <section id="contacto" className="py-20 bg-[#F8FAFC] border-t border-slate-200">
+      <section id="integraciones" className="py-20 sm:py-28 bg-white border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#0284c7]">
+              <span>INGENIERÍA E INTEGRACIONES OFICIALES</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
+              Conectamos tus sistemas con los estándares de Chile.
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
+              Además de nuestras plataformas listas para operar, desarrollamos microservicios, conectores API
+              y pasarelas dedicadas para entidades que requieren interoperabilidad oficial y seguridad bancaria.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {CUSTOM_INTEGRATIONS.map((integ) => (
+              <div
+                key={integ.id}
+                className="p-5 rounded-3xl border border-slate-200/90 bg-[#F8FAFC] hover:bg-white hover:border-[#0284c7]/40 hover:shadow-lg transition space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <div className="h-10 w-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-2xs">
+                    {integ.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">{integ.name}</h3>
+                    <span className="text-[10px] font-mono text-slate-400 font-semibold uppercase block">{integ.tag}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {integ.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60">
+                  <span className="text-[10px] font-bold text-[#0284c7] flex items-center gap-1">
+                    <span>Disponible a medida</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 5. FORMULARIO PARA DESARROLLO A MEDIDA & LICITACIONES               */}
+      {/* =================================================================== */}
+      <section id="contacto" className="py-20 sm:py-28 bg-[#F8FAFC]">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-xs space-y-6">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-12 shadow-sm space-y-8">
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0284c7]">Hablemos de tu proyecto</span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">
-                ¿Tienes una necesidad técnica o proceso a implementar?
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0284c7]">Hablemos de tu Proyecto</span>
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0F172A]">
+                ¿Buscas un desarrollo a medida o integración institucional?
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
-                Escríbenos directamente o contáctanos por WhatsApp. Respondemos con propuestas claras y factibilidad técnica.
+                Descríbenos tu requerimiento. Analizamos la factibilidad técnica y te entregamos una propuesta clara con plazos y cotización formal.
               </p>
             </div>
 
@@ -1213,25 +1349,26 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 const nombre = data.get('nombre') || '';
                 const email = data.get('email') || '';
                 const fono = data.get('telefono') || '';
+                const tipo = data.get('tipo_desarrollo') || '';
                 const msg = data.get('mensaje') || '';
-                const text = `Hola tuEndpoint, mi nombre es ${nombre} (${email}, ${fono}). Requerimiento: ${msg}`;
+                const text = `Hola tuEndpoint, mi nombre es ${nombre} (${email}, ${fono}). Requerimiento: [${tipo}] - ${msg}`;
                 window.open(waUrl(text), '_blank');
               }}
               className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs"
             >
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Nombre o Institución</label>
+                <label className="font-bold text-slate-700 block mb-1">Nombre o Empresa / Institución</label>
                 <input
                   type="text"
                   name="nombre"
                   required
-                  placeholder="Ej: Hospital Dr. Gustavo Fricke / Juan Pérez"
+                  placeholder="Ej: Hospital Dr. Gustavo Fricke / Empresa SpA"
                   className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Correo Electrónico</label>
+                <label className="font-bold text-slate-700 block mb-1">Correo Electrónico Institucional</label>
                 <input
                   type="email"
                   name="email"
@@ -1252,30 +1389,34 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Solución de Interés</label>
+                <label className="font-bold text-slate-700 block mb-1">Tipo de Requerimiento</label>
                 <select
-                  name="solucion"
-                  aria-label="Solución de Interés"
-                  defaultValue="filas"
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
+                  name="tipo_desarrollo"
+                  aria-label="Tipo de Requerimiento"
+                  defaultValue="medida"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none font-medium"
                 >
+                  <option value="medida">Desarrollo de Software a Medida</option>
+                  <option value="firmagob">Integración con FirmaGob (Firma Avanzada)</option>
+                  <option value="claveunica">Integración con ClaveÚnica</option>
+                  <option value="sii">Facturación Electrónica SII (DTE)</option>
+                  <option value="whatsapp">WhatsApp Business API & Bots</option>
                   <option value="filas">Gestor de Filas Hospitalario</option>
-                  <option value="ticpanel">TICPanel Mesa de Ayuda</option>
+                  <option value="ticpanel">TICPanel Mesa de Ayuda TI</option>
                   <option value="tba">Logística TBA Bodega</option>
                   <option value="cajaya">CajaYA POS Offline</option>
                   <option value="paginago">PaginaGo Catálogo</option>
                   <option value="auto">Automatizaciones RPA</option>
-                  <option value="licitacion">Desarrollo Especializado</option>
                 </select>
               </div>
 
               <div className="sm:col-span-2">
-                <label className="font-bold text-slate-700 block mb-1">Cuéntanos tu requerimiento o proceso</label>
+                <label className="font-bold text-slate-700 block mb-1">Detalle del requerimiento o proceso a resolver</label>
                 <textarea
                   name="mensaje"
-                  rows={3}
+                  rows={4}
                   required
-                  placeholder="Describe brevemente el flujo, número de usuarios o requerimiento técnico..."
+                  placeholder="Describe brevemente la lógica de negocio, número de usuarios, bases de datos o sistemas con los que debe interoperar..."
                   className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-800 focus:border-[#0284c7] focus:outline-none"
                 />
               </div>
@@ -1291,7 +1432,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                   className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-7 py-3 text-xs font-bold text-white hover:bg-[#0284c7] transition shadow-xs cursor-pointer"
                 >
                   <Send className="h-3.5 w-3.5" />
-                  <span>Enviar Consulta</span>
+                  <span>Enviar Consulta de Desarrollo</span>
                 </button>
               </div>
             </form>
@@ -1300,7 +1441,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
       </section>
 
       {/* =================================================================== */}
-      {/* 5. PIE DE PÁGINA CORPORATIVO                                        */}
+      {/* 6. PIE DE PÁGINA CORPORATIVO                                        */}
       {/* =================================================================== */}
       <footer className="modern-site-footer border-t border-slate-200 bg-white py-12 text-xs text-slate-600">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -1322,23 +1463,24 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
             </div>
 
             <div className="space-y-2">
-              <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Soluciones</span>
+              <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Soluciones Propias</span>
               <ul className="space-y-1.5 text-[11px]">
-                <li><a href="#filas" className="hover:text-slate-900 transition">Gestor de Filas Hospitalario</a></li>
-                <li><a href="#ticpanel" className="hover:text-slate-900 transition">TICPanel Mesa de Ayuda</a></li>
-                <li><a href="#tba" className="hover:text-slate-900 transition">Logística TBA Bodega</a></li>
-                <li><a href="#cajaya" className="hover:text-slate-900 transition">CajaYA POS + SII</a></li>
-                <li><a href="#paginago" className="hover:text-slate-900 transition">PaginaGo</a></li>
-                <li><a href="#auto" className="hover:text-slate-900 transition">Automatizaciones RPA</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(0)} className="hover:text-slate-900 transition">Gestor de Filas Hospitalario</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(1)} className="hover:text-slate-900 transition">TICPanel Mesa de Ayuda TI</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(2)} className="hover:text-slate-900 transition">Logística TBA Bodega</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(3)} className="hover:text-slate-900 transition">CajaYA POS + SII</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(4)} className="hover:text-slate-900 transition">PaginaGo</a></li>
+                <li><a href="#showcase-stage" onClick={() => setSelectedProductIndex(5)} className="hover:text-slate-900 transition">Automatizaciones RPA</a></li>
               </ul>
             </div>
 
             <div className="space-y-2">
               <span className="font-bold text-slate-900 uppercase text-[11px] tracking-wider block">Portales & Servicios</span>
               <ul className="space-y-1.5 text-[11px]">
-                <li><a href="https://logisticatba.cloud" target="_blank" rel="noreferrer" className="hover:text-slate-900">logisticatba.cloud</a></li>
+                <li><a href="https://paginago.com" target="_blank" rel="noreferrer" className="hover:text-slate-900">paginago.com (Activo)</a></li>
                 <li><a href="https://cajaya.cl" target="_blank" rel="noreferrer" className="hover:text-slate-900">cajaya.cl</a></li>
-                <li><a href="https://paginago.com" target="_blank" rel="noreferrer" className="hover:text-slate-900">paginago.com</a></li>
+                <li><a href="https://logisticatba.cloud" target="_blank" rel="noreferrer" className="hover:text-slate-900">logisticatba.cloud</a></li>
+                <li><a href="#integraciones" className="hover:text-slate-900">FirmaGob & ClaveÚnica</a></li>
               </ul>
             </div>
 
@@ -1352,7 +1494,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
                 Soporte y Mesa de Ayuda: Lunes a Viernes 08:30 a 18:30 hrs.
               </p>
               <div className="pt-2">
-                <span className="inline-block rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
+                <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-800 border border-emerald-200">
                   ✔ PROVEEDOR DEL ESTADO HÁBIL
                 </span>
               </div>
@@ -1377,10 +1519,14 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean } = {
         }}
         contactIndex={7}
         onNavigate={(idx) => {
-          const ids = ['filas', 'ticpanel', 'tba', 'cajaya', 'paginago', 'auto', 'contacto'];
-          const targetId = ids[idx - 1] || 'contacto';
-          const el = document.getElementById(targetId);
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          if (idx >= 1 && idx <= 6) {
+            setSelectedProductIndex(idx - 1);
+            const el = document.getElementById('showcase-stage');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            const el = document.getElementById('contacto');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }
         }}
         onPrefillContact={(_topic, draft) => {
           const el = document.getElementById('contacto');

@@ -1,178 +1,208 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   ArrowRight,
   ExternalLink,
-  Send,
+  ShieldCheck,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
+  Lock,
+  Cpu,
+  Send,
+  PhoneCall,
+  Mail,
+  Layers,
+  Activity,
+  HardDrive,
+  Users,
+  Building,
+  Check,
 } from 'lucide-react';
-import Autoplay from 'embla-carousel-autoplay';
-import {
-  Carousel,
-  type CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel';
 import { Typewriter } from '@/components/ui/typewriter';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Modelos y Datos de Productos para el Escenario Pantalla Completa   */
+/* Modelos de Datos                                                   */
 /* ------------------------------------------------------------------ */
 
-interface ShowcaseProduct {
+interface ProductData {
   id: string;
+  tabLabel: string;
   name: string;
-  shortName: string;
+  tagline: string;
   category: string;
   badge: string;
   description: string;
   image: string;
+  urlPath: string;
+  bullets: string[];
   actionType: 'external' | 'whatsapp';
-  url: string;
-  ctaText: string;
+  actionUrl: string;
+  actionText: string;
 }
 
-const PRODUCTS: ShowcaseProduct[] = [
+const PRODUCTS: ProductData[] = [
   {
     id: 'filas',
+    tabLabel: '🏥 Gestor de Filas',
     name: 'Gestor de Filas Hospitalario',
-    shortName: 'Filas Hospital',
-    category: 'Salud Pública',
+    tagline: 'Llamado audiovisual por voz y autoatención con cédula de identidad',
+    category: 'Salud Pública · Hospitales y CESFAM',
     badge: 'Ley 20.584 · En Producción',
     description:
-      'Llamado audiovisual por voz sintetizada en pantallas y tótems táctiles de autoatención con cédula de identidad para hospitales y farmacias ambulatorias.',
+      'Erradica el desorden en salas de espera y farmacias ambulatorias. Llamado por voz sintetizada fonética en pantallas de TV y tótems táctiles de 21.5" con corte automático de ticket e ingreso por RUT.',
     image: '/shots/filas-1.jpg',
+    urlPath: 'filas.tuendpoint.cl/operacion/en-vivo',
+    bullets: [
+      'Prioridad estricta para adultos mayores y personas con movilidad reducida (Ley 20.584).',
+      'Voz fonética chilena que indica módulo y paciente por audio en sala.',
+      'Tótem táctil de autoatención con lector de cédula e impresora térmica integrada.',
+    ],
     actionType: 'whatsapp',
-    url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20del%20Gestor%20de%20Filas%20Hospitalario.',
-    ctaText: 'Pedir Demo en Vivo',
+    actionUrl:
+      'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20del%20Gestor%20de%20Filas%20Hospitalario.',
+    actionText: 'Pedir Demo en Vivo',
   },
   {
     id: 'ticpanel',
-    name: 'TICPanel · Mesa de Ayuda TI',
-    shortName: 'TICPanel',
-    category: 'Infraestructura & Endpoints',
-    badge: 'Agentes Silenciosos en Equipos',
+    tabLabel: '🖥️ TICPanel TI',
+    name: 'TICPanel · Mesa de Ayuda & Agentes TI',
+    tagline: 'Telemetría de hardware en vivo con agentes instalados en equipos',
+    category: 'Infraestructura & Operaciones TI',
+    badge: 'Agentes Silenciosos en Endpoints',
     description:
-      'Agentes ligeros instalados en computadores envían telemetría y métricas en vivo. Tickets Kanban, inventario de hardware y soporte remoto unificado.',
+      'Control total del parque tecnológico. Agentes ligeros instalados en computadores envían telemetría y métricas de rendimiento en vivo a un panel central con tickets Kanban, inventario y soporte remoto.',
     image: '/shots/ticpanel-1.jpg',
+    urlPath: 'ticpanel.tuendpoint.cl/dashboard/telemetria',
+    bullets: [
+      'Agentes silenciosos para Windows y Linux con monitoreo de CPU, RAM y almacenamiento.',
+      'Mesa de ayuda con tickets Kanban, actas digitales de entrega y SLA de soporte.',
+      'Inventario de hardware automático y detección proactiva de fallas en red.',
+    ],
     actionType: 'whatsapp',
-    url: 'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20en%20vivo%20de%20TICPanel%20y%20sus%20agentes%20en%20equipos.',
-    ctaText: 'Pedir Demo en Vivo',
+    actionUrl:
+      'https://wa.me/5694925337?text=Hola%2C%20solicito%20una%20demostraci%C3%B3n%20de%20TICPanel%20y%20sus%20agentes%20en%20equipos.',
+    actionText: 'Pedir Demo en Vivo',
   },
   {
     id: 'tba',
+    tabLabel: '📦 Logística TBA',
     name: 'Logística TBA · WMS Bodega',
-    shortName: 'Logística TBA',
-    category: 'Cadena de Suministro',
-    badge: 'SaaS Cloud · Multi-Bodega',
+    tagline: 'Control de inventario, Kardex FIFO y despachos con código QR',
+    category: 'Cadena de Suministro · Cloud',
+    badge: 'Multi-Sucursal · En Vivo',
     description:
-      'Control integral de inventario con Kardex FIFO, despachos con código QR, trazabilidad de pallets y sincronización multi-sucursal en tiempo real.',
+      'Software de gestión logística y bodegas diseñado para operar con precisión. Trazabilidad completa de stock, transferencias entre sucursales, despacho con escáner QR y control de mermas.',
     image: '/shots/tba-1.jpg',
+    urlPath: 'logisticatba.cloud/inventario/kardex',
+    bullets: [
+      'Kardex automático con cálculo FIFO y alertas de reposición de stock mínimo.',
+      'Despachos y recepción de mercadería mediante pistolas o celulares con lectura QR.',
+      'Arquitectura cloud sincronizada en tiempo real para múltiples bodegas.',
+    ],
     actionType: 'external',
-    url: 'https://logisticatba.cloud',
-    ctaText: 'Visitar logisticatba.cloud',
+    actionUrl: 'https://logisticatba.cloud',
+    actionText: 'Visitar logisticatba.cloud',
   },
   {
     id: 'cajaya',
-    name: 'CajaYA · POS Offline + Boleta SII',
-    shortName: 'CajaYA POS',
+    tabLabel: '💳 CajaYA POS',
+    name: 'CajaYA · Punto de Venta Offline',
+    tagline: 'Punto de venta 100% operativo sin Internet con boleta SII',
     category: 'Retail & Comercio',
     badge: '100% Offline · Boleta DTE',
     description:
-      'Punto de venta diseñado para operar sin Internet en cortes de red. Emite boletas electrónicas válidas ante el SII, arqueos e impresión térmica ultra rápida.',
+      'Punto de venta diseñado para no detener nunca las ventas. Opera de forma 100% autónoma ante cortes de Internet o caídas de red, sincronizando las boletas electrónicas con el SII al restablecer la conexión.',
     image: '/shots/cajaya-1.jpg',
+    urlPath: 'cajaya.cl/pos/ventas',
+    bullets: [
+      'Funcionamiento continuo sin conexión: arqueos, cobranza e impresión térmica veloz.',
+      'Emisión directa de boletas electrónicas DTE ante el Servicio de Impuestos Internos.',
+      'Control de cajas por turnos, reporte diario de ventas y stock por código de barras.',
+    ],
     actionType: 'external',
-    url: 'https://cajaya.cl',
-    ctaText: 'Ver más en cajaya.cl',
+    actionUrl: 'https://cajaya.cl',
+    actionText: 'Ver más en cajaya.cl',
   },
   {
     id: 'paginago',
+    tabLabel: '🛒 PaginaGo',
     name: 'PaginaGo · E-Commerce WhatsApp',
-    shortName: 'PaginaGo',
-    category: 'Comercio Digital',
+    tagline: 'Convierte el chat de WhatsApp en un canal de venta interactivo',
+    category: 'Comercio Digital & Pagos',
     badge: 'Operativo en Producción',
     description:
-      'Convierte el chat de WhatsApp en un catálogo interactivo con carrito, cobro Webpay y sincronización automática de pedidos e inventario.',
+      'Plataforma de comercio conversacional que transforma catálogos en carritos interactivos dentro de WhatsApp, con cobros online mediante Webpay/Flow y sincronización automática de pedidos.',
     image: '/shots/paginago-1.jpg',
+    urlPath: 'paginago.com/demo/tienda',
+    bullets: [
+      'Catálogo visual e interactivo enviado automáticamente por mensaje de WhatsApp.',
+      'Cobro con tarjetas de crédito/débito vía Webpay Plus y confirmación instantánea.',
+      'Sincronización de pedidos y stock en tiempo real con panel de administración.',
+    ],
     actionType: 'external',
-    url: 'https://paginago.com',
-    ctaText: 'Ver Demo en paginago.com',
-  },
-  {
-    id: 'integraciones',
-    name: 'RPA & Desarrollo a Medida',
-    shortName: 'Desarrollo a Medida',
-    category: 'Ingeniería de Software',
-    badge: 'FirmaGob · ClaveÚnica · SII',
-    description:
-      'Conectamos sus sistemas existentes con FirmaGob, ClaveÚnica, SII, bancos y WhatsApp Business API sin rehacer su infraestructura técnica.',
-    image: '/shots/ticpanel-2.jpg',
-    actionType: 'whatsapp',
-    url: 'https://wa.me/5694925337?text=Hola%2C%20quisiera%20cotizar%20un%20desarrollo%20a%20medida%20o%20integraci%C3%B3n%20cr%C3%ADtica.',
-    ctaText: 'Consultar Factibilidad',
+    actionUrl: 'https://paginago.com',
+    actionText: 'Ver Demo en paginago.com',
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/* Integraciones Oficiales de Chile (Estilo Tipográfico Editorial)    */
-/* ------------------------------------------------------------------ */
-
-interface IntegrationItem {
-  name: string;
+interface IntegrationData {
+  title: string;
   entity: string;
-  description: string;
-  tech: string;
+  badge: string;
+  summary: string;
+  specs: string;
 }
 
-const INTEGRATIONS: IntegrationItem[] = [
+const INTEGRATIONS: IntegrationData[] = [
   {
-    name: 'FirmaGob',
-    entity: 'SEGPRES · Gobierno de Chile',
-    description:
-      'Firma digital ministerial de documentos PDF con estampado cronológico oficial y verificación en línea de autenticidad.',
-    tech: 'REST API · PKCS#7 · Token FEA',
+    title: 'FirmaGob',
+    entity: 'SEGPRES · Ministerio Secretaría General de la Presidencia',
+    badge: 'Firma Electrónica Avanzada (FEA)',
+    summary:
+      'Firma digital oficial para decretos, convenios y recetas médicas en formato PDF con estampado cronológico y validación ministerial en línea.',
+    specs: 'API REST · Certificado PKCS#7 · Token FEA SEGPRES',
   },
   {
-    name: 'ClaveÚnica',
-    entity: 'Gobierno Digital',
-    description:
-      'Autenticación ciudadana oficial para portales públicos y trámites del Estado sin necesidad de almacenar credenciales privadas.',
-    tech: 'OpenID Connect · OAuth 2.0',
+    title: 'ClaveÚnica',
+    entity: 'División de Gobierno Digital',
+    badge: 'Identidad Digital Ciudadana',
+    summary:
+      'Autenticación e inicio de sesión seguro para portales ciudadanos y aplicaciones del Estado sin almacenar ni gestionar claves privadas.',
+    specs: 'OpenID Connect · OAuth 2.0 · JWT con firma RS256',
   },
   {
-    name: 'SII Facturación Electrónica',
+    title: 'SII Facturación Electrónica',
     entity: 'Servicio de Impuestos Internos',
-    description:
-      'Emisión, timbraje con CAF, firma digital XML y envío automático de boletas, facturas y guías de despacho ante el SII.',
-    tech: 'SOAP / REST · XML DSig · CAF',
+    badge: 'DTE Boleta & Factura XML',
+    summary:
+      'Emisión masiva, timbraje automático con CAF, firma digital XML y envío de documentos tributarios (boletas, facturas, guías) ante el SII.',
+    specs: 'Protocolo SOAP / REST · XML DSig · CAF oficial',
   },
   {
-    name: 'WhatsApp Business API',
+    title: 'WhatsApp Business API',
     entity: 'Meta Cloud API Oficial',
-    description:
-      'Notificaciones masivas certificadas, llamados a pacientes en filas, confirmación de pedidos y boletas enviadas al celular.',
-    tech: 'Cloud API · Webhooks 24/7',
+    badge: 'Mensajería Transaccional Masiva',
+    summary:
+      'Notificaciones automáticas certificadas para llamado a pacientes en sala, confirmación de pedidos, boletas en PDF y alertas críticas.',
+    specs: 'Meta Graph API · Webhooks 24/7 · Plantillas Verificadas',
   },
   {
-    name: 'Mercado Público',
+    title: 'Mercado Público',
     entity: 'Dirección ChileCompra',
-    description:
-      'Arquitectura de software adaptada a las normas de contratación del Estado (Ley 19.886) para salud y organismos públicos.',
-    tech: 'Ley 19.886 · RUT 78.411.033-8',
+    badge: 'Licitaciones & Compras Públicas',
+    summary:
+      'Arquitectura de software y soporte técnico estructurado bajo los requisitos de contratación pública (Ley 19.886) para salud y municipios.',
+    specs: 'Ley 19.886 · Proveedor Constituido · RUT 78.411.033-8',
   },
 ];
 
 export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
-  const [mainApi, setMainApi] = useState<CarouselApi>();
-  const [thumbApi, setThumbApi] = useState<CarouselApi>();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
+  const current = PRODUCTS[activeTab] || PRODUCTS[0];
 
-  // Formulario a medida minimalista
+  // Formulario a medida
   const [form, setForm] = useState({
     nombre: '',
     empresa: '',
@@ -183,39 +213,10 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
   });
   const [formSent, setFormSent] = useState(false);
 
-  // Sincronización de Thumbnails
-  const onThumbClick = useCallback(
-    (index: number) => {
-      if (!mainApi || !thumbApi) return;
-      mainApi.scrollTo(index);
-    },
-    [mainApi, thumbApi]
-  );
-
-  const onSelect = useCallback(() => {
-    if (!mainApi || !thumbApi) return;
-    const index = mainApi.selectedScrollSnap();
-    setSelectedIndex(index);
-    thumbApi.scrollTo(index);
-  }, [mainApi, thumbApi]);
-
-  useEffect(() => {
-    if (!mainApi) return;
-    onSelect();
-    mainApi.on('select', onSelect);
-    mainApi.on('reInit', onSelect);
-    return () => {
-      mainApi.off('select', onSelect);
-      mainApi.off('reInit', onSelect);
-    };
-  }, [mainApi, onSelect]);
-
-  const currentProduct = PRODUCTS[selectedIndex] || PRODUCTS[0];
-
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = encodeURIComponent(
-      `*SOLICITUD DESARROLLO A MEDIDA / INTEGRACIÓN*\n\n` +
+      `*SOLICITUD DE DESARROLLO / INTEGRACIÓN*\n\n` +
         `*Nombre:* ${form.nombre}\n` +
         `*Empresa / Institución:* ${form.empresa}\n` +
         `*Teléfono:* ${form.telefono}\n` +
@@ -228,308 +229,398 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white selection:bg-white selection:text-black">
+    <div className="relative min-h-screen bg-[#06080d] text-white selection:bg-sky-500/30 selection:text-sky-200">
       {/* ------------------------------------------------------------ */}
-      {/* 1. Escenario Cinemático que OCUPA TODA LA PANTALLA           */}
+      {/* 1. Hero Corporativo (Limpio, Moderno y Enfocado en Negocio)  */}
       {/* ------------------------------------------------------------ */}
-      <section
-        id="productos"
-        className="relative w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] min-h-[660px] overflow-hidden bg-black"
-      >
-        {/* Carrusel de Fondo a Pantalla Completa (Full Bleed 100vw x 100vh) */}
-        <Carousel
-          className="w-full h-full"
-          plugins={[
-            Autoplay({
-              delay: 6000,
-              stopOnInteraction: true,
-            }),
-          ]}
-          setApi={setMainApi}
-        >
-          <CarouselContent className="h-full -ml-0">
-            {PRODUCTS.map((prod, index) => (
-              <CarouselItem
-                key={prod.id}
-                className="relative w-full h-full pl-0 shrink-0 select-none"
-              >
-                <div className="relative w-full h-full overflow-hidden bg-black">
-                  <Image
-                    alt={prod.name}
-                    className="object-cover object-top brightness-75 transition-transform duration-700 ease-out"
-                    fill
-                    priority={index === 0}
-                    src={prod.image}
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
+      <section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center">
+        {/* Glow sutil de fondo */}
+        <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(14,165,233,0.12),transparent_70%)]" />
 
-        {/* Flechas de Navegación Discretas */}
-        <button
-          type="button"
-          onClick={() => mainApi?.scrollPrev()}
-          className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all"
-          aria-label="Anterior"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button
-          type="button"
-          onClick={() => mainApi?.scrollNext()}
-          className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all"
-          aria-label="Siguiente"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+        <div className="relative space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-zinc-300">
+            <span className="h-2 w-2 rounded-full bg-[#0EA5E9] animate-pulse" />
+            <span>SOLUCIONES TUENDPOINT SPA · INGENIERÍA DE SOFTWARE EN CHILE</span>
+          </div>
 
-        {/* Encabezado Superior Integrado sobre el Fondo */}
-        <div className="absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black via-black/80 via-55% to-transparent pt-6 sm:pt-10 pb-20 px-6 text-center pointer-events-none">
-          <div className="max-w-4xl mx-auto space-y-2 pointer-events-auto">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-none">
-              tuEndpoint<span className="text-[#0EA5E9]">.</span>
-            </h1>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white max-w-5xl mx-auto leading-[1.08]">
+            Software e Integraciones para{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-emerald-400">
+              <Typewriter
+                words={[
+                  'Salud y Hospitales',
+                  'FirmaGob y ClaveÚnica',
+                  'Facturación SII y Boletas',
+                  'Bodegas y WMS Logístico',
+                  'Puntos de Venta Offline',
+                  'Agentes Endpoint 24/7',
+                ]}
+                speed={70}
+                delayBetweenWords={2000}
+                cursorChar="|"
+              />
+            </span>
+          </h1>
 
-            <p className="text-xl sm:text-2xl md:text-3xl font-normal text-zinc-200 tracking-tight">
-              Software para{' '}
-              <span className="text-white font-medium">
-                <Typewriter
-                  words={[
-                    'Salud y Hospitales',
-                    'FirmaGob y ClaveÚnica',
-                    'Facturación SII y Boletas',
-                    'Bodegas y WMS Logístico',
-                    'Puntos de Venta Offline',
-                    'Agentes en Equipos 24/7',
-                  ]}
-                  speed={70}
-                  delayBetweenWords={2000}
-                  cursorChar="|"
-                />
-              </span>
-            </p>
+          <p className="text-base sm:text-xl text-zinc-400 max-w-3xl mx-auto font-normal leading-relaxed">
+            Diseñamos y operamos plataformas de alta disponibilidad para el sector público y privado. 
+            Sistemas tolerantes a fallos con conectividad nativa a los estándares clave de Chile.
+          </p>
 
-            <p className="text-xs sm:text-sm text-[#86868b] max-w-xl mx-auto font-normal">
-              Plataformas en producción real diseñadas para alta disponibilidad en Chile.
-            </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://wa.me/5694925337?text=Hola%2C%20quisiera%20conversar%20sobre%20un%20proyecto%20o%20integraci%C3%B3n%20con%20tuEndpoint."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white text-black hover:bg-zinc-200 px-8 py-3.5 text-sm font-semibold transition-all shadow-lg shadow-white/10"
+            >
+              <span>Solicitar Demostración en Vivo</span>
+              <ArrowRight className="h-4 w-4" />
+            </a>
+
+            <a
+              href="#productos"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/15 px-7 py-3.5 text-sm font-medium transition-all"
+            >
+              <span>Explorar Catálogo de Productos</span>
+            </a>
+          </div>
+
+          {/* Franja de Credenciales Corporativas */}
+          <div className="pt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs font-mono text-zinc-500 border-t border-white/[0.08] max-w-4xl mx-auto">
+            <span>✓ RUT 78.411.033-8</span>
+            <span>✓ Conectores FirmaGob & ClaveÚnica</span>
+            <span>✓ Boleta Electrónica SII</span>
+            <span>✓ Soporte Local 24/7 en Chile</span>
           </div>
         </div>
+      </section>
 
-        {/* Overlay Inferior a Pantalla Completa (Solid Black Base + Filmstrip + Controles) */}
-        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black from-30% via-black/85 via-60% to-transparent pt-36 pb-6 px-6 sm:px-12 transition-opacity duration-300">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6">
-            {/* Izquierda: Filmstrip de Miniaturas Interactivas */}
-            <div className="relative w-full md:max-w-md order-2 md:order-1">
-              <div className="text-[11px] font-mono uppercase tracking-widest text-[#86868b] mb-2.5 flex items-center gap-2">
-                <span>0{selectedIndex + 1} de 0{PRODUCTS.length}</span>
-                <span className="text-zinc-700">·</span>
-                <span className="text-white font-medium">{currentProduct.shortName}</span>
-              </div>
-              <Carousel
-                className="w-full"
-                opts={{
-                  containScroll: 'keepSnaps',
-                  dragFree: true,
-                }}
-                setApi={setThumbApi}
-              >
-                <CarouselContent className="-ml-2 flex-row items-end">
-                  {PRODUCTS.map((prod, index) => (
-                    <CarouselItem
-                      className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
-                      key={prod.id}
-                      onClick={() => onThumbClick(index)}
-                    >
-                      <div
-                        className={cn(
-                          'relative overflow-hidden transition-all duration-300 rounded',
-                          index === selectedIndex
-                            ? 'h-16 sm:h-20 opacity-100 ring-2 ring-white shadow-lg'
-                            : 'h-11 sm:h-13 opacity-40 hover:opacity-80'
-                        )}
-                      >
-                        <Image
-                          alt={prod.shortName}
-                          className="object-cover object-top h-full w-full"
-                          fill
-                          src={prod.image}
-                          sizes="120px"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
+      {/* ------------------------------------------------------------ */}
+      {/* 2. Escenario Interactivo: Ventana de Aplicación (Mac Stage)   */}
+      {/* ------------------------------------------------------------ */}
+      <section id="productos" className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24 pt-4">
+        {/* Selector de Pestañas de Productos */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-4 no-scrollbar mb-6">
+          {PRODUCTS.map((prod, index) => (
+            <button
+              key={prod.id}
+              type="button"
+              onClick={() => setActiveTab(index)}
+              className={cn(
+                'shrink-0 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium transition-all cursor-pointer',
+                index === activeTab
+                  ? 'bg-white text-black shadow-md'
+                  : 'bg-white/[0.05] text-zinc-400 hover:text-white hover:bg-white/[0.08] border border-white/10'
+              )}
+            >
+              {prod.tabLabel}
+            </button>
+          ))}
+        </div>
+
+        {/* Marco de Ventana de Software Profesional (Estilo Mac / Browser) */}
+        <div className="rounded-2xl border border-white/15 bg-[#0b0e14] shadow-[0_30px_90px_rgba(0,0,0,0.85)] overflow-hidden">
+          {/* Barra Superior de la Ventana */}
+          <div className="flex items-center justify-between px-4 py-3 bg-[#0f131a] border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-[#ff5f56]" />
+              <span className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
+              <span className="h-3 w-3 rounded-full bg-[#27c93f]" />
             </div>
 
-            {/* Derecha: Información del Producto Seleccionado & Botón */}
-            <div className="flex max-w-lg flex-col items-start md:items-end gap-2.5 text-left md:text-right order-1 md:order-2">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
-                {currentProduct.badge}
-              </span>
+            {/* Barra de URL Simulada */}
+            <div className="hidden sm:flex items-center gap-2 px-4 py-1 rounded-md bg-black/40 border border-white/10 text-xs font-mono text-zinc-400 w-80 justify-center">
+              <Lock className="h-3 w-3 text-emerald-400" />
+              <span>https://{current.urlPath}</span>
+            </div>
 
-              <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight">
-                {currentProduct.name}
-              </h2>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="text-[11px] font-mono text-zinc-400">En Producción 24/7</span>
+            </div>
+          </div>
 
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md">
-                {currentProduct.description}
-              </p>
+          {/* Captura Real del Software en Alta Resolución (Totalmente Visible y Nítida) */}
+          <div className="relative aspect-[16/10] sm:aspect-video w-full bg-black overflow-hidden">
+            <Image
+              key={current.id}
+              alt={current.name}
+              className="object-cover object-top transition-opacity duration-300"
+              fill
+              priority
+              src={current.image}
+              sizes="(max-width: 1280px) 100vw, 1280px"
+            />
+          </div>
 
-              {/* Botón de Acción con Subrayado Animado Estilo Flow Studio */}
-              <div className="pt-1.5">
-                {currentProduct.actionType === 'external' ? (
+          {/* Ficha Descriptiva del Producto en la Base de la Ventana */}
+          <div className="p-6 sm:p-10 bg-[#0c1017] border-t border-white/10">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-[#0EA5E9]/15 text-sky-400 border border-[#0EA5E9]/30">
+                    {current.badge}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-400">
+                    {current.category}
+                  </span>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {current.name}
+                </h2>
+
+                <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
+                  {current.description}
+                </p>
+
+                {/* Bullets de Valor Técnico */}
+                <ul className="pt-2 space-y-1.5 text-xs sm:text-sm text-zinc-400">
+                  {current.bullets.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Botón de Acción Directo */}
+              <div className="shrink-0 w-full lg:w-auto pt-2 lg:pt-0">
+                {current.actionType === 'external' ? (
                   <a
-                    href={currentProduct.url}
+                    href={current.actionUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-sm sm:text-base text-white hover:text-white transition-colors"
+                    className="inline-flex items-center justify-center gap-2 w-full lg:w-auto rounded-full bg-white text-black hover:bg-zinc-200 px-8 py-3.5 text-sm font-semibold transition-all shadow-md"
                   >
-                    <span>{currentProduct.ctaText}</span>
+                    <span>{current.actionText}</span>
                     <ExternalLink className="h-4 w-4" />
-                    <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
-                    <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
                   </a>
                 ) : (
                   <a
-                    href={currentProduct.url}
+                    href={current.actionUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-sm sm:text-base text-white hover:text-white transition-colors"
+                    className="inline-flex items-center justify-center gap-2 w-full lg:w-auto rounded-full bg-emerald-500 hover:bg-emerald-400 text-black px-8 py-3.5 text-sm font-semibold transition-all shadow-md shadow-emerald-500/20"
                   >
-                    <span>{currentProduct.ctaText}</span>
+                    <span>{current.actionText}</span>
                     <ArrowRight className="h-4 w-4" />
-                    <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
-                    <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
                   </a>
                 )}
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Marca de Agua Gigante Flow Studio */}
-          <div className="pt-6 select-none pointer-events-none">
-            <h1 className="text-center font-semibold text-4xl sm:text-7xl md:text-8xl text-white/10 tracking-widest uppercase">
-              TUENDPOINT + STUDIO
-            </h1>
+      {/* ------------------------------------------------------------ */}
+      {/* 3. Integraciones Oficiales de Chile (La Infraestructura)     */}
+      {/* ------------------------------------------------------------ */}
+      <section id="integraciones" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-24 border-t border-white/10">
+        <div className="max-w-3xl mb-14 space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-sky-400">
+            <ShieldCheck className="h-4 w-4" />
+            <span>Infraestructura Digital de Chile</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+            Integraciones oficiales con el Estado y la empresa.
+          </h2>
+          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+            Conectores nativos de alto rendimiento diseñados para operar directamente con las entidades oficiales del país sin intermediarios.
+          </p>
+        </div>
+
+        {/* Grilla Corporativa de Integraciones */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {INTEGRATIONS.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-2xl border border-white/10 bg-[#0b0e14] p-7 hover:border-sky-500/40 transition-all group flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono text-zinc-400">
+                    {item.entity}
+                  </span>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-sky-400 border border-white/10">
+                    {item.badge}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold text-white group-hover:text-sky-300 transition-colors">
+                  {item.title}
+                </h3>
+
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  {item.summary}
+                </p>
+              </div>
+
+              <div className="pt-6 mt-6 border-t border-white/5 text-xs font-mono text-zinc-500">
+                <span className="text-zinc-400">{item.specs}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Tarjeta de Conectividad para Sistemas Legados */}
+          <div className="rounded-2xl border border-dashed border-sky-500/30 bg-sky-500/[0.03] p-7 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sky-400 text-xs font-mono uppercase tracking-wider">
+                <Cpu className="h-4 w-4" />
+                <span>¿Requiere una API o Conector Específico?</span>
+              </div>
+
+              <h3 className="text-xl font-bold text-white">
+                Modernización de Sistemas Legados
+              </h3>
+
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                Interconectamos bases de datos relacionales (SQL Server, Oracle, PostgreSQL), ERPs heredados y webhooks privados sin necesidad de rehacer toda su infraestructura tecnológica.
+              </p>
+            </div>
+
+            <a
+              href="#formulario"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+            >
+              <span>Consultar factibilidad técnica</span>
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 2. Integraciones Oficiales de Chile (Estilo Tipográfico)     */}
+      {/* 4. ¿Por qué TuEndpoint? (Factores de Confianza & Solidez)    */}
       {/* ------------------------------------------------------------ */}
-      <section id="integraciones" className="px-6 sm:px-8 max-w-5xl mx-auto py-24 border-t border-white/10">
-        <div className="max-w-2xl mb-14 space-y-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
-            Infraestructura Digital de Chile
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
-            Integraciones oficiales con el Estado y la empresa.
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-24 border-t border-white/10">
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+          <span className="text-xs font-mono text-sky-400 uppercase tracking-widest">
+            Garantía Técnica
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+            Ingeniería de software seria y confiable.
           </h2>
-          <p className="text-base text-[#86868b] leading-relaxed">
-            Conectores directos sin intermediarios para operar con los estándares oficiales de Chile.
+          <p className="text-base sm:text-lg text-zinc-400">
+            Nuestros clientes confían en nosotros porque construimos plataformas robustas que no se caen.
           </p>
         </div>
 
-        {/* Lista Editorial Limpia (Sin Cards) */}
-        <div className="divide-y divide-white/10">
-          {INTEGRATIONS.map((item) => (
-            <div
-              key={item.name}
-              className="py-7 flex flex-col md:flex-row md:items-baseline justify-between gap-4 group"
-            >
-              <div className="md:w-1/3">
-                <span className="text-[11px] font-mono text-[#86868b] uppercase tracking-wider block">
-                  {item.entity}
-                </span>
-                <span className="text-lg font-medium text-white group-hover:text-[#0EA5E9] transition-colors">
-                  {item.name}
-                </span>
-              </div>
-
-              <div className="md:w-1/2 text-sm text-zinc-400 leading-relaxed">
-                {item.description}
-              </div>
-
-              <div className="md:w-1/6 md:text-right text-xs font-mono text-zinc-500">
-                {item.tech}
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="rounded-xl border border-white/10 bg-[#0b0e14] p-6 space-y-3">
+            <div className="h-10 w-10 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400">
+              <HardDrive className="h-5 w-5" />
             </div>
-          ))}
+            <h3 className="text-lg font-semibold text-white">Operación Offline</h3>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              Sistemas diseñados con tolerancia a fallos que continúan operando sin interrupción ante cortes de red o Internet.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-[#0b0e14] p-6 space-y-3">
+            <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <Activity className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-white">Soporte Local 24/7</h3>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              Equipo de ingenieros con base en Chile (Viña del Mar). Respuesta técnica presencial y remota directa sin robots.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-[#0b0e14] p-6 space-y-3">
+            <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+              <Layers className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-white">Código Propio</h3>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              Arquitecturas propietarias sin proveedores cautivos. Control completo sobre las bases de datos y la seguridad.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-[#0b0e14] p-6 space-y-3">
+            <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+              <Building className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-white">Empresa Formal</h3>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              Soluciones tuEndpoint SpA · RUT 78.411.033-8. Facturación electrónica formal para licitaciones y compras públicas.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 3. Solicitud de Desarrollo a Medida (Limpio y Espacioso)     */}
+      {/* 5. Solicitud de Desarrollo a Medida & Licitaciones            */}
       {/* ------------------------------------------------------------ */}
-      <section id="formulario" className="px-6 sm:px-8 max-w-4xl mx-auto py-24 border-t border-white/10">
+      <section id="formulario" className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto py-24 border-t border-white/10">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
-            Ingeniería de Software
-          </p>
-          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
-            ¿Busca un desarrollo a medida?
+          <span className="text-xs font-mono text-sky-400 uppercase tracking-widest">
+            Contacto Directo con Ingeniería
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+            ¿Busca un desarrollo a medida o una integración?
           </h2>
-          <p className="text-base text-[#86868b] leading-relaxed">
-            Diseñamos sistemas críticos, APIs seguras y módulos específicos. Cuéntenos su requerimiento técnico.
+          <p className="text-base text-zinc-400 leading-relaxed">
+            Conversemos directamente sobre su proyecto. Evaluamos la factibilidad técnica, arquitectura y plazos sin compromiso.
           </p>
         </div>
 
         {formSent ? (
-          <div className="py-12 text-center space-y-3">
-            <CheckCircle2 className="h-10 w-10 text-white mx-auto" />
-            <h3 className="text-xl font-medium text-white">
-              Requerimiento enviado con éxito.
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-10 text-center space-y-3">
+            <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto" />
+            <h3 className="text-xl font-bold text-white">
+              Requerimiento Recibido con Éxito
             </h3>
-            <p className="text-sm text-[#86868b] max-w-md mx-auto">
-              Un ingeniero analizará la factibilidad de su proyecto y le responderá a la brevedad.
+            <p className="text-sm text-zinc-300 max-w-md mx-auto">
+              Un ingeniero revisará los antecedentes técnicos de su solicitud y se pondrá en contacto directo con usted a la brevedad.
             </p>
             <button
               type="button"
               onClick={() => setFormSent(false)}
-              className="text-xs font-mono text-white underline pt-4 cursor-pointer"
+              className="mt-4 text-xs font-mono text-emerald-400 underline cursor-pointer"
             >
               Enviar otra consulta
             </button>
           </div>
         ) : (
-          <form onSubmit={handleFormSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <form
+            onSubmit={handleFormSubmit}
+            className="rounded-2xl border border-white/10 bg-[#0b0e14] p-8 sm:p-12 space-y-8 shadow-2xl"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                  Nombre y Apellido
+                <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                  Nombre y Apellido *
                 </label>
                 <input
                   type="text"
                   required
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  placeholder="Carlos Valenzuela"
-                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                  placeholder="Ej. Carlos Valenzuela"
+                  className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-sky-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                  Empresa o Institución
+                <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                  Empresa o Institución *
                 </label>
                 <input
                   type="text"
                   required
                   value={form.empresa}
                   onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-                  placeholder="Clínica / Empresa / Organismo..."
-                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                  placeholder="Ej. Clínica Santa María / Municipalidad..."
+                  className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-sky-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                  Teléfono o WhatsApp
+                <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                  Teléfono o WhatsApp *
                 </label>
                 <input
                   type="tel"
@@ -537,13 +628,13 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                   value={form.telefono}
                   onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                   placeholder="+56 9 1234 5678"
-                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-sky-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                  Correo Electrónico
+                <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                  Correo Electrónico *
                 </label>
                 <input
                   type="email"
@@ -551,71 +642,71 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="carlos@empresa.cl"
-                  className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-sky-500 focus:outline-none transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                Tipo de Requerimiento
+              <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                Tipo de Requerimiento *
               </label>
               <select
                 value={form.tipo}
                 onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white focus:border-white focus:outline-none transition-colors"
+                className="w-full rounded-lg border border-white/10 bg-[#07090e] px-4 py-3 text-sm text-white focus:border-sky-500 focus:outline-none transition-colors"
               >
-                <option value="Integración FirmaGob / ClaveÚnica" className="bg-black text-white">
+                <option value="Integración FirmaGob / ClaveÚnica">
                   Integración FirmaGob (SEGPRES) / ClaveÚnica
                 </option>
-                <option value="Facturación Electrónica SII (DTE XML)" className="bg-black text-white">
+                <option value="Facturación Electrónica SII (DTE XML)">
                   Facturación Electrónica SII (Boletas / Facturas DTE)
                 </option>
-                <option value="Gestor de Filas Hospitalario / Tótems" className="bg-black text-white">
+                <option value="Gestor de Filas Hospitalario / Tótems">
                   Gestor de Filas Hospitalario / Tótems de Autoatención
                 </option>
-                <option value="TICPanel & Agentes en Equipos" className="bg-black text-white">
+                <option value="TICPanel & Agentes en Equipos">
                   TICPanel & Agentes Silenciosos en Endpoints
                 </option>
-                <option value="Logística TBA / WMS Bodegas" className="bg-black text-white">
+                <option value="Logística TBA / WMS Bodegas">
                   Logística TBA / Control de Stock WMS
                 </option>
-                <option value="CajaYA POS Offline" className="bg-black text-white">
+                <option value="CajaYA POS Offline">
                   CajaYA POS Offline para Comercio o Retail
                 </option>
-                <option value="Desarrollo de Software Nuevo desde Cero" className="bg-black text-white">
+                <option value="Desarrollo de Software Nuevo desde Cero">
                   Desarrollo de Software Nuevo desde Cero
                 </option>
-                <option value="Licitación Mercado Público" className="bg-black text-white">
+                <option value="Licitación Mercado Público">
                   Licitación Mercado Público (Ley 19.886)
                 </option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-[#86868b] mb-2 uppercase tracking-wider">
-                Breve descripción del requerimiento
+              <label className="block text-xs font-mono text-zinc-300 mb-2 uppercase tracking-wider">
+                Detalles del Requerimiento Técnico
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={form.mensaje}
                 onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
-                placeholder="Indique usuarios, plazos o especificaciones requeridas..."
-                className="w-full bg-transparent border-b border-white/20 pb-2 text-sm text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-colors resize-none"
+                placeholder="Indique cantidad aproximada de usuarios, servidores, bases de datos o plazos esperados..."
+                className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-sky-500 focus:outline-none transition-colors resize-none"
               />
             </div>
 
-            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <span className="text-xs text-[#86868b]">
-                Respuesta directa por equipo de ingeniería. Sin intermediarios comerciales.
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <span className="text-xs text-zinc-400">
+                Respuesta técnica directa por ingenieros. Sin intermediarios comerciales.
               </span>
 
               <button
                 type="submit"
-                className="w-full sm:w-auto rounded-full bg-white text-black hover:bg-zinc-200 px-8 py-3 text-sm font-medium transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white text-black hover:bg-zinc-200 px-8 py-3.5 text-sm font-semibold transition-all shadow-md cursor-pointer"
               >
-                <span>Enviar Requerimiento</span>
-                <Send className="h-3.5 w-3.5" />
+                <span>Enviar Requerimiento a Ingeniería</span>
+                <Send className="h-4 w-4" />
               </button>
             </div>
           </form>

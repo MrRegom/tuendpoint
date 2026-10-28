@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { ArrowRight, ExternalLink, Send, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowRight,
+  ExternalLink,
+  Send,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import Autoplay from 'embla-carousel-autoplay';
 import {
   Carousel,
@@ -14,7 +21,7 @@ import { Typewriter } from '@/components/ui/typewriter';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Productos en Gran Formato (Showcase)                                */
+/* Modelos y Datos de Productos para el Escenario Pantalla Completa   */
 /* ------------------------------------------------------------------ */
 
 interface ShowcaseProduct {
@@ -48,7 +55,7 @@ const PRODUCTS: ShowcaseProduct[] = [
     id: 'ticpanel',
     name: 'TICPanel · Mesa de Ayuda TI',
     shortName: 'TICPanel',
-    category: 'Infraestructura',
+    category: 'Infraestructura & Endpoints',
     badge: 'Agentes Silenciosos en Equipos',
     description:
       'Agentes ligeros instalados en computadores envían telemetría y métricas en vivo. Tickets Kanban, inventario de hardware y soporte remoto unificado.',
@@ -223,258 +230,200 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
   return (
     <div className="relative min-h-screen bg-black text-white selection:bg-white selection:text-black">
       {/* ------------------------------------------------------------ */}
-      {/* 1. Titular Minimalista Estilo iMac                           */}
+      {/* 1. Escenario Cinemático que OCUPA TODA LA PANTALLA           */}
       {/* ------------------------------------------------------------ */}
-      <section className="pt-20 pb-12 px-6 max-w-5xl mx-auto text-center space-y-4">
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-none">
-          tuEndpoint<span className="text-[#0EA5E9]">.</span>
-        </h1>
-
-        <p className="text-2xl sm:text-3xl md:text-4xl font-normal text-zinc-300 tracking-tight">
-          Software para{' '}
-          <span className="text-white font-medium">
-            <Typewriter
-              words={[
-                'Salud y Hospitales',
-                'FirmaGob y ClaveÚnica',
-                'Facturación SII y Boletas',
-                'Bodegas y WMS Logístico',
-                'Puntos de Venta Offline',
-                'Agentes en Equipos 24/7',
-              ]}
-              speed={70}
-              delayBetweenWords={2000}
-              cursorChar="|"
-            />
-          </span>
-        </p>
-
-        <p className="text-base sm:text-lg text-[#86868b] max-w-2xl mx-auto font-normal pt-2">
-          Plataformas de alta disponibilidad para el sector público y privado en Chile.
-          Vea nuestras aplicaciones en producción real a continuación:
-        </p>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* 2. Escenario Widescreen (Carrusel Cinematográfico Minimalista) */}
-      {/* ------------------------------------------------------------ */}
-      <section id="productos" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
-        <div className="relative w-full overflow-hidden rounded-2xl bg-zinc-950 shadow-[0_40px_100px_rgba(0,0,0,0.8)] border border-white/5">
-          {/* Main Carousel */}
-          <Carousel
-            className="w-full"
-            plugins={[
-              Autoplay({
-                delay: 6000,
-                stopOnInteraction: true,
-              }),
-            ]}
-            setApi={setMainApi}
-          >
-            <CarouselContent>
-              {PRODUCTS.map((prod, index) => (
-                <CarouselItem key={prod.id}>
-                  <div className="relative h-[260px] sm:h-[340px] md:aspect-video md:h-auto w-full overflow-hidden bg-black">
-                    <Image
-                      alt={prod.name}
-                      className="object-cover object-top"
-                      fill
-                      priority={index === 0}
-                      src={prod.image}
-                      sizes="(max-width: 1280px) 100vw, 1280px"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-
-          {/* Desktop Overlay (md y superior): Solid Black 35% Base for Razor-Sharp Readability */}
-          <div className="hidden md:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black from-35% via-black/90 via-65% to-transparent pt-44 pb-8 px-10 transition-opacity duration-300">
-            <div className="flex items-end justify-between gap-8">
-              {/* Izquierda: Filmstrip de Miniaturas */}
-              <div className="relative w-full max-w-md">
-                <div className="text-[11px] font-mono uppercase tracking-widest text-[#86868b] mb-3 flex items-center gap-2">
-                  <span>0{selectedIndex + 1} de 0{PRODUCTS.length}</span>
-                  <span className="text-zinc-700">·</span>
-                  <span className="text-white font-medium">{currentProduct.shortName}</span>
+      <section
+        id="productos"
+        className="relative w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] min-h-[660px] overflow-hidden bg-black"
+      >
+        {/* Carrusel de Fondo a Pantalla Completa (Full Bleed 100vw x 100vh) */}
+        <Carousel
+          className="w-full h-full"
+          plugins={[
+            Autoplay({
+              delay: 6000,
+              stopOnInteraction: true,
+            }),
+          ]}
+          setApi={setMainApi}
+        >
+          <CarouselContent className="h-full -ml-0">
+            {PRODUCTS.map((prod, index) => (
+              <CarouselItem
+                key={prod.id}
+                className="relative w-full h-full pl-0 shrink-0 select-none"
+              >
+                <div className="relative w-full h-full overflow-hidden bg-black">
+                  <Image
+                    alt={prod.name}
+                    className="object-cover object-top brightness-75 transition-transform duration-700 ease-out"
+                    fill
+                    priority={index === 0}
+                    src={prod.image}
+                    sizes="100vw"
+                  />
                 </div>
-                <Carousel
-                  className="w-full"
-                  opts={{
-                    containScroll: 'keepSnaps',
-                    dragFree: true,
-                  }}
-                  setApi={setThumbApi}
-                >
-                  <CarouselContent className="-ml-2 flex-row items-end">
-                    {PRODUCTS.map((prod, index) => (
-                      <CarouselItem
-                        className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
-                        key={prod.id}
-                        onClick={() => onThumbClick(index)}
-                      >
-                        <div
-                          className={cn(
-                            'relative overflow-hidden transition-all duration-300 rounded',
-                            index === selectedIndex
-                              ? 'h-18 opacity-100 ring-2 ring-white'
-                              : 'h-12 opacity-40 hover:opacity-80'
-                          )}
-                        >
-                          <Image
-                            alt={prod.shortName}
-                            className="object-cover object-top h-full w-full"
-                            fill
-                            src={prod.image}
-                            sizes="120px"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                </Carousel>
-              </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
 
-              {/* Derecha: Información del Producto & Botón con Subrayado Animado */}
-              <div className="flex max-w-md flex-col items-end gap-3 text-right">
-                <span className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
-                  {currentProduct.badge}
-                </span>
+        {/* Flechas de Navegación Discretas */}
+        <button
+          type="button"
+          onClick={() => mainApi?.scrollPrev()}
+          className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all"
+          aria-label="Anterior"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <button
+          type="button"
+          onClick={() => mainApi?.scrollNext()}
+          className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all"
+          aria-label="Siguiente"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
 
-                <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight">
-                  {currentProduct.name}
-                </h2>
+        {/* Encabezado Superior Integrado sobre el Fondo */}
+        <div className="absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black via-black/80 via-55% to-transparent pt-6 sm:pt-10 pb-20 px-6 text-center pointer-events-none">
+          <div className="max-w-4xl mx-auto space-y-2 pointer-events-auto">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-none">
+              tuEndpoint<span className="text-[#0EA5E9]">.</span>
+            </h1>
 
-                <p className="text-sm text-zinc-300 leading-relaxed">
-                  {currentProduct.description}
-                </p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-normal text-zinc-200 tracking-tight">
+              Software para{' '}
+              <span className="text-white font-medium">
+                <Typewriter
+                  words={[
+                    'Salud y Hospitales',
+                    'FirmaGob y ClaveÚnica',
+                    'Facturación SII y Boletas',
+                    'Bodegas y WMS Logístico',
+                    'Puntos de Venta Offline',
+                    'Agentes en Equipos 24/7',
+                  ]}
+                  speed={70}
+                  delayBetweenWords={2000}
+                  cursorChar="|"
+                />
+              </span>
+            </p>
 
-                {/* Botón con Subrayado Animado Estilo Flow Studio */}
-                <div className="pt-2">
-                  {currentProduct.actionType === 'external' ? (
-                    <a
-                      href={currentProduct.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-base text-white hover:text-white transition-colors"
-                    >
-                      <span>{currentProduct.ctaText}</span>
-                      <ExternalLink className="h-4 w-4" />
-                      <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
-                      <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
-                    </a>
-                  ) : (
-                    <a
-                      href={currentProduct.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-base text-white hover:text-white transition-colors"
-                    >
-                      <span>{currentProduct.ctaText}</span>
-                      <ArrowRight className="h-4 w-4" />
-                      <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
-                      <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Marca de Agua Gigante Flow Studio */}
-            <div className="pt-8 select-none pointer-events-none">
-              <h1 className="text-center font-semibold text-5xl sm:text-7xl md:text-8xl text-white/10 tracking-widest">
-                TUENDPOINT + STUDIO
-              </h1>
-            </div>
+            <p className="text-xs sm:text-sm text-[#86868b] max-w-xl mx-auto font-normal">
+              Plataformas en producción real diseñadas para alta disponibilidad en Chile.
+            </p>
           </div>
+        </div>
 
-          {/* Mobile Deck (< md): Totalmente Integrado, Cómodo y Legible */}
-          <div className="md:hidden bg-black p-6 space-y-4 border-t border-white/10">
-            {/* Filmstrip de Miniaturas Touch */}
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#86868b] mb-2 flex items-center justify-between">
+        {/* Overlay Inferior a Pantalla Completa (Solid Black Base + Filmstrip + Controles) */}
+        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black from-30% via-black/85 via-60% to-transparent pt-36 pb-6 px-6 sm:px-12 transition-opacity duration-300">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6">
+            {/* Izquierda: Filmstrip de Miniaturas Interactivas */}
+            <div className="relative w-full md:max-w-md order-2 md:order-1">
+              <div className="text-[11px] font-mono uppercase tracking-widest text-[#86868b] mb-2.5 flex items-center gap-2">
                 <span>0{selectedIndex + 1} de 0{PRODUCTS.length}</span>
+                <span className="text-zinc-700">·</span>
                 <span className="text-white font-medium">{currentProduct.shortName}</span>
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {PRODUCTS.map((prod, index) => (
-                  <button
-                    key={prod.id}
-                    type="button"
-                    onClick={() => onThumbClick(index)}
-                    className={cn(
-                      'relative shrink-0 rounded overflow-hidden transition-all text-left',
-                      index === selectedIndex
-                        ? 'w-18 h-12 opacity-100 ring-2 ring-white'
-                        : 'w-14 h-10 opacity-40'
-                    )}
-                  >
-                    <Image
-                      alt={prod.shortName}
-                      className="object-cover object-top h-full w-full"
-                      fill
-                      src={prod.image}
-                      sizes="80px"
-                    />
-                  </button>
-                ))}
-              </div>
+              <Carousel
+                className="w-full"
+                opts={{
+                  containScroll: 'keepSnaps',
+                  dragFree: true,
+                }}
+                setApi={setThumbApi}
+              >
+                <CarouselContent className="-ml-2 flex-row items-end">
+                  {PRODUCTS.map((prod, index) => (
+                    <CarouselItem
+                      className="basis-1/4 sm:basis-1/5 cursor-pointer pl-2"
+                      key={prod.id}
+                      onClick={() => onThumbClick(index)}
+                    >
+                      <div
+                        className={cn(
+                          'relative overflow-hidden transition-all duration-300 rounded',
+                          index === selectedIndex
+                            ? 'h-16 sm:h-20 opacity-100 ring-2 ring-white shadow-lg'
+                            : 'h-11 sm:h-13 opacity-40 hover:opacity-80'
+                        )}
+                      >
+                        <Image
+                          alt={prod.shortName}
+                          className="object-cover object-top h-full w-full"
+                          fill
+                          src={prod.image}
+                          sizes="120px"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             </div>
 
-            {/* Detalle Producto Mobile */}
-            <div className="space-y-2 pt-1">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#86868b] block">
+            {/* Derecha: Información del Producto Seleccionado & Botón */}
+            <div className="flex max-w-lg flex-col items-start md:items-end gap-2.5 text-left md:text-right order-1 md:order-2">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
                 {currentProduct.badge}
               </span>
 
-              <h2 className="text-xl font-medium text-white tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight">
                 {currentProduct.name}
               </h2>
 
-              <p className="text-xs text-zinc-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md">
                 {currentProduct.description}
               </p>
 
-              <div className="pt-3">
+              {/* Botón de Acción con Subrayado Animado Estilo Flow Studio */}
+              <div className="pt-1.5">
                 {currentProduct.actionType === 'external' ? (
                   <a
                     href={currentProduct.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-white text-black py-2.5 px-4 font-medium text-xs hover:bg-zinc-200 transition-colors"
+                    className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-sm sm:text-base text-white hover:text-white transition-colors"
                   >
                     <span>{currentProduct.ctaText}</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ExternalLink className="h-4 w-4" />
+                    <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
+                    <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
                   </a>
                 ) : (
                   <a
                     href={currentProduct.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-white text-black py-2.5 px-4 font-medium text-xs hover:bg-zinc-200 transition-colors"
+                    className="group relative inline-flex items-center gap-2 overflow-hidden px-2 py-1 font-normal text-sm sm:text-base text-white hover:text-white transition-colors"
                   >
                     <span>{currentProduct.ctaText}</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="h-4 w-4" />
+                    <div className="absolute bottom-0 z-20 h-px w-full bg-zinc-600" />
+                    <div className="absolute bottom-0 z-30 h-px w-full -translate-x-full bg-white transition-all duration-700 ease-in-out group-hover:translate-x-0" />
                   </a>
                 )}
               </div>
             </div>
+          </div>
 
-            <div className="pt-4 border-t border-white/5 text-center select-none pointer-events-none">
-              <span className="text-[11px] font-mono text-white/10 tracking-widest font-semibold uppercase">
-                TUENDPOINT + STUDIO
-              </span>
-            </div>
+          {/* Marca de Agua Gigante Flow Studio */}
+          <div className="pt-6 select-none pointer-events-none">
+            <h1 className="text-center font-semibold text-4xl sm:text-7xl md:text-8xl text-white/10 tracking-widest uppercase">
+              TUENDPOINT + STUDIO
+            </h1>
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 3. Integraciones Oficiales de Chile (Estilo Tipográfico)     */}
+      {/* 2. Integraciones Oficiales de Chile (Estilo Tipográfico)     */}
       {/* ------------------------------------------------------------ */}
-      <section id="integraciones" className="px-6 sm:px-8 max-w-5xl mx-auto py-20 border-t border-white/10">
-        <div className="max-w-2xl mb-12 space-y-3">
+      <section id="integraciones" className="px-6 sm:px-8 max-w-5xl mx-auto py-24 border-t border-white/10">
+        <div className="max-w-2xl mb-14 space-y-3">
           <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
             Infraestructura Digital de Chile
           </p>
@@ -491,7 +440,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
           {INTEGRATIONS.map((item) => (
             <div
               key={item.name}
-              className="py-6 flex flex-col md:flex-row md:items-baseline justify-between gap-3 group"
+              className="py-7 flex flex-col md:flex-row md:items-baseline justify-between gap-4 group"
             >
               <div className="md:w-1/3">
                 <span className="text-[11px] font-mono text-[#86868b] uppercase tracking-wider block">
@@ -515,10 +464,10 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* 4. Solicitud de Desarrollo a Medida (Limpio y Espacioso)     */}
+      {/* 3. Solicitud de Desarrollo a Medida (Limpio y Espacioso)     */}
       {/* ------------------------------------------------------------ */}
       <section id="formulario" className="px-6 sm:px-8 max-w-4xl mx-auto py-24 border-t border-white/10">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
           <p className="text-xs font-mono uppercase tracking-widest text-[#86868b]">
             Ingeniería de Software
           </p>
@@ -542,7 +491,7 @@ export function Immersive({ introDone: _introDone }: { introDone?: boolean }) {
             <button
               type="button"
               onClick={() => setFormSent(false)}
-              className="text-xs font-mono text-white underline pt-4"
+              className="text-xs font-mono text-white underline pt-4 cursor-pointer"
             >
               Enviar otra consulta
             </button>
